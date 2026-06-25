@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Luyện nghe - Deutsch B1</title>
+  <link rel="manifest" href="../manifest.json">
+  <meta name="theme-color" content="#1a73e8">
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    .play-btn { width:72px;height:72px;border-radius:50%;background:var(--primary);color:white;border:none;font-size:26px;cursor:pointer;margin:16px auto;display:flex;align-items:center;justify-content:center;box-shadow:var(--shadow-md);transition:all 0.2s; }
+    .play-btn:hover { transform:scale(1.05); }
+    .answer-grid { display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:16px 0; }
+    .answer-opt { padding:14px;border:2px solid var(--border);border-radius:var(--radius-md);text-align:center;font-size:14px;font-weight:500;cursor:pointer;transition:all 0.15s;background:var(--surface); }
+    .answer-opt:hover { border-color:var(--primary);background:var(--primary-light); }
+    .answer-opt.correct { border-color:var(--success);background:var(--success-light);color:var(--success); }
+    .answer-opt.wrong { border-color:var(--error);background:var(--error-light);color:var(--error); }
+    .answer-opt.disabled { pointer-events:none;opacity:0.6; }
+    .write-input { display:block;width:100%;max-width:300px;margin:16px auto;padding:12px 16px;font-size:16px;border:2px solid var(--border);border-radius:var(--radius-md);text-align:center;font-family:var(--font); }
+    .write-input:focus { outline:none;border-color:var(--primary); }
+    .write-input.correct { border-color:var(--success);background:var(--success-light); }
+    .write-input.wrong { border-color:var(--error);background:var(--error-light); }
+    @media (max-width:480px) { .answer-grid { grid-template-columns:1fr; } }
+  </style>
+</head>
+<body>
+  <div id="navbar"></div>
+  <div class="container" id="app-content">
+    <div class="loading"><div class="spinner"></div> Đang tải...</div>
+  </div>
+  <div class="toast" id="toast"></div>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+  <script src="../js/firebase-config.js"></script>
+  <script src="../js/auth.js"></script>
+  <script src="../js/progress.js"></script>
+  <script src="../js/tts.js"></script>
+  <script src="../js/app.js"></script>
+  <script src="../js/data/listening.js"></script>
+  <script>
+  var exType = 'word', questions = [], curQ = 0, sCorrect = 0, sWrong = 0, answered = false;
+
+  function shuffle(a) { var b=a.slice(); for(var i=b.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=b[i];b[i]=b[j];b[j]=t;} return b; }
+
+  function genQuestions(type) {
+    if (type === 'word') {
+      var pool = shuffle(LISTENING_DATA.words).slice(0,10);
+      return pool.map(function(w){ var others = shuffle(LISTENING_DATA.words.filter(function(x){return x.de!==w.de;})).slice(0,3); var opts = shuffle([w.vi].concat(others.map(function(x){return x.vi;}))); return {type:'choice',text:w.de,answer:w.vi,options:opts}; });
+    } else if (type === 'sentence') {
+      var pool = shuffle(LISTENING_DATA.sentences).slice(0,10);
+      return pool.map(function(s){ var others = shuffle(LISTENING_DATA.sentences.filter(function(x){return x.de!==s.de;})).slice(0,3); var opts = shuffle([s.vi].concat(others.map(function(x){return x.vi;}))); return {type:'choice',text:s.de,answer:s.vi,options:opts}; });
+    } else if (type === 'dictation') {
+      var pool = shuffle(LISTENING_DATA.words).slice(0,10);
+      return pool.map(function(w){ return {type:'write',text:w.de,answer:w.de,hint:w.vi}; });
+    } else {
+      var pool = shuffle(LISTENING_DATA.numbers).slice(0,10);
+      return pool.map(function(n){ var others = shuffle(LISTENING_DATA.numbers.filter(function(x){return x.val!==n.val;})).slice(0,3); var opts = shuffle([n.val].concat(others.map(function(x){return x.val;}))).map(String); return {type:'choice',text:n.de,answer:String(n.val),options:opts}; });
+    }
+  }
+
+  function pageInit() { startEx(); }
+
+  function startEx() { questions = genQuestions(exType); curQ = 0; sCorrect = 0; sWrong = 0; answered = false; renderQ(); }
+
+  function renderQ() {
+    if (curQ >= questions.length) { showResults(); return; }
+    answered = false;
+    var q = questions[curQ];
+    var html = '';
+
+    // Tabs
+    html += '<div style="display:flex;gap:6px;margin-bottom:20px;flex-wrap:wrap;">';
+    ['word','sentence','dictation','number'].forEach(function(t){
+      var labels = {word:'Nghe từ',sentence:'Nghe câu',dictation:'Chính tả',number:'Nghe số'};
+      html += '<button class="btn btn-sm '+(exType===t?'btn-primary':'btn-outline')+'" onclick="switchEx(\''+t+'\')">'+labels[t]+'</button>';
+    });
+    html += '</div>';
+
+    html += '<div class="card" style="text-align:center;">';
+    html += '<div style="display:flex;justify-content:space-between;font-size:13px;color:var(--text-muted);margin-bottom:12px;"><span>Câu ' + (curQ+1) + '/' + questions.length + '</span><span style="color:var(--success);">✓ ' + sCorrect + '</span></div>';
+    html += '<div class="progress-bar" style="margin-bottom:16px;"><div class="progress-fill" style="width:'+((curQ+1)/questions.length*100)+'%;"></div></div>';
+    html += '<p style="font-size:14px;color:var(--text-secondary);margin-bottom:8px;">Nghe và chọn đáp án đúng:</p>';
+    html += '<button class="play-btn" onclick="TTS.speak(\''+q.text.replace(/'/g,"\\'")+'\')"><i class="fa-solid fa-volume-high"></i></button>';
+
+    if (q.type === 'choice') {
+      html += '<div class="answer-grid">';
+      for (var i = 0; i < q.options.length; i++) {
+        html += '<div class="answer-opt" onclick="selectOpt(this,\''+q.options[i].replace(/'/g,"\\'")+'\')">' + q.options[i] + '</div>';
+      }
+      html += '</div>';
+    } else {
+      html += '<p style="font-size:12px;color:var(--text-muted);">Gợi ý: ' + q.hint + '</p>';
+      html += '<input type="text" class="write-input" id="write-ans" placeholder="Gõ từ bạn nghe..." autocomplete="off">';
+      html += '<button class="btn btn-primary" style="margin-top:8px;" onclick="checkWrite()"><i class="fa-solid fa-check"></i> Kiểm tra</button>';
+    }
+    html += '<div id="feedback" style="margin-top:12px;font-size:14px;font-weight:500;"></div>';
+    html += '<button class="btn btn-primary" id="next-btn" style="display:none;margin-top:12px;" onclick="nextQ()">Câu tiếp <i class="fa-solid fa-arrow-right"></i></button>';
+    html += '</div>';
+
+    document.getElementById('app-content').innerHTML = html;
+    setTimeout(function(){ TTS.speak(q.text); }, 300);
+    if (q.type === 'write') { var inp = document.getElementById('write-ans'); if(inp) { inp.focus(); inp.onkeypress = function(e){if(e.key==='Enter')checkWrite();}; } }
+  }
+
+  window.switchEx = function(t) { exType = t; startEx(); };
+  window.selectOpt = function(el, val) {
+    if (answered) return; answered = true;
+    var q = questions[curQ];
+    var opts = document.querySelectorAll('.answer-opt');
+    if (val === q.answer) { el.classList.add('correct'); sCorrect++; showFb(true,'Chính xác! 🎉'); }
+    else { el.classList.add('wrong'); sWrong++; opts.forEach(function(o){if(o.textContent===q.answer)o.classList.add('correct');else if(!o.classList.contains('wrong'))o.classList.add('disabled');}); showFb(false,'Sai! Đáp án: '+q.answer); }
+    document.getElementById('next-btn').style.display = 'inline-flex';
+  };
+  window.checkWrite = function() {
+    if (answered) return; answered = true;
+    var q = questions[curQ]; var inp = document.getElementById('write-ans');
+    if (inp.value.trim().toLowerCase() === q.answer.toLowerCase()) { inp.classList.add('correct'); sCorrect++; showFb(true,'Chính xác! 🎉'); }
+    else { inp.classList.add('wrong'); sWrong++; showFb(false,'Sai! Đáp án: "'+q.answer+'"'); }
+    document.getElementById('next-btn').style.display = 'inline-flex';
+  };
+  window.nextQ = function() { curQ++; renderQ(); };
+  function showFb(ok, msg) { var el = document.getElementById('feedback'); el.textContent = msg; el.style.color = ok ? 'var(--success)' : 'var(--error)'; }
+
+  function showResults() {
+    Progress.logListening(exType, sCorrect, questions.length);
+    var pct = Math.round((sCorrect/questions.length)*100);
+    var emoji = pct>=90?'🏆':pct>=70?'🎉':pct>=50?'💪':'😢';
+    var html = '<div class="card" style="text-align:center;padding:40px 20px;">';
+    html += '<div style="font-size:48px;margin-bottom:8px;">'+emoji+'</div>';
+    html += '<h2 style="margin-bottom:4px;">'+(pct>=70?'Tốt lắm!':'Cần luyện thêm!')+'</h2>';
+    html += '<p style="color:var(--text-secondary);">'+sCorrect+'/'+questions.length+' đúng ('+pct+'%)</p>';
+    html += '<div style="margin-top:20px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">';
+    html += '<button class="btn btn-primary" onclick="startEx()"><i class="fa-solid fa-rotate"></i> Làm lại</button>';
+    html += '<a href="vocabulary.html" class="btn btn-outline"><i class="fa-solid fa-book"></i> Ôn từ vựng</a>';
+    html += '</div></div>';
+    document.getElementById('app-content').innerHTML = html;
+  }
+  </script>
+</body>
+</html>

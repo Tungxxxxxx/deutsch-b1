@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Từ vựng - Deutsch B1</title>
+  <link rel="manifest" href="../manifest.json">
+  <meta name="theme-color" content="#1a73e8">
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+  <div id="navbar"></div>
+  <div class="container" id="app-content">
+    <div class="loading"><div class="spinner"></div> Đang tải...</div>
+  </div>
+  <div class="toast" id="toast"></div>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+  <script src="../js/firebase-config.js"></script>
+  <script src="../js/auth.js"></script>
+  <script src="../js/progress.js"></script>
+  <script src="../js/tts.js"></script>
+  <script src="../js/app.js"></script>
+  <script src="../js/data/vocabulary.js"></script>
+  <script>
+  function pageInit() {
+    var currentDay = 0;
+    var currentCard = 0;
+    var days = VOCAB_DATA.week1.days;
+
+    function render() {
+      var day = days[currentDay];
+      var word = day.words[currentCard];
+      var total = day.words.length;
+
+      var html = '';
+      // Day tabs
+      html += '<div style="display:flex;gap:6px;margin-bottom:20px;overflow-x:auto;">';
+      for (var i = 0; i < days.length; i++) {
+        var cls = i === currentDay ? 'btn-primary' : 'btn-outline';
+        html += '<button class="btn btn-sm ' + cls + '" onclick="selectVocabDay(' + i + ')">Ngày ' + days[i].day + '</button>';
+      }
+      html += '</div>';
+
+      html += '<div class="section-header"><h2 class="section-title"><i class="fa-solid fa-book"></i> ' + day.title + '</h2>';
+      html += '<p class="section-desc">Thẻ ' + (currentCard + 1) + '/' + total + '</p></div>';
+
+      // Progress bar
+      html += '<div class="progress-bar" style="margin-bottom:20px;"><div class="progress-fill" style="width:' + ((currentCard + 1) / total * 100) + '%;"></div></div>';
+
+      // Flashcard
+      html += '<div class="card" style="text-align:center;padding:32px 20px;cursor:pointer;" onclick="flipCard()">';
+      html += '<div id="card-front">';
+      html += '<div style="font-size:28px;font-weight:700;color:var(--primary);margin-bottom:8px;">' + word.de + '</div>';
+      if (word.gender) {
+        var gColor = word.gender === 'm' ? '#1565c0' : (word.gender === 'f' ? '#c62828' : '#2e7d32');
+        html += '<span style="background:' + gColor + ';color:white;padding:2px 8px;border-radius:100px;font-size:11px;font-weight:600;">' + (word.gender === 'm' ? 'der' : (word.gender === 'f' ? 'die' : 'das')) + '</span> ';
+      }
+      html += '<div style="font-size:14px;color:var(--text-muted);margin-top:8px;">Nhấn để lật thẻ</div>';
+      html += '</div>';
+
+      html += '<div id="card-back" style="display:none;">';
+      html += '<div style="font-size:22px;font-weight:700;color:var(--text);margin-bottom:6px;">' + word.vi + '</div>';
+      html += '<div style="font-size:14px;color:var(--text-secondary);margin-bottom:12px;">';
+      html += '<span style="font-weight:600;">IPA:</span> ' + word.ipa + '</div>';
+      html += '<div style="background:var(--primary-light);padding:10px 16px;border-radius:var(--radius-sm);margin-bottom:12px;">';
+      html += '<span style="font-size:13px;color:var(--primary-dark);font-weight:500;">🇻🇳 Đọc: ' + word.vn_read + '</span></div>';
+      if (word.note) html += '<div style="font-size:12px;color:var(--warning);margin-bottom:8px;">' + word.note + '</div>';
+      html += '<div style="font-size:13px;color:var(--text-muted);font-style:italic;">VD: ' + word.example + '</div>';
+      html += '</div>';
+
+      // TTS button
+      html += '<button class="btn btn-outline" style="margin-top:16px;" onclick="event.stopPropagation();TTS.speak(\'' + word.de.replace(/'/g, "\\'") + '\')"><i class="fa-solid fa-volume-high"></i> Nghe</button>';
+      html += '</div>';
+
+      // Navigation
+      html += '<div style="display:flex;justify-content:space-between;align-items:center;margin-top:16px;">';
+      html += '<button class="btn btn-outline" onclick="prevCard()" ' + (currentCard === 0 ? 'disabled' : '') + '><i class="fa-solid fa-arrow-left"></i> Trước</button>';
+      html += '<button class="btn btn-success btn-sm" onclick="markKnown()"><i class="fa-solid fa-check"></i> Đã thuộc</button>';
+      html += '<button class="btn btn-primary" onclick="nextCard()" ' + (currentCard >= total - 1 ? 'disabled' : '') + '>Tiếp <i class="fa-solid fa-arrow-right"></i></button>';
+      html += '</div>';
+
+      document.getElementById('app-content').innerHTML = html;
+    }
+
+    window.selectVocabDay = function(idx) { currentDay = idx; currentCard = 0; render(); };
+    window.prevCard = function() { if (currentCard > 0) { currentCard--; render(); } };
+    window.nextCard = function() { var total = days[currentDay].words.length; if (currentCard < total - 1) { currentCard++; render(); } };
+    window.flipCard = function() {
+      var front = document.getElementById('card-front');
+      var back = document.getElementById('card-back');
+      if (front.style.display !== 'none') { front.style.display = 'none'; back.style.display = 'block'; }
+      else { front.style.display = 'block'; back.style.display = 'none'; }
+    };
+    window.markKnown = function() {
+      var word = days[currentDay].words[currentCard];
+      Progress.learnWord(word.de);
+      App.showToast('✅ Đã thuộc: ' + word.de);
+      nextCard();
+    };
+
+    render();
+  }
+  </script>
+</body>
+</html>

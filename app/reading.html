@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Luyện đọc - Deutsch B1</title>
+  <link rel="manifest" href="../manifest.json">
+  <meta name="theme-color" content="#1a73e8">
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    .reading-text { font-size:15px;line-height:1.9;padding:20px;background:var(--bg);border-radius:var(--radius-md);border-left:4px solid var(--primary);margin-bottom:16px;white-space:pre-line; }
+    .q-option { padding:10px 14px;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-size:13px;cursor:pointer;transition:all 0.15s;background:var(--surface);margin-bottom:6px; }
+    .q-option:hover { border-color:var(--primary);background:var(--primary-light); }
+    .q-option.correct { border-color:var(--success);background:var(--success-light);color:var(--success); }
+    .q-option.wrong { border-color:var(--error);background:var(--error-light);color:var(--error); }
+    .q-option.disabled { pointer-events:none;opacity:0.7; }
+    .vocab-grid { display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:6px;font-size:12px; }
+    .vocab-item { padding:4px 8px; }
+    .vocab-item .vde { font-weight:600; }
+    .vocab-item .vvi { color:var(--text-secondary); }
+    .translation-box { display:none;margin-top:12px;padding:16px;background:var(--success-light);border-radius:var(--radius-md);font-size:13px;color:var(--text-secondary);line-height:1.8;white-space:pre-line; }
+    .translation-box.show { display:block; }
+  </style>
+</head>
+<body>
+  <div id="navbar"></div>
+  <div class="container" id="app-content">
+    <div class="loading"><div class="spinner"></div> Đang tải...</div>
+  </div>
+  <div class="toast" id="toast"></div>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+  <script src="../js/firebase-config.js"></script>
+  <script src="../js/auth.js"></script>
+  <script src="../js/progress.js"></script>
+  <script src="../js/tts.js"></script>
+  <script src="../js/app.js"></script>
+  <script src="../js/data/reading.js"></script>
+  <script>
+  var curText = 0, answeredQs = {};
+
+  function pageInit() { render(); }
+
+  function render() {
+    var r = READING_DATA[curText];
+    answeredQs = {};
+    var html = '';
+
+    // Tabs
+    html += '<div style="display:flex;gap:6px;margin-bottom:20px;overflow-x:auto;">';
+    for (var i = 0; i < READING_DATA.length; i++) {
+      var cls = i === curText ? 'btn-primary' : 'btn-outline';
+      html += '<button class="btn btn-sm '+cls+'" onclick="selectText('+i+')">'+READING_DATA[i].topic+'</button>';
+    }
+    html += '</div>';
+
+    html += '<div class="card">';
+    html += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">';
+    html += '<h2 style="font-size:18px;font-weight:700;">'+r.title+'</h2>';
+    html += '<span style="padding:3px 10px;border-radius:100px;font-size:11px;font-weight:600;background:var(--success-light);color:var(--success);">'+r.level+'</span>';
+    html += '</div>';
+
+    // TTS
+    html += '<div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;">';
+    html += '<button class="btn btn-outline btn-sm" onclick="TTS.speak(\''+r.text.replace(/\n/g,' ').replace(/'/g,"\\'").replace(/"/g,'&quot;')+'\',0.7)"><i class="fa-solid fa-volume-high"></i> Nghe</button>';
+    html += '<button class="btn btn-outline btn-sm" onclick="TTS.speak(\''+r.text.replace(/\n/g,' ').replace(/'/g,"\\'").replace(/"/g,'&quot;')+'\',0.5)">🐢 Chậm</button>';
+    html += '<button class="btn btn-outline btn-sm" onclick="TTS.stop()"><i class="fa-solid fa-stop"></i> Dừng</button>';
+    html += '</div>';
+
+    // Text
+    html += '<div class="reading-text">'+r.text.replace(/\n/g,'\n')+'</div>';
+
+    // Translation toggle
+    html += '<button class="btn btn-outline btn-sm" onclick="document.getElementById(\'trans\').classList.toggle(\'show\')"><i class="fa-solid fa-language"></i> Xem bản dịch</button>';
+    html += '<div class="translation-box" id="trans">'+r.translation.replace(/\n/g,'\n')+'</div>';
+
+    // Vocab
+    html += '<div style="margin-top:16px;padding:14px;border:1px solid var(--border-light);border-radius:var(--radius-md);">';
+    html += '<div style="font-size:13px;font-weight:600;color:var(--primary);margin-bottom:8px;">💡 Từ vựng trong bài</div>';
+    html += '<div class="vocab-grid">';
+    for (var v = 0; v < r.vocab.length; v++) {
+      html += '<div class="vocab-item"><span class="vde">'+r.vocab[v].de+'</span> — <span class="vvi">'+r.vocab[v].vi+'</span></div>';
+    }
+    html += '</div></div>';
+
+    // Questions
+    html += '<div style="margin-top:20px;padding-top:16px;border-top:1px solid var(--border-light);">';
+    html += '<h3 style="font-size:15px;font-weight:600;margin-bottom:12px;"><i class="fa-solid fa-circle-question"></i> Đọc hiểu</h3>';
+    for (var qi = 0; qi < r.questions.length; qi++) {
+      var q = r.questions[qi];
+      html += '<div style="margin-bottom:16px;padding:12px;background:var(--bg);border-radius:var(--radius-md);" id="rq-'+qi+'">';
+      html += '<div style="font-weight:500;font-size:13px;margin-bottom:8px;">'+(qi+1)+'. '+q.q+'</div>';
+      for (var oi = 0; oi < q.options.length; oi++) {
+        html += '<div class="q-option" onclick="answerRQ('+qi+','+oi+',this)">'+q.options[oi]+'</div>';
+      }
+      html += '</div>';
+    }
+    html += '<div id="reading-result"></div>';
+    html += '</div></div>';
+
+    document.getElementById('app-content').innerHTML = html;
+  }
+
+  window.selectText = function(idx) { curText = idx; render(); };
+  window.answerRQ = function(qi, oi, el) {
+    if (answeredQs[qi] !== undefined) return;
+    answeredQs[qi] = oi;
+    var r = READING_DATA[curText];
+    var correct = r.questions[qi].answer;
+    var opts = el.parentElement.querySelectorAll('.q-option');
+    if (oi === correct) { el.classList.add('correct'); }
+    else { el.classList.add('wrong'); opts[correct].classList.add('correct'); }
+    opts.forEach(function(o,i){if(i!==oi&&i!==correct)o.classList.add('disabled');});
+
+    // Check if all answered
+    if (Object.keys(answeredQs).length === r.questions.length) {
+      var correctCount = 0;
+      for (var k in answeredQs) { if (answeredQs[k] === r.questions[parseInt(k)].answer) correctCount++; }
+      var pct = Math.round((correctCount/r.questions.length)*100);
+      var el2 = document.getElementById('reading-result');
+      el2.innerHTML = correctCount+'/'+r.questions.length+' đúng ('+pct+'%) '+(pct>=75?'🎉 Tốt lắm!':'💪 Đọc kỹ hơn nhé');
+      el2.style.cssText = 'margin-top:12px;padding:10px 16px;border-radius:var(--radius-sm);font-size:14px;font-weight:500;text-align:center;background:'+(pct>=75?'var(--success-light);color:var(--success)':'var(--warning-light);color:#e37400')+';';
+      Progress.completeReading('text-'+r.id, correctCount, r.questions.length);
+    }
+  };
+  </script>
+</body>
+</html>

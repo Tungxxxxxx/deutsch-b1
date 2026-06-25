@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tiến độ - Deutsch B1</title>
+  <link rel="manifest" href="../manifest.json">
+  <meta name="theme-color" content="#1a73e8">
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+  <div id="navbar"></div>
+  <div class="container" id="app-content">
+    <div class="loading"><div class="spinner"></div> Đang tải...</div>
+  </div>
+  <div class="toast" id="toast"></div>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+  <script src="../js/firebase-config.js"></script>
+  <script src="../js/auth.js"></script>
+  <script src="../js/progress.js"></script>
+  <script src="../js/tts.js"></script>
+  <script src="../js/app.js"></script>
+  <script>
+  function pageInit() {
+    var data = Progress.get();
+    var p = data.progress;
+    var html = '';
+
+    html += '<div class="section-header"><h2 class="section-title"><i class="fa-solid fa-chart-line"></i> Tiến độ học tập</h2>';
+    html += '<p class="section-desc">Theo dõi hành trình B1 của bạn</p></div>';
+
+    // Stats cards
+    html += '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:24px;">';
+
+    var stats = [
+      { icon: 'fa-fire', color: '#ea4335', label: 'Streak', value: (p.streak || 0) + ' ngày' },
+      { icon: 'fa-calendar-check', color: '#34a853', label: 'Ngày đã học', value: (p.daysStudied || 0) },
+      { icon: 'fa-clock', color: '#1a73e8', label: 'Tổng thời gian', value: (p.totalMinutes || 0) + ' phút' },
+      { icon: 'fa-book', color: '#f9ab00', label: 'Từ vựng', value: (data.vocabulary.wordsKnown || []).length + ' từ' },
+      { icon: 'fa-spell-check', color: '#7c4dff', label: 'Ngữ pháp', value: (data.grammar.completed || []).length + '/4 bài' },
+      { icon: 'fa-headphones', color: '#00bcd4', label: 'Luyện nghe', value: (data.listening.sessions || 0) + ' lần' }
+    ];
+
+    for (var i = 0; i < stats.length; i++) {
+      var s = stats[i];
+      html += '<div class="card" style="text-align:center;padding:16px;">';
+      html += '<i class="fa-solid '+s.icon+'" style="font-size:20px;color:'+s.color+';margin-bottom:6px;"></i>';
+      html += '<div style="font-size:20px;font-weight:700;">'+s.value+'</div>';
+      html += '<div style="font-size:11px;color:var(--text-muted);">'+s.label+'</div>';
+      html += '</div>';
+    }
+    html += '</div>';
+
+    // Overall progress
+    var totalWeeks = 26;
+    var currentWeek = p.currentWeek || 1;
+    var weekPct = Math.min(100, Math.round((currentWeek / totalWeeks) * 100));
+    html += '<div class="card"><h3 style="font-size:15px;font-weight:600;margin-bottom:12px;">📈 Tiến độ tổng</h3>';
+    html += '<div style="display:flex;justify-content:space-between;font-size:12px;color:var(--text-muted);margin-bottom:6px;"><span>Tuần '+currentWeek+'/26</span><span>'+weekPct+'%</span></div>';
+    html += '<div class="progress-bar"><div class="progress-fill" style="width:'+weekPct+'%;"></div></div>';
+    html += '</div>';
+
+    // Achievements
+    html += '<div class="card"><h3 style="font-size:15px;font-weight:600;margin-bottom:12px;">🏆 Thành tựu</h3>';
+    var achievements = [
+      { icon: '🎯', name: 'Khởi đầu', desc: 'Hoàn thành ngày đầu tiên', done: (p.daysStudied || 0) >= 1 },
+      { icon: '🔥', name: 'Streak 3', desc: '3 ngày liên tiếp', done: (p.longestStreak || 0) >= 3 },
+      { icon: '📚', name: '50 từ', desc: 'Học 50 từ vựng', done: (data.vocabulary.wordsKnown || []).length >= 50 },
+      { icon: '⏰', name: '60 phút', desc: 'Tích lũy 60 phút học', done: (p.totalMinutes || 0) >= 60 },
+      { icon: '🎓', name: 'Ngữ pháp Pro', desc: 'Hoàn thành 4 bài ngữ pháp', done: (data.grammar.completed || []).length >= 4 },
+      { icon: '🔥', name: 'Streak 7', desc: '7 ngày liên tiếp', done: (p.longestStreak || 0) >= 7 }
+    ];
+    html += '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px;">';
+    for (var a = 0; a < achievements.length; a++) {
+      var ach = achievements[a];
+      html += '<div style="padding:12px;border-radius:var(--radius-sm);text-align:center;'+(ach.done?'background:var(--success-light);border:1px solid var(--success);':'background:var(--bg);border:1px solid var(--border-light);opacity:0.6;')+'">';
+      html += '<div style="font-size:24px;">'+ach.icon+'</div>';
+      html += '<div style="font-size:12px;font-weight:600;margin-top:4px;">'+ach.name+'</div>';
+      html += '<div style="font-size:10px;color:var(--text-muted);">'+ach.desc+'</div>';
+      html += '</div>';
+    }
+    html += '</div></div>';
+
+    // Recent activity (from listening/reading scores)
+    var recentScores = (data.listening.scores || []).concat(data.reading.scores || []).concat(data.quiz.scores || []);
+    recentScores.sort(function(a,b){ return (b.date||'').localeCompare(a.date||''); });
+    recentScores = recentScores.slice(0, 5);
+    if (recentScores.length > 0) {
+      html += '<div class="card"><h3 style="font-size:15px;font-weight:600;margin-bottom:12px;">📝 Hoạt động gần đây</h3>';
+      for (var r = 0; r < recentScores.length; r++) {
+        var sc = recentScores[r];
+        var pct2 = sc.total > 0 ? Math.round((sc.correct/sc.total)*100) : 0;
+        html += '<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border-light);font-size:13px;">';
+        html += '<span>'+(sc.type||sc.textId||'Quiz')+' — '+sc.correct+'/'+sc.total+'</span>';
+        html += '<span style="color:'+(pct2>=70?'var(--success)':'var(--warning)')+';font-weight:500;">'+pct2+'%</span>';
+        html += '</div>';
+      }
+      html += '</div>';
+    }
+
+    document.getElementById('app-content').innerHTML = html;
+  }
+  </script>
+</body>
+</html>

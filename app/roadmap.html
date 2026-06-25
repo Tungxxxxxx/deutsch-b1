@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lộ trình - Deutsch B1</title>
+  <link rel="manifest" href="../manifest.json">
+  <meta name="theme-color" content="#1a73e8">
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+  <div id="navbar"></div>
+  <div class="container" id="app-content">
+    <div class="loading"><div class="spinner"></div> Đang tải...</div>
+  </div>
+  <div class="toast" id="toast"></div>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+  <script src="../js/firebase-config.js"></script>
+  <script src="../js/auth.js"></script>
+  <script src="../js/progress.js"></script>
+  <script src="../js/tts.js"></script>
+  <script src="../js/app.js"></script>
+  <script>
+  function pageInit() {
+    var phases = [
+      { name: "Phase 1: A1", weeks: "Tuần 1–8", color: "#1a73e8", desc: "Nền tảng: Chào hỏi, giới thiệu, số đếm, gia đình, mua sắm, thì hiện tại", goals: ["500+ từ vựng cơ bản", "Động từ sein/haben + chia thường", "der/die/das + Akkusativ", "Hội thoại đơn giản 10–15 câu"] },
+      { name: "Phase 2: A2", weeks: "Tuần 9–16", color: "#34a853", desc: "Mở rộng: Quá khứ, tương lai, so sánh, đặt phòng/hẹn", goals: ["1200+ từ vựng", "Perfekt + Modalverben", "Nebensätze (weil, dass, wenn)", "Đọc hiểu 200 từ, viết email 80 từ"] },
+      { name: "Phase 3: B1", weeks: "Tuần 17–24", color: "#f9ab00", desc: "Nâng cao: Konjunktiv II, Passiv, phức hợp câu, tranh luận", goals: ["2500+ từ vựng", "Konjunktiv II + Passiv", "Relativsätze + Infinitivsätze", "Nghe hiểu bài giảng 5 phút"] },
+      { name: "Phase 4: Ôn thi", weeks: "Tuần 25–26", color: "#ea4335", desc: "Luyện đề: Thi thử Goethe B1, kỹ năng thi", goals: ["3 đề thi thử hoàn chỉnh", "Sprechen (nói) 10 phút", "Schreiben (viết) 150 từ", "Hören + Lesen tốc độ thi"] }
+    ];
+
+    var data = Progress.get();
+    var currentWeek = data.progress.currentWeek || 1;
+
+    var html = '';
+    html += '<div class="section-header"><h2 class="section-title"><i class="fa-solid fa-route"></i> Lộ trình B1 — 6 tháng</h2>';
+    html += '<p class="section-desc">4 giai đoạn, 26 tuần, ~450 giờ học</p></div>';
+
+    // Timeline
+    html += '<div style="margin-bottom:32px;">';
+    var totalWeeks = 26;
+    var pct = Math.min(100, Math.round((currentWeek / totalWeeks) * 100));
+    html += '<div style="display:flex;justify-content:space-between;font-size:12px;color:var(--text-muted);margin-bottom:6px;"><span>Tuần ' + currentWeek + '/26</span><span>' + pct + '%</span></div>';
+    html += '<div class="progress-bar" style="height:12px;"><div class="progress-fill" style="width:' + pct + '%;"></div></div>';
+    html += '</div>';
+
+    for (var i = 0; i < phases.length; i++) {
+      var p = phases[i];
+      html += '<div class="card" style="border-left:4px solid ' + p.color + ';margin-bottom:16px;">';
+      html += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">';
+      html += '<h3 style="font-size:16px;font-weight:700;color:' + p.color + ';">' + p.name + '</h3>';
+      html += '<span style="font-size:12px;color:var(--text-muted);">' + p.weeks + '</span></div>';
+      html += '<p style="font-size:13px;color:var(--text-secondary);margin-bottom:12px;">' + p.desc + '</p>';
+      html += '<div style="display:grid;gap:6px;">';
+      for (var g = 0; g < p.goals.length; g++) {
+        html += '<div style="font-size:12px;display:flex;align-items:center;gap:6px;"><i class="fa-solid fa-circle-check" style="color:var(--text-muted);font-size:10px;"></i> ' + p.goals[g] + '</div>';
+      }
+      html += '</div></div>';
+    }
+
+    // Weekly grid
+    html += '<h3 style="font-size:16px;font-weight:600;margin:24px 0 12px;">📅 Lưới 26 tuần</h3>';
+    html += '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(36px,1fr));gap:6px;">';
+    for (var w = 1; w <= 26; w++) {
+      var bg = w < currentWeek ? 'var(--success)' : (w === currentWeek ? 'var(--primary)' : 'var(--border-light)');
+      var clr = w <= currentWeek ? 'white' : 'var(--text-muted)';
+      html += '<div style="width:36px;height:36px;border-radius:6px;background:'+bg+';color:'+clr+';display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;">'+w+'</div>';
+    }
+    html += '</div>';
+
+    document.getElementById('app-content').innerHTML = html;
+  }
+  </script>
+</body>
+</html>

@@ -1,0 +1,22 @@
+{
+  "name": "Deutsch B1 - Học tiếng Đức",
+  "short_name": "Deutsch B1",
+  "description": "Lộ trình học tiếng Đức B1 trong 6 tháng",
+  "start_url": "/app/today.html",
+  "display": "standalone",
+  "background_color": "#f8f9fa",
+  "theme_color": "#1a73e8",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
