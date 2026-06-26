@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ngữ pháp - DeutschSaga</title>
+  <link rel="manifest" href="../manifest.json">
+  <meta name="theme-color" content="#1a73e8">
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    .gr-section { margin-bottom: 28px; }
+    .gr-section h3 { font-size: 15px; font-weight: 700; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+    .gr-card { background: var(--card-bg); border: 1.5px solid var(--border-light); border-radius: var(--radius-md); padding: 14px 16px; margin-bottom: 10px; display: flex; align-items: flex-start; gap: 12px; text-decoration: none; color: inherit; transition: all .2s; }
+    .gr-card:hover { border-color: var(--primary); box-shadow: var(--shadow-md); transform: translateY(-1px); }
+    .gr-icon { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+    .gr-info { flex: 1; min-width: 0; }
+    .gr-title { font-size: 14px; font-weight: 600; margin-bottom: 2px; }
+    .gr-desc { font-size: 12px; color: var(--text-muted); line-height: 1.5; }
+    .gr-badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 10px; font-weight: 600; margin-top: 4px; }
+    .gr-badge.vi { background: #e8f5e9; color: #2e7d32; }
+    .gr-badge.en { background: #e3f2fd; color: #1565c0; }
+    .gr-badge.de { background: #fff3e0; color: #e65100; }
+    [data-theme="dark"] .gr-badge.vi { background: #1b5e20; color: #a5d6a7; }
+    [data-theme="dark"] .gr-badge.en { background: #0d47a1; color: #90caf9; }
+    [data-theme="dark"] .gr-badge.de { background: #bf360c; color: #ffcc80; }
+    .gr-topic-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 8px; margin-bottom: 20px; }
+    .gr-topic { background: var(--card-bg); border: 1.5px solid var(--border-light); border-radius: var(--radius-sm); padding: 10px 12px; text-align: center; cursor: pointer; transition: all .2s; text-decoration: none; color: inherit; }
+    .gr-topic:hover { border-color: var(--primary); background: var(--primary-light); }
+    .gr-topic .emoji { font-size: 20px; display: block; margin-bottom: 4px; }
+    .gr-topic .name { font-size: 11px; font-weight: 600; }
+    .gr-divider { height: 1px; background: var(--border-light); margin: 24px 0; }
+  </style>
+</head>
+<body>
+  <div id="navbar"></div>
+  <div class="container" id="app-content">
+    <div class="loading"><div class="spinner"></div> Đang tải...</div>
+  </div>
+  <div class="toast" id="toast"></div>
+
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+  <script src="../js/firebase-config.js"></script>
+  <script src="../js/auth.js"></script>
+  <script src="../js/progress.js"></script>
+  <script src="../js/tts.js"></script>
+  <script src="../js/app.js"></script>
+  <script>
+  function pageInit() {
+    var html = '';
+
+    // Header
+    html += '<div class="section-header">';
+    html += '<h2 class="section-title"><i class="fa-solid fa-book-open"></i> Tài nguyên Ngữ pháp</h2>';
+    html += '<p class="section-desc">Tổng hợp nguồn học ngữ pháp tiếng Đức — ưu tiên giải thích tiếng Việt</p>';
+    html += '</div>';
+
+    // === Quick topics (A1) ===
+    html += '<div class="gr-section">';
+    html += '<h3><i class="fa-solid fa-bolt" style="color:#f9ab00;"></i> Chủ đề ngữ pháp A1</h3>';
+    html += '<div class="gr-topic-grid">';
+
+    var topics = [
+      { emoji: '👤', name: 'Đại từ nhân xưng', url: 'https://www.youtube.com/results?search_query=đại+từ+nhân+xưng+tiếng+Đức+A1' },
+      { emoji: '🔄', name: 'Chia động từ', url: 'https://www.youtube.com/results?search_query=chia+động+từ+tiếng+Đức+A1+sein+haben' },
+      { emoji: '📐', name: 'Trật tự câu (V2)', url: 'https://www.youtube.com/results?search_query=trật+tự+câu+tiếng+Đức+V2+tiếng+Việt' },
+      { emoji: '🎯', name: 'der/die/das', url: 'https://www.youtube.com/results?search_query=der+die+das+tiếng+Đức+giống+tiếng+Việt' },
+      { emoji: '📦', name: 'Akkusativ', url: 'https://vxhungktd.wordpress.com/2015/08/09/cach-su-dung-nominativ-akkusativ-va-dativ-trong-tieng-duc/' },
+      { emoji: '❓', name: 'W-Fragen', url: 'https://www.youtube.com/results?search_query=W-Fragen+câu+hỏi+tiếng+Đức+A1' },
+      { emoji: '🚫', name: 'Phủ định (nicht/kein)', url: 'https://www.youtube.com/results?search_query=nicht+kein+phủ+định+tiếng+Đức' },
+      { emoji: '⏰', name: 'Thì hiện tại', url: 'https://www.youtube.com/results?search_query=thì+hiện+tại+Präsens+tiếng+Đức' },
+      { emoji: '🔀', name: 'Động từ tách', url: 'https://www.youtube.com/results?search_query=trennbare+Verben+động+từ+tách+tiếng+Đức' },
+      { emoji: '🏠', name: 'Giới từ', url: 'https://www.youtube.com/results?search_query=giới+từ+Präposition+tiếng+Đức+A1' },
+      { emoji: '📝', name: 'Modalverben', url: 'https://www.youtube.com/results?search_query=Modalverben+động+từ+khuyết+thiếu+tiếng+Đức' },
+      { emoji: '⏪', name: 'Perfekt (quá khứ)', url: 'https://www.youtube.com/results?search_query=Perfekt+thì+quá+khứ+tiếng+Đức+tiếng+Việt' }
+    ];
+
+    for (var i = 0; i < topics.length; i++) {
+      html += '<a class="gr-topic" href="' + topics[i].url + '" target="_blank">';
+      html += '<span class="emoji">' + topics[i].emoji + '</span>';
+      html += '<span class="name">' + topics[i].name + '</span>';
+      html += '</a>';
+    }
+    html += '</div></div>';
+
+    html += '<div class="gr-divider"></div>';
+
+    // === Vietnamese sources ===
+    html += '<div class="gr-section">';
+    html += '<h3><i class="fa-solid fa-flag" style="color:#e91e63;"></i> Nguồn tiếng Việt</h3>';
+
+    var viSources = [
+      { icon: '🎬', color: '#ff0000', title: 'Tiếng Đức Dễ Ợt (YouTube)', desc: 'Kênh YouTube giải thích ngữ pháp A1-B1 bằng tiếng Việt, dễ hiểu, nhiều ví dụ.', url: 'https://www.youtube.com/@tiengducdeot', badge: 'vi' },
+      { icon: '🎬', color: '#ff0000', title: 'Học Tiếng Đức Cùng Đức (YouTube)', desc: 'Video ngắn, giải thích từng chủ đề ngữ pháp cho người Việt.', url: 'https://www.youtube.com/results?search_query=học+tiếng+đức+cùng+đức+ngữ+pháp', badge: 'vi' },
+      { icon: '📝', color: '#4caf50', title: 'Blog hoctiengduc.de', desc: 'Blog cá nhân viết bằng tiếng Việt về ngữ pháp, từ vựng, kinh nghiệm thi.', url: 'https://hoctiengduc.de', badge: 'vi' },
+      { icon: '📄', color: '#1976d2', title: 'Tài liệu ĐH Hà Nội (Studocu)', desc: 'Ngữ pháp A1 từ Khoa Tiếng Đức — Đại học Hà Nội. PDF giải thích chi tiết.', url: 'https://www.studocu.com/vn/document/dai-hoc-ha-noi/khoa-tieng-duc/a1grammar-deutsch/80899301', badge: 'vi' },
+      { icon: '📝', color: '#ff9800', title: 'Nominativ/Akkusativ/Dativ (Blog)', desc: 'Bài viết giải thích cách dùng 4 cách (Fälle) trong tiếng Đức cho người Việt.', url: 'https://vxhungktd.wordpress.com/2015/08/09/cach-su-dung-nominativ-akkusativ-va-dativ-trong-tieng-duc/', badge: 'vi' }
+    ];
+
+    for (var v = 0; v < viSources.length; v++) {
+      var s = viSources[v];
+      html += '<a class="gr-card" href="' + s.url + '" target="_blank">';
+      html += '<div class="gr-icon" style="background:' + s.color + '20;color:' + s.color + ';">' + s.icon + '</div>';
+      html += '<div class="gr-info"><div class="gr-title">' + s.title + '</div>';
+      html += '<div class="gr-desc">' + s.desc + '</div>';
+      html += '<span class="gr-badge ' + s.badge + '">🇻🇳 Tiếng Việt</span>';
+      html += '</div></a>';
+    }
+    html += '</div>';
+
+    html += '<div class="gr-divider"></div>';
+
+    // === DW Grammar (English) ===
+    html += '<div class="gr-section">';
+    html += '<h3><i class="fa-solid fa-globe" style="color:#1a73e8;"></i> Nguồn tiếng Anh (chất lượng cao)</h3>';
+
+    var enSources = [
+      { icon: '🏫', color: '#1a73e8', title: 'DW Nicos Weg — Grammar Tab', desc: 'Mỗi bài DW có tab Grammar giải thích ngữ pháp theo chủ đề. Đây là nguồn chính, đồng bộ với bài đang học.', url: 'https://learngerman.dw.com/en/nicos-weg/c-36519789', badge: 'en' },
+      { icon: '📚', color: '#4caf50', title: 'German with Laura (YouTube)', desc: 'Kênh YouTube giải thích ngữ pháp Đức rất trực quan bằng tiếng Anh. Cực kỳ dễ hiểu.', url: 'https://www.youtube.com/@germanwithlaura', badge: 'en' },
+      { icon: '📖', color: '#9c27b0', title: 'Mein Deutschbuch (Grammar Reference)', desc: 'Trang web tổng hợp TOÀN BỘ ngữ pháp tiếng Đức A1→C2, có bài tập.', url: 'https://mein-deutschbuch.de/grammatik.html', badge: 'de' },
+      { icon: '🎯', color: '#ff5722', title: 'Schubert Verlag (Online Übungen)', desc: 'Bài tập ngữ pháp online miễn phí, chia theo level A1/A2/B1. Tự chấm điểm.', url: 'https://www.schubert-verlag.de/aufgaben/uebungen_a1/a1_uebungen_index.htm', badge: 'de' },
+      { icon: '📝', color: '#607d8b', title: 'deutsch.info', desc: 'Khóa học ngữ pháp miễn phí, có 16 ngôn ngữ giao diện (không có tiếng Việt nhưng có tiếng Anh).', url: 'https://deutsch.info/en/grammar', badge: 'en' }
+    ];
+
+    for (var e = 0; e < enSources.length; e++) {
+      var s2 = enSources[e];
+      html += '<a class="gr-card" href="' + s2.url + '" target="_blank">';
+      html += '<div class="gr-icon" style="background:' + s2.color + '20;color:' + s2.color + ';">' + s2.icon + '</div>';
+      html += '<div class="gr-info"><div class="gr-title">' + s2.title + '</div>';
+      html += '<div class="gr-desc">' + s2.desc + '</div>';
+      var badgeLabel = s2.badge === 'en' ? '🇬🇧 English' : '🇩🇪 Deutsch';
+      html += '<span class="gr-badge ' + s2.badge + '">' + badgeLabel + '</span>';
+      html += '</div></a>';
+    }
+    html += '</div>';
+
+    html += '<div class="gr-divider"></div>';
+
+    // === Tips ===
+    html += '<div class="gr-section">';
+    html += '<h3><i class="fa-solid fa-lightbulb" style="color:#f9ab00;"></i> Mẹo học ngữ pháp</h3>';
+    html += '<div class="card" style="padding:16px;">';
+    html += '<ul style="font-size:13px;line-height:2;color:var(--text-secondary);padding-left:16px;margin:0;">';
+    html += '<li><strong>Không cần hiểu hết quy tắc trước khi nói.</strong> Hãy nhớ mẫu câu (chunks) trước, hiểu lý thuyết sau.</li>';
+    html += '<li><strong>Mỗi bài DW đã có Grammar tab</strong> — đọc sau khi xem video, không cần tìm thêm.</li>';
+    html += '<li><strong>Khi gặp điểm khó (Akkusativ, Dativ...)</strong> — tìm video tiếng Việt trên YouTube để hiểu nhanh.</li>';
+    html += '<li><strong>Bài tập = cách tốt nhất.</strong> Dùng Schubert Verlag hoặc bài tập DW để luyện.</li>';
+    html += '<li><strong>Ghi lại quy tắc bằng lời mình</strong> — viết vào Block 2 (ô ghi chú) mỗi ngày.</li>';
+    html += '</ul></div>';
+    html += '</div>';
+
+    document.getElementById('app-content').innerHTML = html;
+  }
+  </script>
+</body>
+</html>

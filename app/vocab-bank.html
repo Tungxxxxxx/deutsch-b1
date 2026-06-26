@@ -50,13 +50,31 @@
     var searchTerm = '';
     var filterRange = 'all';
 
-    // Collect all notes entries
+    // Collect vocabulary entries (new structured format + old text format)
     Object.keys(dailyLogs).forEach(function(date) {
       var log = dailyLogs[date];
-      if (log && log.blocks && log.blocks.content && log.blocks.content.notes) {
+      if (!log || !log.blocks || !log.blocks.content) return;
+      var content = log.blocks.content;
+      
+      // New format: structured vocabulary array
+      if (content.vocabulary && content.vocabulary.length > 0) {
+        var notesFromVocab = content.vocabulary.map(function(v) {
+          var line = v.word + (v.meaning ? ' — ' + v.meaning : '');
+          if (v.note) line += ' (' + v.note + ')';
+          return line;
+        }).join('\n');
         entries.push({
           date: date,
-          notes: log.blocks.content.notes,
+          notes: notesFromVocab,
+          vocabulary: content.vocabulary,
+          lessonId: log.lessonId || ''
+        });
+      } else if (content.notes && content.notes.trim()) {
+        // Old format: plain text notes (backward compat)
+        entries.push({
+          date: date,
+          notes: content.notes,
+          vocabulary: [],
           lessonId: log.lessonId || ''
         });
       }
@@ -101,8 +119,10 @@
       // Stats
       html += '<div class="vb-stats">';
       html += '<div class="vb-stat"><div class="num">' + entries.length + '</div><div class="lbl">Ngày ghi chép</div></div>';
-      var totalWords = 0;
-      entries.forEach(function(e) { totalWords += e.notes.split(/[\s,;]+/).filter(function(w){return w.length > 1;}).length; });
+      var totalWords = entries.reduce(function(sum, e) {
+        if (e.vocabulary && e.vocabulary.length > 0) return sum + e.vocabulary.length;
+        return sum + e.notes.split('\n').filter(function(l) { return l.trim().length > 1; }).length;
+      }, 0);
       html += '<div class="vb-stat"><div class="num">' + totalWords + '</div><div class="lbl">Từ đã ghi</div></div>';
       html += '</div>';
 
@@ -139,7 +159,22 @@
           html += '<span class="vb-entry-date"><i class="fa-regular fa-calendar"></i> ' + dateStr + '</span>';
           if (entry.lessonId) html += '<span class="vb-entry-lesson">Bài #' + entry.lessonId + '</span>';
           html += '</div>';
-          html += '<div class="vb-entry-content">' + escapeHtml(entry.notes) + '</div>';
+          if (entry.vocabulary && entry.vocabulary.length > 0) {
+            // Structured display
+            for (var v = 0; v < entry.vocabulary.length; v++) {
+              var vocab = entry.vocabulary[v];
+              var gColor = vocab.gender === 'm' ? '#1976d2' : (vocab.gender === 'f' ? '#e91e63' : (vocab.gender === 'n' ? '#4caf50' : 'var(--border-light)'));
+              html += '<div style="display:flex;align-items:center;gap:8px;padding:6px 10px;margin-bottom:4px;border-radius:6px;background:var(--bg);border-left:3px solid ' + gColor + ';">';
+              html += '<button style="background:none;border:none;cursor:pointer;color:var(--primary);font-size:14px;" onclick="TTS.speak(\'' + vocab.word.replace(/'/g, "\\'") + '\',0.8)"><i class="fa-solid fa-volume-up"></i></button>';
+              html += '<div style="flex:1;">';
+              html += '<span style="font-weight:700;font-size:13px;">' + escapeHtml(vocab.word) + '</span>';
+              if (vocab.meaning) html += ' <span style="color:var(--text-muted);font-size:12px;">— ' + escapeHtml(vocab.meaning) + '</span>';
+              if (vocab.note) html += '<div style="font-size:10px;color:var(--text-muted);font-style:italic;">' + escapeHtml(vocab.note) + '</div>';
+              html += '</div></div>';
+            }
+          } else {
+            html += '<div class="vb-entry-content">' + escapeHtml(entry.notes) + '</div>';
+          }
           html += '</div>';
         }
       }

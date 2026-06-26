@@ -12,17 +12,14 @@
 const App = {
   // Navigation items
   navItems: [
+    { href: 'alphabet.html', icon: 'fa-language', label: 'Phát âm' },
     { href: 'today.html', icon: 'fa-play', label: 'Hôm nay' },
     { href: 'nicos-weg.html', icon: 'fa-film', label: 'Nicos Weg' },
     { href: 'vocab-bank.html', icon: 'fa-database', label: 'Kho từ vựng' },
     { href: 'voice-logs.html', icon: 'fa-microphone', label: 'Nhật ký nói' },
     { href: 'vocabulary.html', icon: 'fa-rotate', label: 'Ôn từ' },
-    { href: 'grammar.html', icon: 'fa-spell-check', label: 'Ngữ pháp' },
-    { href: 'listening.html', icon: 'fa-headphones', label: 'Nghe' },
-    { href: 'reading.html', icon: 'fa-book-open', label: 'Đọc' },
-    { href: 'practice.html', icon: 'fa-dumbbell', label: 'Quiz' },
-    { href: 'alphabet.html', icon: 'fa-language', label: 'Phát âm' },
-    { href: 'roadmap.html', icon: 'fa-route', label: 'Lộ trình' },
+    { href: 'materials.html', icon: 'fa-book', label: 'Tài liệu' },
+    { href: 'grammar-resources.html', icon: 'fa-book-open', label: 'Ngữ pháp' },
     { href: 'dashboard.html', icon: 'fa-chart-line', label: 'Tiến độ' },
     { href: 'settings.html', icon: 'fa-gear', label: 'Cấu hình' }
   ],

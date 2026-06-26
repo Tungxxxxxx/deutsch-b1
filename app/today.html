@@ -130,7 +130,6 @@
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-storage-compat.js"></script>
   <script src="../js/firebase-config.js"></script>
   <script src="../js/auth.js"></script>
   <script src="../js/progress.js"></script>
@@ -324,21 +323,15 @@
 
     upload: function(uid, date) {
       if (!this.blob) return Promise.reject('No recording');
-      try {
-        var storage = firebase.storage();
-        var ref = storage.ref('audio/' + uid + '/' + date + '.webm');
-        return ref.put(this.blob).then(function(snapshot) {
-          return snapshot.ref.getDownloadURL();
-        });
-      } catch(e) {
-        // Firebase Storage not configured — fallback to local download
-        var url = URL.createObjectURL(this.blob);
-        var a = document.createElement('a');
-        var prefix = (Progress.get().settings && Progress.get().settings.audioFilePrefix) || 'deutsch_speaking';
-        a.href = url; a.download = prefix + '_' + date + '.webm';
-        a.click();
-        return Promise.resolve('local_download');
-      }
+      // Download audio locally (Firebase Storage not available on Spark plan)
+      var url = URL.createObjectURL(this.blob);
+      var a = document.createElement('a');
+      var prefix = (Progress.get().settings && Progress.get().settings.audioFilePrefix) || 'deutsch_speaking';
+      a.href = url; a.download = prefix + '_' + date + '.webm';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      return Promise.resolve('local_download');
     }
   };
 
@@ -410,6 +403,7 @@
     html += '<div class="block-body">';
     html += '<p style="font-size:13px;color:var(--text-secondary);margin-bottom:12px;">Mở Anki/Quizlet và ôn lại từ vựng đã học.</p>';
     html += '<a href="' + (settings.ankiLink || 'https://apps.ankiweb.net/') + '" target="_blank" class="btn btn-primary btn-sm" style="margin-bottom:12px;display:inline-block;text-decoration:none;padding:8px 16px;border-radius:6px;background:var(--primary);color:white;font-size:13px;font-weight:600;"><i class="fa-solid fa-external-link-alt"></i> Mở Anki</a>';
+    html += ' <a href="vocabulary.html" class="btn btn-outline btn-sm" style="margin-bottom:12px;display:inline-block;text-decoration:none;padding:8px 16px;border-radius:6px;font-size:13px;font-weight:600;"><i class="fa-solid fa-rotate"></i> Ôn từ kho từ vựng</a>';
     if (!b1Done) {
       html += '<div style="margin-top:12px;padding:12px;background:var(--bg);border-radius:var(--radius-sm);display:flex;align-items:center;gap:10px;cursor:pointer;" onclick="completeBlock1()">';
       html += '<input type="checkbox" id="cb1" style="width:18px;height:18px;accent-color:var(--success);">';

@@ -1,0 +1,1874 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>📚 Tài liệu học Netzwerk neu A1.1 - Tương tác</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;color:#172b4d;background:#f8f9fa;min-height:100vh;line-height:1.6}
+h1{font-size:24px;text-align:center;margin-bottom:6px;padding-top:16px}
+h2{font-size:18px;color:#0052CC;margin:20px 0 10px;border-bottom:2px solid #0052CC;padding-bottom:6px}
+h3{font-size:15px;color:#36b37e;margin:14px 0 8px}
+.subtitle{text-align:center;color:#44546f;font-size:13px;margin-bottom:16px}
+.container{max-width:900px;margin:0 auto;padding:0 16px 40px}
+
+/* Chapter nav */
+.chapter-nav{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-bottom:16px;position:sticky;top:52px;background:#f8f9fa;padding:10px 0;z-index:100;border-bottom:1px solid #ebecf0}
+.ch-btn{padding:8px 14px;border-radius:8px;border:1px solid #dfe1e6;background:white;cursor:pointer;font-size:12px;font-weight:500;transition:all .15s}
+.ch-btn:hover{border-color:#0052CC}
+.ch-btn.active{background:#0052CC;color:white;border-color:#0052CC}
+.chapter{display:none}
+.chapter.active{display:block}
+
+/* Sub-tabs */
+.sub-tabs{display:flex;gap:4px;margin-bottom:16px;flex-wrap:wrap}
+.sub-tab{padding:7px 14px;border-radius:6px;border:1px solid #ebecf0;background:#f4f5f7;cursor:pointer;font-size:12px;font-weight:500;transition:all .15s}
+.sub-tab:hover{background:#e8e9ec}
+.sub-tab.active{background:#36b37e;color:white;border-color:#36b37e}
+.sub-content{display:none}
+.sub-content.active{display:block}
+
+/* Vocab table */
+.vocab-table{width:100%;border-collapse:collapse;margin:10px 0;font-size:13px}
+.vocab-table th{background:#f4f5f7;padding:8px 10px;text-align:left;font-weight:600;border-bottom:2px solid #dfe1e6;font-size:11px;color:#44546f;text-transform:uppercase}
+.vocab-table td{padding:7px 10px;border-bottom:1px solid #ebecf0;vertical-align:middle}
+.vocab-table tr:hover td{background:#f8f9ff}
+.vocab-table .de{color:#0052CC;font-weight:600}
+.vocab-table .vn{color:#36b37e}
+.vocab-table .ex{color:#44546f;font-style:italic;font-size:12px}
+
+/* Speaker */
+.sp{cursor:pointer;font-size:14px;transition:transform .15s;user-select:none;display:inline-block;margin-right:3px}
+.sp:hover{transform:scale(1.3)}
+.sp:active{transform:scale(.9)}
+
+/* Grammar box */
+.grammar-box{background:white;border:1px solid #ebecf0;border-radius:10px;padding:16px;margin:12px 0;box-shadow:0 1px 4px rgba(0,0,0,.04)}
+.grammar-box h4{color:#0052CC;margin-bottom:8px;font-size:14px}
+.grammar-box .note{background:#fff3e0;border-left:3px solid #ff6d00;padding:8px 12px;margin:8px 0;font-size:12px;border-radius:0 6px 6px 0}
+.grammar-box .note strong{color:#ff6d00}
+
+/* Conjugation table */
+.conj-table{width:100%;border-collapse:collapse;font-size:13px;margin:8px 0}
+.conj-table th{background:#e3f2fd;padding:6px 8px;text-align:center;font-weight:600;color:#0052CC;border:1px solid #dfe1e6}
+.conj-table td{padding:6px 8px;text-align:center;border:1px solid #ebecf0}
+.conj-table td.pronoun{font-weight:600;background:#f4f5f7;text-align:left}
+.conj-table .highlight{color:#de350b;font-weight:700}
+
+/* Dialogue */
+.dialogue{background:white;border-radius:10px;padding:14px;margin:10px 0;border:1px solid #ebecf0}
+.dlg-line{display:flex;gap:8px;margin:6px 0;align-items:flex-start}
+.dlg-speaker{font-weight:700;min-width:24px;color:#0052CC}
+.dlg-de{font-size:14px;color:#172b4d}
+.dlg-vn{font-size:12px;color:#8993a4;font-style:italic;margin-left:32px}
+
+/* Responsive */
+@media(max-width:600px){
+  .vocab-table{font-size:12px}
+  .conj-table{font-size:11px}
+  h1{font-size:20px}
+}
+
+/* Shadowing */
+.shadow-intro{background:#fff3e0;border:1px solid #ffcc80;border-radius:10px;padding:16px;margin-bottom:16px;font-size:13px;line-height:1.7}
+.shadow-intro h4{color:#ff6d00;margin-bottom:8px}
+.shadow-intro ol{margin-left:20px}
+.shadow-sentence{display:flex;align-items:center;gap:12px;padding:12px;border:1px solid #ebecf0;border-radius:10px;margin-bottom:8px;background:white;transition:all .15s}
+.shadow-sentence:hover{border-color:#0052CC;box-shadow:0 2px 8px rgba(0,82,204,.08)}
+.shadow-num{width:28px;height:28px;border-radius:50%;background:#0052CC;color:white;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0}
+.shadow-text{flex:1}
+.shadow-de{font-size:15px;font-weight:600;color:#172b4d;margin-bottom:2px}
+.shadow-vn{font-size:12px;color:#8993a4;font-style:italic}
+.shadow-btns{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.shadow-slow{cursor:pointer;font-size:18px;padding:4px;border-radius:6px;background:#fff3e0;transition:transform .15s}
+.shadow-slow:hover{transform:scale(1.2)}
+.shadow-counter{font-size:11px;color:#8993a4;min-width:40px;text-align:center;cursor:pointer;background:#f4f5f7;padding:2px 6px;border-radius:4px}
+.shadow-counter:hover{background:#e3f2fd}
+</style>
+</head>
+<body>
+<!-- SHARED NAV -->
+<div id="sharedNav" style="position:sticky;top:0;z-index:9999;background:var(--card-bg, white);border-bottom:1px solid var(--border-light, #e4e7ec);padding:8px 16px;display:flex;align-items:center;gap:8px;box-shadow:0 2px 8px rgba(0,0,0,.04);">
+<a href="today.html" style="text-decoration:none;font-size:13px;font-weight:700;color:#0052CC;padding:6px 12px;border-radius:6px;background:#e3f2fd;white-space:nowrap">← Quay lại App</a>
+<span style="font-size:13px;font-weight:600;color:#172b4d;">📖 Tài liệu Netzwerk neu A1.1</span>
+</div>
+
+
+
+<h1>📚 Tài liệu học Netzwerk neu A1.1</h1>
+<p class="subtitle">Tương tác • 🔊 Phát âm tiếng Đức • Giải thích tiếng Việt</p>
+
+<div class="container">
+<div class="chapter-nav" id="chapterNav"></div>
+
+<!-- ==================== KAPITEL 1 ==================== -->
+<div class="chapter" id="ch1">
+<div class="sub-tabs">
+<div class="sub-tab active" data-ch="1" data-tab="vocab">🔤 Từ vựng</div>
+<div class="sub-tab" data-ch="1" data-tab="grammar">📝 Ngữ pháp</div>
+<div class="sub-tab" data-ch="1" data-tab="dialog">💬 Hội thoại</div>
+<div class="sub-tab" data-ch="1" data-tab="shadow">🎧 Shadowing</div>
+</div>
+
+<!-- KAP1 VOCAB -->
+<div class="sub-content active" id="ch1-vocab">
+<h2>Kapitel 1: Guten Tag! (Xin chào!)</h2>
+
+<h3>Chào hỏi & Tạm biệt</h3>
+<table class="vocab-table">
+<tr><th>Deutsch</th><th>Tiếng Việt</th><th>Ví dụ</th></tr>
+<tr><td class="de"><span class="sp" data-text="Guten Morgen">🔊</span>Guten Morgen</td><td class="vn">Chào buổi sáng</td><td class="ex">Guten Morgen, Herr Müller!</td></tr>
+<tr><td class="de"><span class="sp" data-text="Guten Tag">🔊</span>Guten Tag</td><td class="vn">Xin chào (ban ngày)</td><td class="ex">Guten Tag! Wie geht es Ihnen?</td></tr>
+<tr><td class="de"><span class="sp" data-text="Guten Abend">🔊</span>Guten Abend</td><td class="vn">Chào buổi tối</td><td class="ex">Guten Abend, Frau Schmidt!</td></tr>
+<tr><td class="de"><span class="sp" data-text="Hallo">🔊</span>Hallo</td><td class="vn">Xin chào (thân mật)</td><td class="ex">Hallo, ich bin Anna.</td></tr>
+<tr><td class="de"><span class="sp" data-text="Tschüss">🔊</span>Tschüss</td><td class="vn">Tạm biệt (thân mật)</td><td class="ex">Tschüss! Bis morgen!</td></tr>
+<tr><td class="de"><span class="sp" data-text="Auf Wiedersehen">🔊</span>Auf Wiedersehen</td><td class="vn">Tạm biệt (trang trọng)</td><td class="ex">Auf Wiedersehen!</td></tr>
+</table>
+
+<h3>Giới thiệu bản thân</h3>
+<table class="vocab-table">
+<tr><th>Deutsch</th><th>Tiếng Việt</th><th>Ví dụ</th></tr>
+<tr><td class="de"><span class="sp" data-text="der Name">🔊</span>der Name</td><td class="vn">tên</td><td class="ex">Mein Name ist Tung.</td></tr>
+<tr><td class="de"><span class="sp" data-text="heißen">🔊</span>heißen</td><td class="vn">tên là</td><td class="ex">Ich heiße Tung.</td></tr>
+<tr><td class="de"><span class="sp" data-text="kommen aus">🔊</span>kommen (aus)</td><td class="vn">đến từ</td><td class="ex">Ich komme aus Vietnam.</td></tr>
+<tr><td class="de"><span class="sp" data-text="wohnen in">🔊</span>wohnen (in)</td><td class="vn">sống ở</td><td class="ex">Ich wohne in Hanoi.</td></tr>
+<tr><td class="de"><span class="sp" data-text="sprechen">🔊</span>sprechen</td><td class="vn">nói</td><td class="ex">Ich spreche Vietnamesisch.</td></tr>
+<tr><td class="de"><span class="sp" data-text="die Sprache">🔊</span>die Sprache, -n</td><td class="vn">ngôn ngữ</td><td class="ex">Welche Sprachen sprechen Sie?</td></tr>
+<tr><td class="de"><span class="sp" data-text="das Land">🔊</span>das Land, -̈er</td><td class="vn">đất nước</td><td class="ex">Aus welchem Land kommen Sie?</td></tr>
+</table>
+
+<h3>Số đếm 1-20</h3>
+<table class="vocab-table">
+<tr><th>Zahl</th><th>Deutsch</th><th>Zahl</th><th>Deutsch</th></tr>
+<tr><td>1</td><td class="de"><span class="sp" data-text="eins">🔊</span>eins</td><td>11</td><td class="de"><span class="sp" data-text="elf">🔊</span>elf</td></tr>
+<tr><td>2</td><td class="de"><span class="sp" data-text="zwei">🔊</span>zwei</td><td>12</td><td class="de"><span class="sp" data-text="zwölf">🔊</span>zwölf</td></tr>
+<tr><td>3</td><td class="de"><span class="sp" data-text="drei">🔊</span>drei</td><td>13</td><td class="de"><span class="sp" data-text="dreizehn">🔊</span>dreizehn</td></tr>
+<tr><td>4</td><td class="de"><span class="sp" data-text="vier">🔊</span>vier</td><td>14</td><td class="de"><span class="sp" data-text="vierzehn">🔊</span>vierzehn</td></tr>
+<tr><td>5</td><td class="de"><span class="sp" data-text="fünf">🔊</span>fünf</td><td>15</td><td class="de"><span class="sp" data-text="fünfzehn">🔊</span>fünfzehn</td></tr>
+<tr><td>6</td><td class="de"><span class="sp" data-text="sechs">🔊</span>sechs</td><td>16</td><td class="de"><span class="sp" data-text="sechzehn">🔊</span>sechzehn</td></tr>
+<tr><td>7</td><td class="de"><span class="sp" data-text="sieben">🔊</span>sieben</td><td>17</td><td class="de"><span class="sp" data-text="siebzehn">🔊</span>siebzehn</td></tr>
+<tr><td>8</td><td class="de"><span class="sp" data-text="acht">🔊</span>acht</td><td>18</td><td class="de"><span class="sp" data-text="achtzehn">🔊</span>achtzehn</td></tr>
+<tr><td>9</td><td class="de"><span class="sp" data-text="neun">🔊</span>neun</td><td>19</td><td class="de"><span class="sp" data-text="neunzehn">🔊</span>neunzehn</td></tr>
+<tr><td>10</td><td class="de"><span class="sp" data-text="zehn">🔊</span>zehn</td><td>20</td><td class="de"><span class="sp" data-text="zwanzig">🔊</span>zwanzig</td></tr>
+</table>
+
+<h3>Các nước & Ngôn ngữ</h3>
+<table class="vocab-table">
+<tr><th>Land (Nước)</th><th>Sprache (Ngôn ngữ)</th><th>Người</th></tr>
+<tr><td class="de"><span class="sp" data-text="Deutschland">🔊</span>Deutschland</td><td class="de">Deutsch</td><td>der/die Deutsche</td></tr>
+<tr><td class="de"><span class="sp" data-text="Frankreich">🔊</span>Frankreich</td><td class="de">Französisch</td><td>der Franzose/die Französin</td></tr>
+<tr><td class="de"><span class="sp" data-text="England">🔊</span>England</td><td class="de">Englisch</td><td>der Engländer/die Engländerin</td></tr>
+<tr><td class="de"><span class="sp" data-text="Spanien">🔊</span>Spanien</td><td class="de">Spanisch</td><td>der Spanier/die Spanierin</td></tr>
+<tr><td class="de"><span class="sp" data-text="Vietnam">🔊</span>Vietnam</td><td class="de">Vietnamesisch</td><td>der Vietnamese/die Vietnamesin</td></tr>
+<tr><td class="de"><span class="sp" data-text="die Türkei">🔊</span>die Türkei</td><td class="de">Türkisch</td><td>der Türke/die Türkin</td></tr>
+</table>
+</div>
+
+<!-- KAP1 GRAMMAR -->
+<div class="sub-content" id="ch1-grammar">
+<h2>📝 Ngữ pháp - Kapitel 1</h2>
+
+<div class="grammar-box">
+<h4>1. Động từ chia ở thì hiện tại (Präsens)</h4>
+<table class="conj-table">
+<tr><th>Pronomen</th><th>sein (là)</th><th>heißen (tên là)</th><th>kommen (đến)</th><th>sprechen (nói)</th><th>wohnen (sống)</th></tr>
+<tr><td class="pronoun">ich</td><td>bin</td><td>heiße</td><td>komme</td><td>spreche</td><td>wohne</td></tr>
+<tr><td class="pronoun">du</td><td>bist</td><td>heißt</td><td>kommst</td><td><span class="highlight">sprichst</span></td><td>wohnst</td></tr>
+<tr><td class="pronoun">er/sie/es</td><td>ist</td><td>heißt</td><td>kommt</td><td><span class="highlight">spricht</span></td><td>wohnt</td></tr>
+<tr><td class="pronoun">wir</td><td>sind</td><td>heißen</td><td>kommen</td><td>sprechen</td><td>wohnen</td></tr>
+<tr><td class="pronoun">ihr</td><td>seid</td><td>heißt</td><td>kommt</td><td>sprecht</td><td>wohnt</td></tr>
+<tr><td class="pronoun">sie/Sie</td><td>sind</td><td>heißen</td><td>kommen</td><td>sprechen</td><td>wohnen</td></tr>
+</table>
+<div class="note"><strong>⚡ Quy tắc:</strong> Bỏ -en → thêm đuôi: -e, -st, -t, -en, -t, -en. Lưu ý: <em>sprechen</em> đổi e→i ở du/er!</div>
+</div>
+
+<div class="grammar-box">
+<h4>2. Câu hỏi W-Frage (câu hỏi với từ hỏi)</h4>
+<table class="vocab-table">
+<tr><th>W-Wort</th><th>Nghĩa</th><th>Ví dụ</th></tr>
+<tr><td class="de"><span class="sp" data-text="Wie">🔊</span>Wie?</td><td class="vn">Như thế nào?</td><td class="ex"><span class="sp" data-text="Wie heißen Sie?">🔊</span>Wie heißen Sie? (Bạn tên gì?)</td></tr>
+<tr><td class="de"><span class="sp" data-text="Woher">🔊</span>Woher?</td><td class="vn">Từ đâu?</td><td class="ex"><span class="sp" data-text="Woher kommen Sie?">🔊</span>Woher kommen Sie? (Bạn từ đâu đến?)</td></tr>
+<tr><td class="de"><span class="sp" data-text="Wo">🔊</span>Wo?</td><td class="vn">Ở đâu?</td><td class="ex"><span class="sp" data-text="Wo wohnen Sie?">🔊</span>Wo wohnen Sie? (Bạn sống ở đâu?)</td></tr>
+<tr><td class="de"><span class="sp" data-text="Was">🔊</span>Was?</td><td class="vn">Cái gì?</td><td class="ex"><span class="sp" data-text="Was sprechen Sie?">🔊</span>Was sprechen Sie? (Bạn nói gì?)</td></tr>
+<tr><td class="de"><span class="sp" data-text="Wer">🔊</span>Wer?</td><td class="vn">Ai?</td><td class="ex"><span class="sp" data-text="Wer ist das?">🔊</span>Wer ist das? (Đó là ai?)</td></tr>
+</table>
+<div class="note"><strong>⚡ Cấu trúc:</strong> W-Wort + <strong>Verb</strong> + Subjekt + ...? → Động từ luôn ở <strong>vị trí 2</strong></div>
+</div>
+
+<div class="grammar-box">
+<h4>3. Câu trần thuật (Aussagesatz)</h4>
+<p style="font-size:13px;margin-bottom:8px"><strong>Cấu trúc:</strong> Subjekt + <strong>Verb</strong> + ...</p>
+<table class="vocab-table">
+<tr><th>Ví dụ</th><th>Dịch</th></tr>
+<tr><td class="de"><span class="sp" data-text="Ich komme aus Vietnam">🔊</span>Ich <strong>komme</strong> aus Vietnam.</td><td class="vn">Tôi đến từ Việt Nam.</td></tr>
+<tr><td class="de"><span class="sp" data-text="Mein Name ist Tung">🔊</span>Mein Name <strong>ist</strong> Tung.</td><td class="vn">Tên tôi là Tung.</td></tr>
+<tr><td class="de"><span class="sp" data-text="Wir wohnen in Hanoi">🔊</span>Wir <strong>wohnen</strong> in Hanoi.</td><td class="vn">Chúng tôi sống ở Hà Nội.</td></tr>
+</table>
+<div class="note"><strong>⚡ Lưu ý:</strong> Động từ LUÔN ở vị trí 2 trong câu trần thuật tiếng Đức!</div>
+</div>
+</div>
+
+<!-- KAP1 DIALOG -->
+<div class="sub-content" id="ch1-dialog">
+<h2>💬 Hội thoại - Kapitel 1</h2>
+
+<h3>Chào hỏi & Giới thiệu</h3>
+<div class="dialogue">
+<div class="dlg-line"><span class="dlg-speaker">A:</span><span class="dlg-de"><span class="sp" data-text="Hallo! Ich bin Anna. Und du?">🔊</span>Hallo! Ich bin Anna. Und du?</span></div>
+<div class="dlg-vn">→ Xin chào! Tôi là Anna. Còn bạn?</div>
+<div class="dlg-line"><span class="dlg-speaker">B:</span><span class="dlg-de"><span class="sp" data-text="Hallo! Mein Name ist Tung. Ich komme aus Vietnam.">🔊</span>Hallo! Mein Name ist Tung. Ich komme aus Vietnam.</span></div>
+<div class="dlg-vn">→ Xin chào! Tên tôi là Tung. Tôi đến từ Việt Nam.</div>
+<div class="dlg-line"><span class="dlg-speaker">A:</span><span class="dlg-de"><span class="sp" data-text="Woher genau? Und wo wohnst du jetzt?">🔊</span>Woher genau? Und wo wohnst du jetzt?</span></div>
+<div class="dlg-vn">→ Cụ thể từ đâu? Và bạn sống ở đâu bây giờ?</div>
+<div class="dlg-line"><span class="dlg-speaker">B:</span><span class="dlg-de"><span class="sp" data-text="Aus Hanoi. Ich wohne jetzt in Berlin.">🔊</span>Aus Hanoi. Ich wohne jetzt in Berlin.</span></div>
+<div class="dlg-vn">→ Từ Hà Nội. Tôi sống ở Berlin bây giờ.</div>
+<div class="dlg-line"><span class="dlg-speaker">A:</span><span class="dlg-de"><span class="sp" data-text="Welche Sprachen sprichst du?">🔊</span>Welche Sprachen sprichst du?</span></div>
+<div class="dlg-vn">→ Bạn nói những ngôn ngữ nào?</div>
+<div class="dlg-line"><span class="dlg-speaker">B:</span><span class="dlg-de"><span class="sp" data-text="Vietnamesisch und ein bisschen Deutsch.">🔊</span>Vietnamesisch und ein bisschen Deutsch.</span></div>
+<div class="dlg-vn">→ Tiếng Việt và một chút tiếng Đức.</div>
+</div>
+
+<h3>Hỏi thăm sức khỏe</h3>
+<div class="dialogue">
+<div class="dlg-line"><span class="dlg-speaker">A:</span><span class="dlg-de"><span class="sp" data-text="Wie geht es Ihnen?">🔊</span>Wie geht es Ihnen? (trang trọng)</span></div>
+<div class="dlg-vn">→ Anh/chị khỏe không?</div>
+<div class="dlg-line"><span class="dlg-speaker">B:</span><span class="dlg-de"><span class="sp" data-text="Gut, danke! Und Ihnen?">🔊</span>Gut, danke! Und Ihnen?</span></div>
+<div class="dlg-vn">→ Tốt, cảm ơn! Còn anh/chị?</div>
+<div class="dlg-line"><span class="dlg-speaker">A:</span><span class="dlg-de"><span class="sp" data-text="Sehr gut, danke!">🔊</span>Sehr gut, danke!</span></div>
+<div class="dlg-vn">→ Rất tốt, cảm ơn!</div>
+</div>
+<div class="dialogue">
+<div class="dlg-line"><span class="dlg-speaker">A:</span><span class="dlg-de"><span class="sp" data-text="Wie geht's?">🔊</span>Wie geht's? (thân mật)</span></div>
+<div class="dlg-vn">→ Khỏe không?</div>
+<div class="dlg-line"><span class="dlg-speaker">B:</span><span class="dlg-de"><span class="sp" data-text="Es geht. Und dir?">🔊</span>Es geht. Und dir?</span></div>
+<div class="dlg-vn">→ Bình thường. Còn bạn?</div>
+<div class="dlg-line"><span class="dlg-speaker">A:</span><span class="dlg-de"><span class="sp" data-text="Nicht so gut.">🔊</span>Nicht so gut.</span></div>
+<div class="dlg-vn">→ Không tốt lắm.</div>
+</div>
+
+<h3>Số điện thoại & Email</h3>
+<div class="dialogue">
+<div class="dlg-line"><span class="dlg-speaker">A:</span><span class="dlg-de"><span class="sp" data-text="Wie ist Ihre Telefonnummer?">🔊</span>Wie ist Ihre Telefonnummer?</span></div>
+<div class="dlg-vn">→ Số điện thoại anh/chị là gì?</div>
+<div class="dlg-line"><span class="dlg-speaker">B:</span><span class="dlg-de"><span class="sp" data-text="Meine Nummer ist 0123 456 789.">🔊</span>Meine Nummer ist 0123 456 789.</span></div>
+<div class="dlg-vn">→ Số tôi là 0123 456 789.</div>
+<div class="dlg-line"><span class="dlg-speaker">A:</span><span class="dlg-de"><span class="sp" data-text="Und wie ist Ihre E-Mail-Adresse?">🔊</span>Und wie ist Ihre E-Mail-Adresse?</span></div>
+<div class="dlg-vn">→ Và địa chỉ email là gì?</div>
+<div class="dlg-line"><span class="dlg-speaker">B:</span><span class="dlg-de"><span class="sp" data-text="tung at email punkt com">🔊</span>tung@email.com (tung at email punkt com)</span></div>
+<div class="dlg-vn">→ Mẹo: @ = at, . = Punkt</div>
+</div>
+</div>
+</div>
+
+<!-- ==================== KAPITEL 2 ==================== -->
+
+<div class="sub-content" id="ch1-shadow">
+<h2>🎧 Shadowing - Kapitel 1</h2>
+<div class="shadow-intro">
+<h4>📋 Phương pháp Shadowing (Bắt chước giọng)</h4>
+<ol>
+<li><strong>Nghe câu</strong> — bấm 🔊 để nghe tốc độ bình thường</li>
+<li><strong>Nghe chậm</strong> — bấm 🐢 để nghe chậm, rõ từng từ</li>
+<li><strong>Lặp lại NGAY</strong> — nói thành tiếng, bắt chước ngữ điệu tiếng Đức!</li>
+<li><strong>So sánh</strong> — nghe lại, kiểm tra phát âm của mình</li>
+<li><strong>Lặp lại 3-5 lần</strong> — cho đến khi tự nhiên (bấm đếm lần ở nút bên phải)</li>
+</ol>
+<p style="margin-top:8px;color:#e65100"><strong>💡 Mẹo:</strong> Đừng dịch trong đầu! Nghe → Nói ngay. Mục tiêu là phản xạ, không phải hiểu từng từ.</p>
+</div>
+<div class="shadow-sentence">
+<div class="shadow-num">1</div>
+<div class="shadow-text">
+<div class="shadow-de"><span class="sp" data-text="Guten Tag! Ich bin Anna.">🔊</span> Guten Tag! Ich bin Anna.</div>
+<div class="shadow-vn">Xin chào! Tôi là Anna.</div>
+</div>
+<div class="shadow-btns">
+<span class="sp shadow-slow" data-text="Guten Tag! Ich bin Anna." data-rate="0.5">🐢</span>
+<span class="shadow-counter">0 lần</span>
+</div>
+</div>
+<div class="shadow-sentence">
+<div class="shadow-num">2</div>
+<div class="shadow-text">
+<div class="shadow-de"><span class="sp" data-text="Wie heißen Sie?">🔊</span> Wie heißen Sie?</div>
+<div class="shadow-vn">Bạn tên gì?</div>
+</div>
+<div class="shadow-btns">
+<span class="sp shadow-slow" data-text="Wie heißen Sie?" data-rate="0.5">🐢</span>
+<span class="shadow-counter">0 lần</span>
+</div>
+</div>
+<div class="shadow-sentence">
+<div class="shadow-num">3</div>
+<div class="shadow-text">
+<div class="shadow-de"><span class="sp" data-text="Ich heiße Tung und komme aus Vietnam.">🔊</span> Ich heiße Tung und komme aus Vietnam.</div>
+<div class="shadow-vn">Tôi tên Tung và đến từ Việt Nam.</div>
+</div>
+<div class="shadow-btns">
+<span class="sp shadow-slow" data-text="Ich heiße Tung und komme aus Vietnam." data-rate="0.5">🐢</span>
+<span class="shadow-counter">0 lần</span>
+</div>
+</div>
+<div class="shadow-sentence">
+<div class="shadow-num">4</div>
+<div class="shadow-text">
+<div class="shadow-de"><span class="sp" data-text="Wo wohnen Sie? – Ich wohne in Hanoi.">🔊</span> Wo wohnen Sie? – Ich wohne in Hanoi.</div>
+<div class="shadow-vn">Bạn sống ở đâu? – Tôi sống ở Hà Nội.</div>
+</div>
+<div class="shadow-btns">
+<span class="sp shadow-slow" data-text="Wo wohnen Sie? – Ich wohne in Hanoi." data-rate="0.5">🐢</span>
+<span class="shadow-counter">0 lần</span>
+</div>
+</div>
+<div class="shadow-sentence">
+<div class="shadow-num">5</div>
+<div class="shadow-text">
+<div class="shadow-de"><span class="sp" data-text="Welche Sprachen sprechen Sie?">🔊</span> Welche Sprachen sprechen Sie?</div>
+<div class="shadow-vn">Bạn nói được ngôn ngữ nào?</div>
+</div>
+<div class="shadow-btns">
+<span class="sp shadow-slow" data-text="Welche Sprachen sprechen Sie?" data-rate="0.5">🐢</span>
+<span class="shadow-counter">0 lần</span>
+</div>
+</div>
+<div class="shadow-sentence">
+<div class="shadow-num">6</div>
+<div class="shadow-text">
+<div class="shadow-de"><span class="sp" data-text="Ich spreche Vietnamesisch und ein bisschen Deutsch.">🔊</span> Ich spreche Vietnamesisch und ein bisschen Deutsch.</div>
+<div class="shadow-vn">Tôi nói tiếng Việt và một chút tiếng Đức.</div>
+</div>
+<div class="shadow-btns">
+<span class="sp shadow-slow" data-text="Ich spreche Vietnamesisch und ein bisschen Deutsch." data-rate="0.5">🐢</span>
+<span class="shadow-counter">0 lần</span>
+</div>
+</div>
+<div class="shadow-sentence">
+<div class="shadow-num">7</div>
+<div class="shadow-text">
+<div class="shadow-de"><span class="sp" data-text="Wie geht es Ihnen? – Gut, danke!">🔊</span> Wie geht es Ihnen? – Gut, danke!</div>
+<div class="shadow-vn">Bạn khỏe không? – Tốt, cảm ơn!</div>
+</div>
+<div class="shadow-btns">
+<span class="sp shadow-slow" data-text="Wie geht es Ihnen? – Gut, danke!" data-rate="0.5">🐢</span>
+<span class="shadow-counter">0 lần</span>
+</div>
+</div>
+<div class="shadow-sentence">
+<div class="shadow-num">8</div>
+<div class="shadow-text">
+<div class="shadow-de"><span class="sp" data-text="Meine Telefonnummer ist null-eins-zwei-drei.">🔊</span> Meine Telefonnummer ist null-eins-zwei-drei.</div>
+<div class="shadow-vn">Số điện thoại tôi là 0123.</div>
+</div>
+<div class="shadow-btns">
+<span class="sp shadow-slow" data-text="Meine Telefonnummer ist null-eins-zwei-drei." data-rate="0.5">🐢</span>
+<span class="shadow-counter">0 lần</span>
+</div>
+</div>
+<div class="shadow-sentence">
+<div class="shadow-num">9</div>
+<div class="shadow-text">
+<div class="shadow-de"><span class="sp" data-text="Auf Wiedersehen! Bis morgen!">🔊</span> Auf Wiedersehen! Bis morgen!</div>
+<div class="shadow-vn">Tạm biệt! Ngày mai gặp!</div>
+</div>
+<div class="shadow-btns">
+<span class="sp shadow-slow" data-text="Auf Wiedersehen! Bis morgen!" data-rate="0.5">🐢</span>
+<span class="shadow-counter">0 lần</span>
+</div>
+</div>
+<div class="shadow-sentence">
+<div class="shadow-num">10</div>
+<div class="shadow-text">
+<div class="shadow-de"><span class="sp" data-text="Freut mich!">🔊</span> Freut mich!</div>
+<div class="shadow-vn">Rất vui được gặp!</div>
+</div>
+<div class="shadow-btns">
+<span class="sp shadow-slow" data-text="Freut mich!" data-rate="0.5">🐢</span>
+<span class="shadow-counter">0 lần</span>
+</div>
+</div>
+</div>
+
+<div class="chapter" id="ch2">
+<div class="sub-tabs">
+<div class="sub-tab active" data-ch="2" data-tab="vocab">🔤 Từ vựng</div>
+<div class="sub-tab" data-ch="2" data-tab="grammar">📝 Ngữ pháp</div>
+<div class="sub-tab" data-ch="2" data-tab="dialog">💬 Hội thoại</div>
+<div class="sub-tab" data-ch="2" data-tab="shadow">🎧 Shadowing</div>
+</div>
+
+<!-- KAP2 VOCAB -->
+<div class="sub-content active" id="ch2-vocab">
+<h2>Kapitel 2: Freunde, Kollegen und ich</h2>
+
+<h3>Sở thích (Hobbys)</h3>
+<table class="vocab-table">
+<tr><th>Deutsch</th><th>Tiếng Việt</th><th>Ví dụ</th></tr>
+<tr><td class="de"><span class="sp" data-text="Fußball spielen">🔊</span>Fußball spielen</td><td class="vn">chơi bóng đá</td><td class="ex">Ich spiele gern Fußball.</td></tr>
+<tr><td class="de"><span class="sp" data-text="Musik hören">🔊</span>Musik hören</td><td class="vn">nghe nhạc</td><td class="ex">Er hört gern Musik.</td></tr>
+<tr><td class="de"><span class="sp" data-text="kochen">🔊</span>kochen</td><td class="vn">nấu ăn</td><td class="ex">Sie kocht gern.</td></tr>
+<tr><td class="de"><span class="sp" data-text="lesen">🔊</span>lesen</td><td class="vn">đọc sách</td><td class="ex">Ich lese gern Bücher.</td></tr>
+<tr><td class="de"><span class="sp" data-text="schwimmen">🔊</span>schwimmen</td><td class="vn">bơi</td><td class="ex">Wir schwimmen am Montag.</td></tr>
+<tr><td class="de"><span class="sp" data-text="tanzen">🔊</span>tanzen</td><td class="vn">nhảy/khiêu vũ</td><td class="ex">Sie tanzt gern.</td></tr>
+<tr><td class="de"><span class="sp" data-text="Rad fahren">🔊</span>Rad fahren</td><td class="vn">đi xe đạp</td><td class="ex">Er fährt gern Rad.</td></tr>
+<tr><td class="de"><span class="sp" data-text="joggen">🔊</span>joggen</td><td class="vn">chạy bộ</td><td class="ex">Ich jogge am Morgen.</td></tr>
+<tr><td class="de"><span class="sp" data-text="fotografieren">🔊</span>fotografieren</td><td class="vn">chụp ảnh</td><td class="ex">Sie fotografiert gern.</td></tr>
+<tr><td class="de"><span class="sp" data-text="reisen">🔊</span>reisen</td><td class="vn">du lịch</td><td class="ex">Wir reisen gern.</td></tr>
+<tr><td class="de"><span class="sp" data-text="singen">🔊</span>singen</td><td class="vn">hát</td><td class="ex">Er singt gern.</td></tr>
+<tr><td class="de"><span class="sp" data-text="ins Kino gehen">🔊</span>ins Kino gehen</td><td class="vn">đi xem phim</td><td class="ex">Am Samstag gehen wir ins Kino.</td></tr>
+</table>
+
+<h3>Ngày trong tuần (Wochentage)</h3>
+<table class="vocab-table">
+<tr><th>Deutsch</th><th>Tiếng Việt</th><th>Viết tắt</th></tr>
+<tr><td class="de"><span class="sp" data-text="Montag">🔊</span>Montag</td><td class="vn">Thứ Hai</td><td>Mo</td></tr>
+<tr><td class="de"><span class="sp" data-text="Dienstag">🔊</span>Dienstag</td><td class="vn">Thứ Ba</td><td>Di</td></tr>
+<tr><td class="de"><span class="sp" data-text="Mittwoch">🔊</span>Mittwoch</td><td class="vn">Thứ Tư</td><td>Mi</td></tr>
+<tr><td class="de"><span class="sp" data-text="Donnerstag">🔊</span>Donnerstag</td><td class="vn">Thứ Năm</td><td>Do</td></tr>
+<tr><td class="de"><span class="sp" data-text="Freitag">🔊</span>Freitag</td><td class="vn">Thứ Sáu</td><td>Fr</td></tr>
+<tr><td class="de"><span class="sp" data-text="Samstag">🔊</span>Samstag</td><td class="vn">Thứ Bảy</td><td>Sa</td></tr>
+<tr><td class="de"><span class="sp" data-text="Sonntag">🔊</span>Sonntag</td><td class="vn">Chủ Nhật</td><td>So</td></tr>
+</table>
+
+<h3>Nghề nghiệp (Berufe)</h3>
+<table class="vocab-table">
+<tr><th>Deutsch (♂/♀)</th><th>Tiếng Việt</th></tr>
+<tr><td class="de"><span class="sp" data-text="der Lehrer, die Lehrerin">🔊</span>der Lehrer / die Lehrerin</td><td class="vn">giáo viên</td></tr>
+<tr><td class="de"><span class="sp" data-text="der Arzt, die Ärztin">🔊</span>der Arzt / die Ärztin</td><td class="vn">bác sĩ</td></tr>
+<tr><td class="de"><span class="sp" data-text="der Ingenieur, die Ingenieurin">🔊</span>der Ingenieur / die Ingenieurin</td><td class="vn">kỹ sư</td></tr>
+<tr><td class="de"><span class="sp" data-text="der Student, die Studentin">🔊</span>der Student / die Studentin</td><td class="vn">sinh viên</td></tr>
+<tr><td class="de"><span class="sp" data-text="der Kellner, die Kellnerin">🔊</span>der Kellner / die Kellnerin</td><td class="vn">nhân viên phục vụ</td></tr>
+<tr><td class="de"><span class="sp" data-text="der Informatiker, die Informatikerin">🔊</span>der Informatiker / die Informatikerin</td><td class="vn">kỹ sư tin học</td></tr>
+<tr><td class="de"><span class="sp" data-text="der Journalist, die Journalistin">🔊</span>der Journalist / die Journalistin</td><td class="vn">nhà báo</td></tr>
+</table>
+
+<h3>Số từ 20 trở lên</h3>
+<table class="vocab-table">
+<tr><th>Zahl</th><th>Deutsch</th><th>Quy tắc</th></tr>
+<tr><td>21</td><td class="de"><span class="sp" data-text="einundzwanzig">🔊</span>ein<strong>und</strong>zwanzig</td><td class="ex">Hàng đơn vị + und + hàng chục</td></tr>
+<tr><td>30</td><td class="de"><span class="sp" data-text="dreißig">🔊</span>dreißig</td><td></td></tr>
+<tr><td>40</td><td class="de"><span class="sp" data-text="vierzig">🔊</span>vierzig</td><td></td></tr>
+<tr><td>50</td><td class="de"><span class="sp" data-text="fünfzig">🔊</span>fünfzig</td><td></td></tr>
+<tr><td>60</td><td class="de"><span class="sp" data-text="sechzig">🔊</span>sechzig</td><td></td></tr>
+<tr><td>70</td><td class="de"><span class="sp" data-text="siebzig">🔊</span>siebzig</td><td></td></tr>
+<tr><td>80</td><td class="de"><span class="sp" data-text="achtzig">🔊</span>achtzig</td><td></td></tr>
+<tr><td>90</td><td class="de"><span class="sp" data-text="neunzig">🔊</span>neunzig</td><td></td></tr>
+<tr><td>100</td><td class="de"><span class="sp" data-text="hundert">🔊</span>(ein)hundert</td><td></td></tr>
+</table>
+<div class="grammar-box"><div class="note"><strong>⚡ Mẹo nhớ:</strong> Tiếng Đức đọc số NGƯỢC! 25 = <strong>fünf</strong>und<strong>zwanzig</strong> (5 và 20). 67 = <strong>sieben</strong>und<strong>sechzig</strong> (7 và 60)</div></div>
+</div>
+
+<!-- KAP2 GRAMMAR -->
+<div class="sub-content" id="ch2-grammar">
+<h2>📝 Ngữ pháp - Kapitel 2</h2>
+
+<div class="grammar-box">
+<h4>1. Động từ bất quy tắc (Unregelmäßige Verben)</h4>
+<table class="conj-table">
+<tr><th>Pronomen</th><th>fahren (lái/đi)</th><th>lesen (đọc)</th><th>sprechen (nói)</th></tr>
+<tr><td class="pronoun">ich</td><td>fahre</td><td>lese</td><td>spreche</td></tr>
+<tr><td class="pronoun">du</td><td>f<span class="highlight">ä</span>hrst</td><td>l<span class="highlight">ie</span>st</td><td>spr<span class="highlight">i</span>chst</td></tr>
+<tr><td class="pronoun">er/sie/es</td><td>f<span class="highlight">ä</span>hrt</td><td>l<span class="highlight">ie</span>st</td><td>spr<span class="highlight">i</span>cht</td></tr>
+<tr><td class="pronoun">wir</td><td>fahren</td><td>lesen</td><td>sprechen</td></tr>
+<tr><td class="pronoun">ihr</td><td>fahrt</td><td>lest</td><td>sprecht</td></tr>
+<tr><td class="pronoun">sie/Sie</td><td>fahren</td><td>lesen</td><td>sprechen</td></tr>
+</table>
+<div class="note"><strong>⚡ Quy tắc:</strong> a→ä, e→i/ie ở ngôi <strong>du</strong> và <strong>er/sie/es</strong></div>
+</div>
+
+<div class="grammar-box">
+<h4>2. Mạo từ xác định (Bestimmter Artikel)</h4>
+<table class="conj-table">
+<tr><th>Maskulin (♂)</th><th>Neutrum (⚪)</th><th>Feminin (♀)</th><th>Plural</th></tr>
+<tr><td><strong>der</strong> Mann</td><td><strong>das</strong> Kind</td><td><strong>die</strong> Frau</td><td><strong>die</strong> Männer</td></tr>
+</table>
+<div class="note"><strong>⚡ Mẹo:</strong> Luôn học danh từ KÈM mạo từ! Ví dụ: <em>der</em> Tisch, <em>die</em> Lampe, <em>das</em> Buch</div>
+</div>
+
+<div class="grammar-box">
+<h4>3. Câu hỏi Ja/Nein (Ja-/Nein-Frage)</h4>
+<p style="font-size:13px;margin-bottom:8px"><strong>Cấu trúc:</strong> <strong>Verb</strong> + Subjekt + ...?</p>
+<table class="vocab-table">
+<tr><td class="de"><span class="sp" data-text="Spielst du gern Fußball?">🔊</span><strong>Spielst</strong> du gern Fußball?</td><td class="vn">Bạn thích chơi bóng đá không?</td></tr>
+<tr><td class="de"><span class="sp" data-text="Kommen Sie aus Vietnam?">🔊</span><strong>Kommen</strong> Sie aus Vietnam?</td><td class="vn">Anh/chị đến từ Việt Nam à?</td></tr>
+<tr><td class="de"><span class="sp" data-text="Ist das dein Bruder?">🔊</span><strong>Ist</strong> das dein Bruder?</td><td class="vn">Đó là anh trai bạn à?</td></tr>
+</table>
+<div class="note"><strong>⚡ So sánh:</strong> W-Frage: <em>Wo wohnst du?</em> vs Ja/Nein: <em>Wohnst du in Berlin?</em> → Động từ lên đầu!</div>
+</div>
+
+<div class="grammar-box">
+<h4>4. Danh từ: Số ít & Số nhiều (Singular & Plural)</h4>
+<table class="conj-table">
+<tr><th>Quy tắc</th><th>Singular</th><th>Plural</th></tr>
+<tr><td>+ -e</td><td>der Tag</td><td>die Tag<span class="highlight">e</span></td></tr>
+<tr><td>+ -en</td><td>die Sprache</td><td>die Sprach<span class="highlight">en</span></td></tr>
+<tr><td>+ -er</td><td>das Kind</td><td>die Kind<span class="highlight">er</span></td></tr>
+<tr><td>+ -s</td><td>das Hobby</td><td>die Hobby<span class="highlight">s</span></td></tr>
+<tr><td>Umlaut + -e</td><td>die Stadt</td><td>die St<span class="highlight">ä</span>dt<span class="highlight">e</span></td></tr>
+<tr><td>Không đổi</td><td>der Lehrer</td><td>die Lehrer</td></tr>
+</table>
+<div class="note"><strong>⚡ Mẹo:</strong> Số nhiều luôn dùng mạo từ <strong>die</strong>. Không có quy tắc chung → học thuộc từng từ!</div>
+</div>
+
+<div class="grammar-box">
+<h4>5. haben (có) & sein (là/ở)</h4>
+<table class="conj-table">
+<tr><th>Pronomen</th><th>haben (có)</th><th>sein (là/ở)</th></tr>
+<tr><td class="pronoun">ich</td><td>habe</td><td>bin</td></tr>
+<tr><td class="pronoun">du</td><td>hast</td><td>bist</td></tr>
+<tr><td class="pronoun">er/sie/es</td><td>hat</td><td>ist</td></tr>
+<tr><td class="pronoun">wir</td><td>haben</td><td>sind</td></tr>
+<tr><td class="pronoun">ihr</td><td>habt</td><td>seid</td></tr>
+<tr><td class="pronoun">sie/Sie</td><td>haben</td><td>sind</td></tr>
+</table>
+</div>
+</div>
+
+<!-- KAP2 DIALOG -->
+<div class="sub-content" id="ch2-dialog">
+<h2>💬 Hội thoại - Kapitel 2</h2>
+
+<h3>Nói về sở thích</h3>
+<div class="dialogue">
+<div class="dlg-line"><span class="dlg-speaker">A:</span><span class="dlg-de"><span class="sp" data-text="Was machst du gern?">🔊</span>Was machst du gern?</span></div>
+<div class="dlg-vn">→ Bạn thích làm gì?</div>
+<div class="dlg-line"><span class="dlg-speaker">B:</span><span class="dlg-de"><span class="sp" data-text="Ich schwimme gern und höre Musik. Und du?">🔊</span>Ich schwimme gern und höre Musik. Und du?</span></div>
+<div class="dlg-vn">→ Tôi thích bơi và nghe nhạc. Còn bạn?</div>
+<div class="dlg-line"><span class="dlg-speaker">A:</span><span class="dlg-de"><span class="sp" data-text="Ich koche gern, aber ich tanze nicht gern.">🔊</span>Ich koche gern, aber ich tanze nicht gern.</span></div>
+<div class="dlg-vn">→ Tôi thích nấu ăn, nhưng tôi không thích nhảy.</div>
+</div>
+<div class="grammar-box"><div class="note"><strong>💡 gern / nicht gern:</strong> gern = thích, nicht gern = không thích. Đặt sau động từ: Ich <em>spiele</em> <strong>gern</strong> Fußball.</div></div>
+
+<h3>Hẹn gặp</h3>
+<div class="dialogue">
+<div class="dlg-line"><span class="dlg-speaker">A:</span><span class="dlg-de"><span class="sp" data-text="Spielst du am Montag Tennis?">🔊</span>Spielst du am Montag Tennis?</span></div>
+<div class="dlg-vn">→ Thứ Hai bạn chơi tennis không?</div>
+<div class="dlg-line"><span class="dlg-speaker">B:</span><span class="dlg-de"><span class="sp" data-text="Nein, am Montag habe ich keine Zeit. Am Mittwoch?">🔊</span>Nein, am Montag habe ich keine Zeit. Am Mittwoch?</span></div>
+<div class="dlg-vn">→ Không, thứ Hai tôi không có thời gian. Thứ Tư nhé?</div>
+<div class="dlg-line"><span class="dlg-speaker">A:</span><span class="dlg-de"><span class="sp" data-text="Ja, super! Am Mittwoch passt gut.">🔊</span>Ja, super! Am Mittwoch passt gut.</span></div>
+<div class="dlg-vn">→ Ừ, tuyệt! Thứ Tư hợp.</div>
+</div>
+
+<h3>Nghề nghiệp</h3>
+<div class="dialogue">
+<div class="dlg-line"><span class="dlg-speaker">A:</span><span class="dlg-de"><span class="sp" data-text="Was sind Sie von Beruf?">🔊</span>Was sind Sie von Beruf?</span></div>
+<div class="dlg-vn">→ Nghề của anh/chị là gì?</div>
+<div class="dlg-line"><span class="dlg-speaker">B:</span><span class="dlg-de"><span class="sp" data-text="Ich bin Ingenieur. Und Sie?">🔊</span>Ich bin Ingenieur. Und Sie?</span></div>
+<div class="dlg-vn">→ Tôi là kỹ sư. Còn anh/chị?</div>
+<div class="dlg-line"><span class="dlg-speaker">A:</span><span class="dlg-de"><span class="sp" data-text="Ich bin Lehrerin. Ich arbeite an einer Schule.">🔊</span>Ich bin Lehrerin. Ich arbeite an einer Schule.</span></div>
+<div class="dlg-vn">→ Tôi là giáo viên (nữ). Tôi làm ở một trường.</div>
+</div>
+<div class="grammar-box"><div class="note"><strong>💡 Lưu ý:</strong> Nói nghề KHÔNG dùng mạo từ: Ich bin ∅ Ingenieur (KHÔNG: Ich bin <em>ein</em> Ingenieur)</div></div>
+</div>
+</div>
+
+<!-- ==================== KAPITEL 3 ==================== -->
+
+<div class="sub-content" id="ch2-shadow">
+<h2>🎧 Shadowing - Kapitel 2</h2>
+<div class="shadow-intro" style="padding:10px 16px"><h4 style="margin:0">💡 Nghe 🔊 → Lặp lại thành tiếng → Bấm 🐢 nghe chậm → Lặp lại 3-5 lần mỗi câu</h4></div>
+<div class="shadow-sentence">
+<div class="shadow-num">1</div>
+<div class="shadow-text">
+<div class="shadow-de"><span class="sp" data-text="Was sind Sie von Beruf? – Ich bin Ingenieur.">🔊</span> Was sind Sie von Beruf? – Ich bin Ingenieur.</div>
+<div class="shadow-vn">Nghề của bạn? – Tôi là kỹ sư.</div>
+</div>
+<div class="shadow-btns">
+<span class="sp shadow-slow" data-text="Was sind Sie von Beruf? – Ich bin Ingenieur." data-rate="0.5">🐢</span>
+<span class="shadow-counter">0 lần</span>
+</div>
+</div>
+<div class="shadow-sentence">
+<div class="shadow-num">2</div>
+<div class="shadow-text">
+<div class="shadow-de"><span class="sp" data-text="Ich spiele gern Fußball.">🔊</span> Ich spiele gern Fußball.</div>
+<div class="shadow-vn">Tôi thích chơi bóng đá.</div>
+</div>
+<div class="shadow-btns">
+<span class="sp shadow-slow" data-text="Ich spiele gern Fußball." data-rate="0.5">🐢</span>
+<span class="shadow-counter">0 lần</span>
+</div>
+</div>
+<div class="shadow-sentence">
+<div class="shadow-num">3</div>
+<div class="shadow-text">
+<div class="shadow-de"><span class="sp" data-text="Was machst du am Wochenende?">🔊</span> Was machst du am Wochenende?</div>
+<div class="shadow-vn">Cuối tuần bạn làm gì?</div>
+</div>
+<div class="shadow-btns">
+<span class="sp shadow-slow" data-text="Was machst du am Wochenende?" data-rate="0.5">🐢</span>
+<span class="shadow-counter">0 lần</span>
+</div>
+</div>
+<div class="shadow-sentence">
+<div class="shadow-num">4</div>
+<div class="shadow-text">
+<div class="shadow-de"><span class="sp" data-text="Am Samstag gehe ich schwimmen.">🔊</span> Am Samstag gehe ich schwimmen.</div>
+<div class="shadow-vn">Thứ Bảy tôi đi bơi.</div>
+</div>
+<div class="shadow-btns">
+<span class="sp shadow-slow" data-text="Am Samstag gehe ich schwimmen." data-rate="0.5">🐢</span>
+<span class="shadow-counter">0 lần</span>
+</div>
+</div>
+<div class="shadow-sentence">
+<div class="shadow-num">5</div>
+<div class="shadow-text">
+<div class="shadow-de"><span class="sp" data-text="Er liest gern Bücher.">🔊</span> Er liest gern Bücher.</div>
+<div class="shadow-vn">Anh ấy thích đọc sách.</div>
+</div>
+<div class="shadow-btns">
+<span class="sp shadow-slow" data-text="Er liest gern Bücher." data-rate="0.5">🐢</span>
+<span class="shadow-counter">0 lần</span>
+</div>
+</div>
+<div class="shadow-sentence">
+<div class="shadow-num">6</div>
+<div class="shadow-text">
+<div class="shadow-de"><span class="sp" data-text="Sie fährt gern Rad.">🔊</span> Sie fährt gern Rad.</div>
+<div class="shadow-vn">Cô ấy thích đạp xe.</div>
+</div>
+<div class="shadow-btns">
+<span class="sp shadow-slow" data-text="Sie fährt gern Rad." data-rate="0.5">🐢</span>
+<span class="shadow-counter">0 lần</span>
+</div>
+</div>
+<div class="shadow-sentence">
+<div class="shadow-num">7</div>
+<div class="shadow-text">
+<div class="shadow-de"><span class="sp" data-text="Spielst du gern Tennis? – Nein, nicht so gern.">🔊</span> Spielst du gern Tennis? – Nein, nicht so gern.</div>
+<div class="shadow-vn">Bạn thích chơi tennis không? – Không, không thích lắm.</div>
+</div>
+<div class="shadow-btns">
+<span class="sp shadow-slow" data-text="Spielst du gern Tennis? – Nein, nicht so gern." data-rate="0.5">🐢</span>
+<span class="shadow-counter">0 lần</span>
+</div>
+</div>
+<div class="shadow-sentence">
+<div class="shadow-num">8</div>
+<div class="shadow-text">
+<div class="shadow-de"><span class="sp" data-text="Hast du am Mittwoch Zeit? – Ja, das passt!">🔊</span> Hast du am Mittwoch Zeit? – Ja, das passt!</div>
+<div class="shadow-vn">Thứ Tư bạn rảnh không? – Được!</div>
+</div>
+<div class="shadow-btns">
+<span class="sp shadow-slow" data-text="Hast du am Mittwoch Zeit? – Ja, das passt!" data-rate="0.5">🐢</span>
+<span class="shadow-counter">0 lần</span>
+</div>
+</div>
+<div class="shadow-sentence">
+<div class="shadow-num">9</div>
+<div class="shadow-text">
+<div class="shadow-de"><span class="sp" data-text="Ich bin Studentin und arbeite auch als Kellnerin.">🔊</span> Ich bin Studentin und arbeite auch als Kellnerin.</div>
+<div class="shadow-vn">Tôi là SV và cũng làm phục vụ.</div>
+</div>
+<div class="shadow-btns">
+<span class="sp shadow-slow" data-text="Ich bin Studentin und arbeite auch als Kellnerin." data-rate="0.5">🐢</span>
+<span class="shadow-counter">0 lần</span>
+</div>
+</div>
+<div class="shadow-sentence">
+<div class="shadow-num">10</div>
+<div class="shadow-text">
+<div class="shadow-de"><span class="sp" data-text="Wir treffen uns am Freitag um fünfzehn Uhr.">🔊</span> Wir treffen uns am Freitag um fünfzehn Uhr.</div>
+<div class="shadow-vn">Chúng ta gặp nhau thứ Sáu lúc 15h.</div>
+</div>
+<div class="shadow-btns">
+<span class="sp shadow-slow" data-text="Wir treffen uns am Freitag um fünfzehn Uhr." data-rate="0.5">🐢</span>
+<span class="shadow-counter">0 lần</span>
+</div>
+</div>
+</div>
+
+<div class="chapter" id="ch3">
+<div class="sub-tabs">
+<div class="sub-tab active" data-ch="3" data-tab="vocab">🔤 Từ vựng</div>
+<div class="sub-tab" data-ch="3" data-tab="grammar">📝 Ngữ pháp</div>
+<div class="sub-tab" data-ch="3" data-tab="dialog">💬 Hội thoại</div>
+<div class="sub-tab" data-ch="3" data-tab="shadow">🎧 Shadowing</div>
+</div>
+
+<!-- KAP3 VOCAB -->
+<div class="sub-content active" id="ch3-vocab">
+<h2>Kapitel 3: In Hamburg</h2>
+
+<h3>Địa điểm & Tòa nhà (Orte & Gebäude)</h3>
+<table class="vocab-table">
+<tr><th>Deutsch</th><th>Tiếng Việt</th><th>Ví dụ</th></tr>
+<tr><td class="de"><span class="sp" data-text="der Bahnhof">🔊</span>der Bahnhof</td><td class="vn">nhà ga</td><td class="ex">Der Bahnhof ist groß.</td></tr>
+<tr><td class="de"><span class="sp" data-text="der Hafen">🔊</span>der Hafen</td><td class="vn">cảng</td><td class="ex">Der Hafen ist schön.</td></tr>
+<tr><td class="de"><span class="sp" data-text="die Kirche">🔊</span>die Kirche</td><td class="vn">nhà thờ</td><td class="ex">Die Kirche ist alt.</td></tr>
+<tr><td class="de"><span class="sp" data-text="das Museum">🔊</span>das Museum</td><td class="vn">bảo tàng</td><td class="ex">Das Museum ist interessant.</td></tr>
+<tr><td class="de"><span class="sp" data-text="das Rathaus">🔊</span>das Rathaus</td><td class="vn">tòa thị chính</td><td class="ex">Das Rathaus ist zentral.</td></tr>
+<tr><td class="de"><span class="sp" data-text="der Park">🔊</span>der Park</td><td class="vn">công viên</td><td class="ex">Der Park ist schön und grün.</td></tr>
+<tr><td class="de"><span class="sp" data-text="die Bibliothek">🔊</span>die Bibliothek</td><td class="vn">thư viện</td><td class="ex">Die Bibliothek ist groß.</td></tr>
+<tr><td class="de"><span class="sp" data-text="die Universität">🔊</span>die Universität</td><td class="vn">trường đại học</td><td class="ex">Die Universität ist modern.</td></tr>
+<tr><td class="de"><span class="sp" data-text="das Theater">🔊</span>das Theater</td><td class="vn">nhà hát</td><td class="ex">Das Theater ist alt und schön.</td></tr>
+<tr><td class="de"><span class="sp" data-text="das Hotel">🔊</span>das Hotel</td><td class="vn">khách sạn</td><td class="ex">Das Hotel ist neu.</td></tr>
+</table>
+
+<h3>Phương tiện giao thông (Verkehrsmittel)</h3>
+<table class="vocab-table">
+<tr><th>Deutsch</th><th>Tiếng Việt</th><th>Ví dụ</th></tr>
+<tr><td class="de"><span class="sp" data-text="der Bus">🔊</span>der Bus</td><td class="vn">xe buýt</td><td class="ex">Der Bus kommt um 8 Uhr.</td></tr>
+<tr><td class="de"><span class="sp" data-text="die U-Bahn">🔊</span>die U-Bahn</td><td class="vn">tàu điện ngầm</td><td class="ex">Nehmen Sie die U-Bahn!</td></tr>
+<tr><td class="de"><span class="sp" data-text="die S-Bahn">🔊</span>die S-Bahn</td><td class="vn">tàu ngoại ô</td><td class="ex">Die S-Bahn ist schnell.</td></tr>
+<tr><td class="de"><span class="sp" data-text="die Straßenbahn">🔊</span>die Straßenbahn</td><td class="vn">xe điện</td><td class="ex">Fahren Sie mit der Straßenbahn!</td></tr>
+<tr><td class="de"><span class="sp" data-text="der Zug">🔊</span>der Zug</td><td class="vn">tàu hỏa</td><td class="ex">Der Zug fährt um 10 Uhr.</td></tr>
+<tr><td class="de"><span class="sp" data-text="das Fahrrad">🔊</span>das Fahrrad</td><td class="vn">xe đạp</td><td class="ex">Ich fahre mit dem Fahrrad.</td></tr>
+<tr><td class="de"><span class="sp" data-text="das Taxi">🔊</span>das Taxi</td><td class="vn">taxi</td><td class="ex">Nehmen Sie ein Taxi!</td></tr>
+<tr><td class="de"><span class="sp" data-text="das Flugzeug">🔊</span>das Flugzeug</td><td class="vn">máy bay</td><td class="ex">Das Flugzeug ist schnell.</td></tr>
+<tr><td class="de"><span class="sp" data-text="das Schiff">🔊</span>das Schiff</td><td class="vn">tàu thủy</td><td class="ex">Das Schiff ist im Hafen.</td></tr>
+<tr><td class="de"><span class="sp" data-text="das Auto">🔊</span>das Auto</td><td class="vn">xe hơi</td><td class="ex">Das Auto ist rot.</td></tr>
+</table>
+
+<h3>Hướng đi (Richtungen)</h3>
+<table class="vocab-table">
+<tr><th>Deutsch</th><th>Tiếng Việt</th><th>Ví dụ</th></tr>
+<tr><td class="de"><span class="sp" data-text="links">🔊</span>links</td><td class="vn">bên trái</td><td class="ex">Gehen Sie links!</td></tr>
+<tr><td class="de"><span class="sp" data-text="rechts">🔊</span>rechts</td><td class="vn">bên phải</td><td class="ex">Dann gehen Sie rechts.</td></tr>
+<tr><td class="de"><span class="sp" data-text="geradeaus">🔊</span>geradeaus</td><td class="vn">đi thẳng</td><td class="ex">Gehen Sie geradeaus!</td></tr>
+<tr><td class="de"><span class="sp" data-text="dann">🔊</span>dann</td><td class="vn">rồi/sau đó</td><td class="ex">Geradeaus und dann links.</td></tr>
+<tr><td class="de"><span class="sp" data-text="hier">🔊</span>hier</td><td class="vn">ở đây</td><td class="ex">Das Museum ist hier.</td></tr>
+<tr><td class="de"><span class="sp" data-text="dort">🔊</span>dort</td><td class="vn">ở kia</td><td class="ex">Der Bahnhof ist dort.</td></tr>
+</table>
+
+<h3>Tháng & Mùa (Monate & Jahreszeiten)</h3>
+<table class="vocab-table">
+<tr><th>Monat</th><th>Tiếng Việt</th><th>Monat</th><th>Tiếng Việt</th></tr>
+<tr><td class="de"><span class="sp" data-text="Januar">🔊</span>Januar</td><td class="vn">Tháng 1</td><td class="de"><span class="sp" data-text="Juli">🔊</span>Juli</td><td class="vn">Tháng 7</td></tr>
+<tr><td class="de"><span class="sp" data-text="Februar">🔊</span>Februar</td><td class="vn">Tháng 2</td><td class="de"><span class="sp" data-text="August">🔊</span>August</td><td class="vn">Tháng 8</td></tr>
+<tr><td class="de"><span class="sp" data-text="März">🔊</span>März</td><td class="vn">Tháng 3</td><td class="de"><span class="sp" data-text="September">🔊</span>September</td><td class="vn">Tháng 9</td></tr>
+<tr><td class="de"><span class="sp" data-text="April">🔊</span>April</td><td class="vn">Tháng 4</td><td class="de"><span class="sp" data-text="Oktober">🔊</span>Oktober</td><td class="vn">Tháng 10</td></tr>
+<tr><td class="de"><span class="sp" data-text="Mai">🔊</span>Mai</td><td class="vn">Tháng 5</td><td class="de"><span class="sp" data-text="November">🔊</span>November</td><td class="vn">Tháng 11</td></tr>
+<tr><td class="de"><span class="sp" data-text="Juni">🔊</span>Juni</td><td class="vn">Tháng 6</td><td class="de"><span class="sp" data-text="Dezember">🔊</span>Dezember</td><td class="vn">Tháng 12</td></tr>
+</table>
+<table class="vocab-table" style="margin-top:10px">
+<tr><th>Jahreszeit</th><th>Tiếng Việt</th><th>Monate</th></tr>
+<tr><td class="de"><span class="sp" data-text="der Frühling">🔊</span>der Frühling</td><td class="vn">Mùa xuân</td><td class="ex">März, April, Mai</td></tr>
+<tr><td class="de"><span class="sp" data-text="der Sommer">🔊</span>der Sommer</td><td class="vn">Mùa hè</td><td class="ex">Juni, Juli, August</td></tr>
+<tr><td class="de"><span class="sp" data-text="der Herbst">🔊</span>der Herbst</td><td class="vn">Mùa thu</td><td class="ex">September, Oktober, November</td></tr>
+<tr><td class="de"><span class="sp" data-text="der Winter">🔊</span>der Winter</td><td class="vn">Mùa đông</td><td class="ex">Dezember, Januar, Februar</td></tr>
+</table>
+</div>
+
+<!-- KAP3 GRAMMAR -->
+<div class="sub-content" id="ch3-grammar">
+<h2>📝 Ngữ pháp - Kapitel 3</h2>
+
+<div class="grammar-box">
+<h4>1. Ba loại mạo từ (Artikel im Nominativ)</h4>
+<table class="conj-table">
+<tr><th></th><th>Maskulin (♂)</th><th>Neutrum (⚪)</th><th>Feminin (♀)</th><th>Plural</th></tr>
+<tr><td class="pronoun">Bestimmt (xác định)</td><td><strong>der</strong> Bahnhof</td><td><strong>das</strong> Museum</td><td><strong>die</strong> Kirche</td><td><strong>die</strong> Parks</td></tr>
+<tr><td class="pronoun">Unbestimmt (không xác định)</td><td><strong>ein</strong> Bahnhof</td><td><strong>ein</strong> Museum</td><td><strong>eine</strong> Kirche</td><td><strong>—</strong> Parks</td></tr>
+<tr><td class="pronoun">Negation (phủ định)</td><td><strong>kein</strong> Bahnhof</td><td><strong>kein</strong> Museum</td><td><strong>keine</strong> Kirche</td><td><strong>keine</strong> Parks</td></tr>
+</table>
+<div class="note"><strong>⚡ Quy tắc:</strong> <em>kein</em> = phủ định danh từ (≠ nicht). Ví dụ: Das ist <strong>kein</strong> Museum. (Đó không phải bảo tàng.)</div>
+</div>
+
+<div class="grammar-box">
+<h4>2. Mệnh lệnh thức với Sie (Imperativ mit Sie)</h4>
+<table class="vocab-table">
+<tr><th>Infinitiv</th><th>Imperativ</th><th>Nghĩa</th></tr>
+<tr><td class="de">gehen</td><td class="de"><span class="sp" data-text="Gehen Sie geradeaus!">🔊</span><strong>Gehen</strong> Sie geradeaus!</td><td class="vn">Hãy đi thẳng!</td></tr>
+<tr><td class="de">fahren</td><td class="de"><span class="sp" data-text="Fahren Sie mit dem Bus!">🔊</span><strong>Fahren</strong> Sie mit dem Bus!</td><td class="vn">Hãy đi xe buýt!</td></tr>
+<tr><td class="de">nehmen</td><td class="de"><span class="sp" data-text="Nehmen Sie die U-Bahn!">🔊</span><strong>Nehmen</strong> Sie die U-Bahn!</td><td class="vn">Hãy đi tàu điện ngầm!</td></tr>
+<tr><td class="de">biegen</td><td class="de"><span class="sp" data-text="Biegen Sie links ab!">🔊</span><strong>Biegen</strong> Sie links ab!</td><td class="vn">Hãy rẽ trái!</td></tr>
+</table>
+<div class="note"><strong>⚡ Cấu trúc:</strong> Verb (nguyên dạng) + <strong>Sie</strong> + ...! → Lịch sự ra lệnh/chỉ đường</div>
+</div>
+
+<div class="grammar-box">
+<h4>3. Tính từ với sein (Adjektive mit sein)</h4>
+<table class="vocab-table">
+<tr><th>Ví dụ</th><th>Dịch</th></tr>
+<tr><td class="de"><span class="sp" data-text="Das Museum ist interessant">🔊</span>Das Museum ist <strong>interessant</strong>.</td><td class="vn">Bảo tàng thú vị.</td></tr>
+<tr><td class="de"><span class="sp" data-text="Der Park ist schön">🔊</span>Der Park ist <strong>schön</strong>.</td><td class="vn">Công viên đẹp.</td></tr>
+<tr><td class="de"><span class="sp" data-text="Die Kirche ist alt">🔊</span>Die Kirche ist <strong>alt</strong>.</td><td class="vn">Nhà thờ cổ.</td></tr>
+<tr><td class="de"><span class="sp" data-text="Das Hotel ist neu und modern">🔊</span>Das Hotel ist <strong>neu</strong> und <strong>modern</strong>.</td><td class="vn">Khách sạn mới và hiện đại.</td></tr>
+<tr><td class="de"><span class="sp" data-text="Der Bahnhof ist groß">🔊</span>Der Bahnhof ist <strong>groß</strong>.</td><td class="vn">Nhà ga lớn.</td></tr>
+<tr><td class="de"><span class="sp" data-text="Die Bibliothek ist klein">🔊</span>Die Bibliothek ist <strong>klein</strong>.</td><td class="vn">Thư viện nhỏ.</td></tr>
+</table>
+<div class="note"><strong>⚡ Lưu ý:</strong> Tính từ sau <em>sein</em> KHÔNG chia, KHÔNG thêm đuôi!</div>
+</div>
+</div>
+
+<!-- KAP3 DIALOG -->
+<div class="sub-content" id="ch3-dialog">
+<h2>💬 Hội thoại - Kapitel 3</h2>
+
+<h3>Hỏi đường (Weg fragen)</h3>
+<div class="dialogue">
+<div class="dlg-line"><span class="dlg-speaker">A:</span><span class="dlg-de"><span class="sp" data-text="Entschuldigung, wo ist der Bahnhof?">🔊</span>Entschuldigung, wo ist der Bahnhof?</span></div>
+<div class="dlg-vn">→ Xin lỗi, nhà ga ở đâu?</div>
+<div class="dlg-line"><span class="dlg-speaker">B:</span><span class="dlg-de"><span class="sp" data-text="Gehen Sie geradeaus und dann links. Der Bahnhof ist dort.">🔊</span>Gehen Sie geradeaus und dann links. Der Bahnhof ist dort.</span></div>
+<div class="dlg-vn">→ Đi thẳng rồi rẽ trái. Nhà ga ở kia.</div>
+<div class="dlg-line"><span class="dlg-speaker">A:</span><span class="dlg-de"><span class="sp" data-text="Ist das weit?">🔊</span>Ist das weit?</span></div>
+<div class="dlg-vn">→ Có xa không?</div>
+<div class="dlg-line"><span class="dlg-speaker">B:</span><span class="dlg-de"><span class="sp" data-text="Nein, nur 5 Minuten zu Fuß.">🔊</span>Nein, nur 5 Minuten zu Fuß.</span></div>
+<div class="dlg-vn">→ Không, chỉ 5 phút đi bộ.</div>
+<div class="dlg-line"><span class="dlg-speaker">A:</span><span class="dlg-de"><span class="sp" data-text="Vielen Dank!">🔊</span>Vielen Dank!</span></div>
+<div class="dlg-vn">→ Cảm ơn nhiều!</div>
+<div class="dlg-line"><span class="dlg-speaker">B:</span><span class="dlg-de"><span class="sp" data-text="Bitte schön!">🔊</span>Bitte schön!</span></div>
+<div class="dlg-vn">→ Không có gì!</div>
+</div>
+
+<h3>Hỏi về đồ vật (Dinge fragen)</h3>
+<div class="dialogue">
+<div class="dlg-line"><span class="dlg-speaker">A:</span><span class="dlg-de"><span class="sp" data-text="Was ist das?">🔊</span>Was ist das?</span></div>
+<div class="dlg-vn">→ Đó là cái gì?</div>
+<div class="dlg-line"><span class="dlg-speaker">B:</span><span class="dlg-de"><span class="sp" data-text="Das ist ein Museum. Es ist sehr alt.">🔊</span>Das ist ein Museum. Es ist sehr alt.</span></div>
+<div class="dlg-vn">→ Đó là một bảo tàng. Nó rất cổ.</div>
+<div class="dlg-line"><span class="dlg-speaker">A:</span><span class="dlg-de"><span class="sp" data-text="Und ist das eine Kirche?">🔊</span>Und ist das eine Kirche?</span></div>
+<div class="dlg-vn">→ Và đó là một nhà thờ phải không?</div>
+<div class="dlg-line"><span class="dlg-speaker">B:</span><span class="dlg-de"><span class="sp" data-text="Nein, das ist keine Kirche. Das ist das Rathaus.">🔊</span>Nein, das ist keine Kirche. Das ist das Rathaus.</span></div>
+<div class="dlg-vn">→ Không, đó không phải nhà thờ. Đó là tòa thị chính.</div>
+</div>
+
+<h3>Phương tiện giao thông</h3>
+<div class="dialogue">
+<div class="dlg-line"><span class="dlg-speaker">A:</span><span class="dlg-de"><span class="sp" data-text="Wie komme ich zum Hafen?">🔊</span>Wie komme ich zum Hafen?</span></div>
+<div class="dlg-vn">→ Tôi đến cảng bằng cách nào?</div>
+<div class="dlg-line"><span class="dlg-speaker">B:</span><span class="dlg-de"><span class="sp" data-text="Nehmen Sie die U-Bahn, Linie 3.">🔊</span>Nehmen Sie die U-Bahn, Linie 3.</span></div>
+<div class="dlg-vn">→ Hãy đi tàu điện ngầm, tuyến 3.</div>
+<div class="dlg-line"><span class="dlg-speaker">A:</span><span class="dlg-de"><span class="sp" data-text="Oder kann ich auch mit dem Bus fahren?">🔊</span>Oder kann ich auch mit dem Bus fahren?</span></div>
+<div class="dlg-vn">→ Hoặc tôi có thể đi xe buýt không?</div>
+<div class="dlg-line"><span class="dlg-speaker">B:</span><span class="dlg-de"><span class="sp" data-text="Ja, der Bus Nummer 5 fährt auch zum Hafen.">🔊</span>Ja, der Bus Nummer 5 fährt auch zum Hafen.</span></div>
+<div class="dlg-vn">→ Được, xe buýt số 5 cũng đi đến cảng.</div>
+</div>
+</div>
+</div>
+
+<!-- ==================== KAPITEL 4 ==================== -->
+
+<div class="sub-content" id="ch3-shadow">
+<h2>🎧 Shadowing - Kapitel 3</h2>
+<div class="shadow-intro" style="padding:10px 16px"><h4 style="margin:0">💡 Nghe 🔊 → Lặp lại thành tiếng → Bấm 🐢 nghe chậm → Lặp lại 3-5 lần mỗi câu</h4></div>
+<div class="shadow-sentence">
+<div class="shadow-num">1</div>
+<div class="shadow-text">
+<div class="shadow-de"><span class="sp" data-text="Entschuldigung, wo ist der Bahnhof?">🔊</span> Entschuldigung, wo ist der Bahnhof?</div>
+<div class="shadow-vn">Xin lỗi, nhà ga ở đâu?</div>
+</div>
+<div class="shadow-btns">
+<span class="sp shadow-slow" data-text="Entschuldigung, wo ist der Bahnhof?" data-rate="0.5">🐢</span>
+<span class="shadow-counter">0 lần</span>
+</div>
+</div>
+<div class="shadow-sentence">
+<div class="shadow-num">2</div>
+<div class="shadow-text">
+<div class="shadow-de"><span class="sp" data-text="Gehen Sie geradeaus und dann links.">🔊</span> Gehen Sie geradeaus und dann links.</div>
+<div class="shadow-vn">Đi thẳng rồi rẽ trái.</div>
+</div>
+<div class="shadow-btns">
+<span class="sp shadow-slow" data-text="Gehen Sie geradeaus und dann links." data-rate="0.5">🐢</span>
+<span class="shadow-counter">0 lần</span>
+</div>
+</div>
+<div class="shadow-sentence">
+<div class="shadow-num">3</div>
+<div class="shadow-text">
+<div class="shadow-de"><span class="sp" data-text="Ist das weit? – Nein, nur fünf Minuten.">🔊</span> Ist das weit? – Nein, nur fünf Minuten.</div>
+<div class="shadow-vn">Có xa không? – Không, chỉ 5 phút.</div>
+</div>
+<div class="shadow-btns">
+<span class="sp shadow-slow" data-text="Ist das weit? – Nein, nur fünf Minuten." data-rate="0.5">🐢</span>
+<span class="shadow-counter">0 lần</span>
+</div>
+</div>
+<div class="shadow-sentence">
+<div class="shadow-num">4</div>
+<div class="shadow-text">
+<div class="shadow-de"><span class="sp" data-text="Ich fahre mit der U-Bahn zur Arbeit.">🔊</span> Ich fahre mit der U-Bahn zur Arbeit.</div>
+<div class="shadow-vn">Tôi đi tàu điện ngầm đến chỗ làm.</div>
+</div>
+<div class="shadow-btns">
+<span class="sp shadow-slow" data-text="Ich fahre mit der U-Bahn zur Arbeit." data-rate="0.5">🐢</span>
+<span class="shadow-counter">0 lần</span>
+</div>
+</div>
+<div class="shadow-sentence">
+<div class="shadow-num">5</div>
+<div class="shadow-text">
+<div class="shadow-de"><span class="sp" data-text="Das Museum ist sehr schön und groß.">🔊</span> Das Museum ist sehr schön und groß.</div>
+<div class="shadow-vn">Bảo tàng rất đẹp và lớn.</div>
+</div>
+<div class="shadow-btns">
+<span class="sp shadow-slow" data-text="Das Museum ist sehr schön und groß." data-rate="0.5">🐢</span>
+<span class="shadow-counter">0 lần</span>
+</div>
+</div>
+<div class="shadow-sentence">
+<div class="shadow-num">6</div>
+<div class="shadow-text">
+<div class="shadow-de"><span class="sp" data-text="Nehmen Sie den Bus Linie fünf.">🔊</span> Nehmen Sie den Bus Linie fünf.</div>
+<div class="shadow-vn">Bắt xe buýt tuyến 5.</div>
+</div>
+<div class="shadow-btns">
+<span class="sp shadow-slow" data-text="Nehmen Sie den Bus Linie fünf." data-rate="0.5">🐢</span>
+<span class="shadow-counter">0 lần</span>
+</div>
+</div>
+<div class="shadow-sentence">
+<div class="shadow-num">7</div>
+<div class="shadow-text">
+<div class="shadow-de"><span class="sp" data-text="Die Bibliothek ist rechts vom Park.">🔊</span> Die Bibliothek ist rechts vom Park.</div>
+<div class="shadow-vn">Thư viện ở bên phải công viên.</div>
+</div>
+<div class="shadow-btns">
+<span class="sp shadow-slow" data-text="Die Bibliothek ist rechts vom Park." data-rate="0.5">🐢</span>
+<span class="shadow-counter">0 lần</span>
+</div>
+</div>
+<div class="shadow-sentence">
+<div class="shadow-num">8</div>
+<div class="shadow-text">
+<div class="shadow-de"><span class="sp" data-text="Wie komme ich zum Rathaus?">🔊</span> Wie komme ich zum Rathaus?</div>
+<div class="shadow-vn">Tôi đến tòa thị chính bằng cách nào?</div>
+</div>
+<div class="shadow-btns">
+<span class="sp shadow-slow" data-text="Wie komme ich zum Rathaus?" data-rate="0.5">🐢</span>
+<span class="shadow-counter">0 lần</span>
+</div>
+</div>
+<div class="shadow-sentence">
+<div class="shadow-num">9</div>
+<div class="shadow-text">
+<div class="shadow-de"><span class="sp" data-text="Das ist kein Hotel, das ist ein Restaurant.">🔊</span> Das ist kein Hotel, das ist ein Restaurant.</div>
+<div class="shadow-vn">Đây không phải khách sạn, đây là nhà hàng.</div>
+</div>
+<div class="shadow-btns">
+<span class="sp shadow-slow" data-text="Das ist kein Hotel, das ist ein Restaurant." data-rate="0.5">🐢</span>
+<span class="shadow-counter">0 lần</span>
+</div>
+</div>
+<div class="shadow-sentence">
+<div class="shadow-num">10</div>
+<div class="shadow-text">
+<div class="shadow-de"><span class="sp" data-text="Im Frühling ist Hamburg wunderschön.">🔊</span> Im Frühling ist Hamburg wunderschön.</div>
+<div class="shadow-vn">Mùa xuân Hamburg đẹp tuyệt.</div>
+</div>
+<div class="shadow-btns">
+<span class="sp shadow-slow" data-text="Im Frühling ist Hamburg wunderschön." data-rate="0.5">🐢</span>
+<span class="shadow-counter">0 lần</span>
+</div>
+</div>
+</div>
+
+<div class="chapter" id="ch4">
+<div class="sub-tabs">
+<div class="sub-tab active" data-ch="4" data-tab="vocab">🔤 Từ vựng</div>
+<div class="sub-tab" data-ch="4" data-tab="grammar">📝 Ngữ pháp</div>
+<div class="sub-tab" data-ch="4" data-tab="dialog">💬 Hội thoại</div>
+<div class="sub-tab" data-ch="4" data-tab="shadow">🎧 Shadowing</div>
+</div>
+
+<!-- KAP4 VOCAB -->
+<div class="sub-content active" id="ch4-vocab">
+<h2>Kapitel 4: Guten Appetit!</h2>
+
+<h3>Bữa ăn (Mahlzeiten)</h3>
+<table class="vocab-table">
+<tr><th>Deutsch</th><th>Tiếng Việt</th><th>Ví dụ</th></tr>
+<tr><td class="de"><span class="sp" data-text="das Frühstück">🔊</span>das Frühstück</td><td class="vn">bữa sáng</td><td class="ex">Das Frühstück ist um 7 Uhr.</td></tr>
+<tr><td class="de"><span class="sp" data-text="das Mittagessen">🔊</span>das Mittagessen</td><td class="vn">bữa trưa</td><td class="ex">Was gibt es zum Mittagessen?</td></tr>
+<tr><td class="de"><span class="sp" data-text="das Abendessen">🔊</span>das Abendessen</td><td class="vn">bữa tối</td><td class="ex">Zum Abendessen essen wir Brot.</td></tr>
+<tr><td class="de"><span class="sp" data-text="der Snack">🔊</span>der Snack</td><td class="vn">bữa phụ/ăn vặt</td><td class="ex">Ich esse einen Snack.</td></tr>
+</table>
+
+<h3>Thực phẩm (Lebensmittel)</h3>
+<table class="vocab-table">
+<tr><th>Deutsch</th><th>Tiếng Việt</th><th>Deutsch</th><th>Tiếng Việt</th></tr>
+<tr><td class="de"><span class="sp" data-text="das Brot">🔊</span>das Brot</td><td class="vn">bánh mì</td><td class="de"><span class="sp" data-text="das Obst">🔊</span>das Obst</td><td class="vn">trái cây</td></tr>
+<tr><td class="de"><span class="sp" data-text="das Brötchen">🔊</span>das Brötchen</td><td class="vn">bánh mì nhỏ</td><td class="de"><span class="sp" data-text="der Käse">🔊</span>der Käse</td><td class="vn">phô mai</td></tr>
+<tr><td class="de"><span class="sp" data-text="der Reis">🔊</span>der Reis</td><td class="vn">cơm/gạo</td><td class="de"><span class="sp" data-text="die Wurst">🔊</span>die Wurst</td><td class="vn">xúc xích</td></tr>
+<tr><td class="de"><span class="sp" data-text="die Nudeln">🔊</span>die Nudeln (Pl.)</td><td class="vn">mì/pasta</td><td class="de"><span class="sp" data-text="das Ei">🔊</span>das Ei</td><td class="vn">trứng</td></tr>
+<tr><td class="de"><span class="sp" data-text="das Fleisch">🔊</span>das Fleisch</td><td class="vn">thịt</td><td class="de"><span class="sp" data-text="die Butter">🔊</span>die Butter</td><td class="vn">bơ</td></tr>
+<tr><td class="de"><span class="sp" data-text="das Hähnchen">🔊</span>das Hähnchen</td><td class="vn">thịt gà</td><td class="de"><span class="sp" data-text="die Marmelade">🔊</span>die Marmelade</td><td class="vn">mứt</td></tr>
+<tr><td class="de"><span class="sp" data-text="der Fisch">🔊</span>der Fisch</td><td class="vn">cá</td><td class="de"><span class="sp" data-text="die Schokolade">🔊</span>die Schokolade</td><td class="vn">sô-cô-la</td></tr>
+<tr><td class="de"><span class="sp" data-text="das Gemüse">🔊</span>das Gemüse</td><td class="vn">rau</td><td class="de"><span class="sp" data-text="der Kuchen">🔊</span>der Kuchen</td><td class="vn">bánh ngọt</td></tr>
+<tr><td class="de"><span class="sp" data-text="der Salat">🔊</span>der Salat</td><td class="vn">salad</td><td class="de"><span class="sp" data-text="die Suppe">🔊</span>die Suppe</td><td class="vn">súp</td></tr>
+</table>
+
+<h3>Đồ uống (Getränke)</h3>
+<table class="vocab-table">
+<tr><th>Deutsch</th><th>Tiếng Việt</th><th>Deutsch</th><th>Tiếng Việt</th></tr>
+<tr><td class="de"><span class="sp" data-text="der Kaffee">🔊</span>der Kaffee</td><td class="vn">cà phê</td><td class="de"><span class="sp" data-text="der Saft">🔊</span>der Saft</td><td class="vn">nước ép</td></tr>
+<tr><td class="de"><span class="sp" data-text="der Tee">🔊</span>der Tee</td><td class="vn">trà</td><td class="de"><span class="sp" data-text="das Bier">🔊</span>das Bier</td><td class="vn">bia</td></tr>
+<tr><td class="de"><span class="sp" data-text="die Milch">🔊</span>die Milch</td><td class="vn">sữa</td><td class="de"><span class="sp" data-text="der Wein">🔊</span>der Wein</td><td class="vn">rượu vang</td></tr>
+<tr><td class="de"><span class="sp" data-text="das Wasser">🔊</span>das Wasser</td><td class="vn">nước</td><td class="de"><span class="sp" data-text="die Cola">🔊</span>die Cola</td><td class="vn">coca</td></tr>
+</table>
+
+<h3>Cửa hàng (Geschäfte)</h3>
+<table class="vocab-table">
+<tr><th>Deutsch</th><th>Tiếng Việt</th><th>Was gibt es?</th></tr>
+<tr><td class="de"><span class="sp" data-text="der Supermarkt">🔊</span>der Supermarkt</td><td class="vn">siêu thị</td><td class="ex">Alles!</td></tr>
+<tr><td class="de"><span class="sp" data-text="die Bäckerei">🔊</span>die Bäckerei</td><td class="vn">tiệm bánh</td><td class="ex">Brot, Brötchen, Kuchen</td></tr>
+<tr><td class="de"><span class="sp" data-text="die Metzgerei">🔊</span>die Metzgerei</td><td class="vn">cửa hàng thịt</td><td class="ex">Fleisch, Wurst</td></tr>
+<tr><td class="de"><span class="sp" data-text="der Markt">🔊</span>der Markt</td><td class="vn">chợ</td><td class="ex">Obst, Gemüse, Fisch</td></tr>
+</table>
+</div>
+
+<!-- KAP4 GRAMMAR -->
+<div class="sub-content" id="ch4-grammar">
+<h2>📝 Ngữ pháp - Kapitel 4</h2>
+
+<div class="grammar-box">
+<h4>1. Akkusativ (Cách đối cách - câu hỏi: Wen? Was?)</h4>
+<table class="conj-table">
+<tr><th></th><th>Maskulin (♂)</th><th>Neutrum (⚪)</th><th>Feminin (♀)</th><th>Plural</th></tr>
+<tr><td class="pronoun">Bestimmt</td><td><strong><span class="highlight">den</span></strong> Kuchen</td><td><strong>das</strong> Brot</td><td><strong>die</strong> Suppe</td><td><strong>die</strong> Eier</td></tr>
+<tr><td class="pronoun">Unbestimmt</td><td><strong><span class="highlight">einen</span></strong> Kuchen</td><td><strong>ein</strong> Brot</td><td><strong>eine</strong> Suppe</td><td><strong>—</strong> Eier</td></tr>
+<tr><td class="pronoun">Negation</td><td><strong><span class="highlight">keinen</span></strong> Kuchen</td><td><strong>kein</strong> Brot</td><td><strong>keine</strong> Suppe</td><td><strong>keine</strong> Eier</td></tr>
+</table>
+<div class="note"><strong>⚡ Chỉ Maskulin thay đổi!</strong> der→den, ein→einen, kein→keinen. Feminin + Neutrum + Plural giữ nguyên!</div>
+</div>
+
+<div class="grammar-box">
+<h4>2. mögen vs möchten</h4>
+<table class="conj-table">
+<tr><th>Pronomen</th><th>mögen (thích)</th><th>möchten (muốn)</th></tr>
+<tr><td class="pronoun">ich</td><td>mag</td><td>möchte</td></tr>
+<tr><td class="pronoun">du</td><td>magst</td><td>möchtest</td></tr>
+<tr><td class="pronoun">er/sie/es</td><td>mag</td><td>möchte</td></tr>
+<tr><td class="pronoun">wir</td><td>mögen</td><td>möchten</td></tr>
+<tr><td class="pronoun">ihr</td><td>mögt</td><td>möchtet</td></tr>
+<tr><td class="pronoun">sie/Sie</td><td>mögen</td><td>möchten</td></tr>
+</table>
+<div class="note"><strong>⚡ So sánh:</strong> <em>mögen</em> = thích (nói chung), <em>möchten</em> = muốn (lúc này, lịch sự). Ví dụ: Ich <strong>mag</strong> Kaffee. (Tôi thích cà phê.) / Ich <strong>möchte</strong> einen Kaffee. (Tôi muốn một ly cà phê.)</div>
+</div>
+
+<div class="grammar-box">
+<h4>3. Vị trí trong câu (Positionen im Satz)</h4>
+<p style="font-size:13px;margin-bottom:8px">Động từ LUÔN ở vị trí 2. Phần khác linh hoạt:</p>
+<table class="vocab-table">
+<tr><th>Position 1</th><th>Position 2 (Verb)</th><th>Rest</th></tr>
+<tr><td class="de">Lina</td><td><strong>isst</strong></td><td>morgens Müsli.</td></tr>
+<tr><td class="de">Morgens</td><td><strong>isst</strong></td><td>Lina Müsli.</td></tr>
+<tr><td class="de">Müsli</td><td><strong>isst</strong></td><td>Lina morgens.</td></tr>
+</table>
+<div class="note"><strong>⚡ Inversi</strong>on: Khi bắt đầu bằng trạng từ/bổ ngữ, chủ ngữ nhường vị trí 1, lùi về sau verb.</div>
+</div>
+</div>
+
+<!-- KAP4 DIALOG -->
+<div class="sub-content" id="ch4-dialog">
+<h2>💬 Hội thoại - Kapitel 4</h2>
+
+<h3>Mua sắm (Einkaufen)</h3>
+<div class="dialogue">
+<div class="dlg-line"><span class="dlg-speaker">V:</span><span class="dlg-de"><span class="sp" data-text="Guten Tag! Was möchten Sie?">🔊</span>Guten Tag! Was möchten Sie?</span></div>
+<div class="dlg-vn">→ Xin chào! Anh/chị muốn gì?</div>
+<div class="dlg-line"><span class="dlg-speaker">K:</span><span class="dlg-de"><span class="sp" data-text="Ich möchte ein Brot und drei Brötchen, bitte.">🔊</span>Ich möchte ein Brot und drei Brötchen, bitte.</span></div>
+<div class="dlg-vn">→ Tôi muốn một ổ bánh mì và ba bánh mì nhỏ, xin vui lòng.</div>
+<div class="dlg-line"><span class="dlg-speaker">V:</span><span class="dlg-de"><span class="sp" data-text="Noch etwas?">🔊</span>Noch etwas?</span></div>
+<div class="dlg-vn">→ Còn gì nữa không?</div>
+<div class="dlg-line"><span class="dlg-speaker">K:</span><span class="dlg-de"><span class="sp" data-text="Ja, ich hätte gern ein Stück Kuchen.">🔊</span>Ja, ich hätte gern ein Stück Kuchen.</span></div>
+<div class="dlg-vn">→ Vâng, tôi muốn một miếng bánh ngọt.</div>
+<div class="dlg-line"><span class="dlg-speaker">V:</span><span class="dlg-de"><span class="sp" data-text="Das macht 5 Euro 80.">🔊</span>Das macht 5 Euro 80.</span></div>
+<div class="dlg-vn">→ Tổng 5 Euro 80 cent.</div>
+<div class="dlg-line"><span class="dlg-speaker">K:</span><span class="dlg-de"><span class="sp" data-text="Bitte schön. Danke, tschüss!">🔊</span>Bitte schön. Danke, tschüss!</span></div>
+<div class="dlg-vn">→ Xin mời. Cảm ơn, tạm biệt!</div>
+</div>
+
+<h3>Beim Essen (Khi ăn)</h3>
+<div class="dialogue">
+<div class="dlg-line"><span class="dlg-speaker">A:</span><span class="dlg-de"><span class="sp" data-text="Guten Appetit!">🔊</span>Guten Appetit!</span></div>
+<div class="dlg-vn">→ Chúc ngon miệng!</div>
+<div class="dlg-line"><span class="dlg-speaker">B:</span><span class="dlg-de"><span class="sp" data-text="Danke, gleichfalls!">🔊</span>Danke, gleichfalls!</span></div>
+<div class="dlg-vn">→ Cảm ơn, bạn cũng vậy!</div>
+<div class="dlg-line"><span class="dlg-speaker">A:</span><span class="dlg-de"><span class="sp" data-text="Schmeckt's?">🔊</span>Schmeckt's?</span></div>
+<div class="dlg-vn">→ Ngon không?</div>
+<div class="dlg-line"><span class="dlg-speaker">B:</span><span class="dlg-de"><span class="sp" data-text="Ja, sehr lecker!">🔊</span>Ja, sehr lecker!</span></div>
+<div class="dlg-vn">→ Ừ, rất ngon!</div>
+<div class="dlg-line"><span class="dlg-speaker">A:</span><span class="dlg-de"><span class="sp" data-text="Möchtest du noch etwas?">🔊</span>Möchtest du noch etwas?</span></div>
+<div class="dlg-vn">→ Bạn muốn thêm gì không?</div>
+<div class="dlg-line"><span class="dlg-speaker">B:</span><span class="dlg-de"><span class="sp" data-text="Nein danke, ich bin satt.">🔊</span>Nein danke, ich bin satt.</span></div>
+<div class="dlg-vn">→ Không cảm ơn, tôi no rồi.</div>
+</div>
+
+<h3>Nhà hàng (Im Restaurant)</h3>
+<div class="dialogue">
+<div class="dlg-line"><span class="dlg-speaker">K:</span><span class="dlg-de"><span class="sp" data-text="Die Speisekarte, bitte.">🔊</span>Die Speisekarte, bitte.</span></div>
+<div class="dlg-vn">→ Cho xin thực đơn.</div>
+<div class="dlg-line"><span class="dlg-speaker">O:</span><span class="dlg-de"><span class="sp" data-text="Bitte schön. Möchten Sie schon etwas trinken?">🔊</span>Bitte schön. Möchten Sie schon etwas trinken?</span></div>
+<div class="dlg-vn">→ Mời. Anh/chị muốn uống gì chưa?</div>
+<div class="dlg-line"><span class="dlg-speaker">K:</span><span class="dlg-de"><span class="sp" data-text="Ja, ein Wasser bitte.">🔊</span>Ja, ein Wasser bitte.</span></div>
+<div class="dlg-vn">→ Vâng, cho một ly nước.</div>
+<div class="dlg-line"><span class="dlg-speaker">O:</span><span class="dlg-de"><span class="sp" data-text="Und was möchten Sie essen?">🔊</span>Und was möchten Sie essen?</span></div>
+<div class="dlg-vn">→ Và anh/chị muốn ăn gì?</div>
+<div class="dlg-line"><span class="dlg-speaker">K:</span><span class="dlg-de"><span class="sp" data-text="Ich hätte gern den Fisch mit Reis.">🔊</span>Ich hätte gern den Fisch mit Reis.</span></div>
+<div class="dlg-vn">→ Tôi muốn cá với cơm.</div>
+</div>
+</div>
+</div>
+
+<!-- ==================== KAPITEL 5 ==================== -->
+
+<div class="sub-content" id="ch4-shadow">
+<h2>🎧 Shadowing - Kapitel 4</h2>
+<div class="shadow-intro" style="padding:10px 16px"><h4 style="margin:0">💡 Nghe 🔊 → Lặp lại thành tiếng → Bấm 🐢 nghe chậm → Lặp lại 3-5 lần mỗi câu</h4></div>
+<div class="shadow-sentence">
+<div class="shadow-num">1</div>
+<div class="shadow-text">
+<div class="shadow-de"><span class="sp" data-text="Ich möchte einen Kaffee mit Milch, bitte.">🔊</span> Ich möchte einen Kaffee mit Milch, bitte.</div>
+<div class="shadow-vn">Tôi muốn một cà phê sữa, xin mời.</div>
+</div>
+<div class="shadow-btns">
+<span class="sp shadow-slow" data-text="Ich möchte einen Kaffee mit Milch, bitte." data-rate="0.5">🐢</span>
+<span class="shadow-counter">0 lần</span>
+</div>
+</div>
+<div class="shadow-sentence">
+<div class="shadow-num">2</div>
+<div class="shadow-text">
+<div class="shadow-de"><span class="sp" data-text="Was möchten Sie essen?">🔊</span> Was möchten Sie essen?</div>
+<div class="shadow-vn">Bạn muốn ăn gì?</div>
+</div>
+<div class="shadow-btns">
+<span class="sp shadow-slow" data-text="Was möchten Sie essen?" data-rate="0.5">🐢</span>
+<span class="shadow-counter">0 lần</span>
+</div>
+</div>
+<div class="shadow-sentence">
+<div class="shadow-num">3</div>
+<div class="shadow-text">
+<div class="shadow-de"><span class="sp" data-text="Ich nehme die Suppe und einen Salat.">🔊</span> Ich nehme die Suppe und einen Salat.</div>
+<div class="shadow-vn">Tôi lấy súp và một salad.</div>
+</div>
+<div class="shadow-btns">
+<span class="sp shadow-slow" data-text="Ich nehme die Suppe und einen Salat." data-rate="0.5">🐢</span>
+<span class="shadow-counter">0 lần</span>
+</div>
+</div>
+<div class="shadow-sentence">
+<div class="shadow-num">4</div>
+<div class="shadow-text">
+<div class="shadow-de"><span class="sp" data-text="Guten Appetit! – Danke, gleichfalls!">🔊</span> Guten Appetit! – Danke, gleichfalls!</div>
+<div class="shadow-vn">Chúc ngon miệng! – Cảm ơn, bạn cũng vậy!</div>
+</div>
+<div class="shadow-btns">
+<span class="sp shadow-slow" data-text="Guten Appetit! – Danke, gleichfalls!" data-rate="0.5">🐢</span>
+<span class="shadow-counter">0 lần</span>
+</div>
+</div>
+<div class="shadow-sentence">
+<div class="shadow-num">5</div>
+<div class="shadow-text">
+<div class="shadow-de"><span class="sp" data-text="Ich mag keinen Fisch, aber Fleisch esse ich gern.">🔊</span> Ich mag keinen Fisch, aber Fleisch esse ich gern.</div>
+<div class="shadow-vn">Tôi không thích cá, nhưng thịt tôi thích ăn.</div>
+</div>
+<div class="shadow-btns">
+<span class="sp shadow-slow" data-text="Ich mag keinen Fisch, aber Fleisch esse ich gern." data-rate="0.5">🐢</span>
+<span class="shadow-counter">0 lần</span>
+</div>
+</div>
+<div class="shadow-sentence">
+<div class="shadow-num">6</div>
+<div class="shadow-text">
+<div class="shadow-de"><span class="sp" data-text="Möchtest du noch etwas trinken? – Nein danke, ich bin satt.">🔊</span> Möchtest du noch etwas trinken? – Nein danke, ich bin satt.</div>
+<div class="shadow-vn">Bạn uống thêm gì không? – Không, tôi no rồi.</div>
+</div>
+<div class="shadow-btns">
+<span class="sp shadow-slow" data-text="Möchtest du noch etwas trinken? – Nein danke, ich bin satt." data-rate="0.5">🐢</span>
+<span class="shadow-counter">0 lần</span>
+</div>
+</div>
+<div class="shadow-sentence">
+<div class="shadow-num">7</div>
+<div class="shadow-text">
+<div class="shadow-de"><span class="sp" data-text="Wie viel kostet das Brot? – Zwei Euro fünfzig.">🔊</span> Wie viel kostet das Brot? – Zwei Euro fünfzig.</div>
+<div class="shadow-vn">Bánh mì bao nhiêu? – 2,50 €.</div>
+</div>
+<div class="shadow-btns">
+<span class="sp shadow-slow" data-text="Wie viel kostet das Brot? – Zwei Euro fünfzig." data-rate="0.5">🐢</span>
+<span class="shadow-counter">0 lần</span>
+</div>
+</div>
+<div class="shadow-sentence">
+<div class="shadow-num">8</div>
+<div class="shadow-text">
+<div class="shadow-de"><span class="sp" data-text="Ich frühstücke morgens Brötchen mit Käse.">🔊</span> Ich frühstücke morgens Brötchen mit Käse.</div>
+<div class="shadow-vn">Sáng tôi ăn bánh mì nhỏ với phô mai.</div>
+</div>
+<div class="shadow-btns">
+<span class="sp shadow-slow" data-text="Ich frühstücke morgens Brötchen mit Käse." data-rate="0.5">🐢</span>
+<span class="shadow-counter">0 lần</span>
+</div>
+</div>
+<div class="shadow-sentence">
+<div class="shadow-num">9</div>
+<div class="shadow-text">
+<div class="shadow-de"><span class="sp" data-text="Die Rechnung, bitte! – Zusammen oder getrennt?">🔊</span> Die Rechnung, bitte! – Zusammen oder getrennt?</div>
+<div class="shadow-vn">Tính tiền! – Chung hay riêng?</div>
+</div>
+<div class="shadow-btns">
+<span class="sp shadow-slow" data-text="Die Rechnung, bitte! – Zusammen oder getrennt?" data-rate="0.5">🐢</span>
+<span class="shadow-counter">0 lần</span>
+</div>
+</div>
+<div class="shadow-sentence">
+<div class="shadow-num">10</div>
+<div class="shadow-text">
+<div class="shadow-de"><span class="sp" data-text="Am Wochenende koche ich gern asiatisch.">🔊</span> Am Wochenende koche ich gern asiatisch.</div>
+<div class="shadow-vn">Cuối tuần tôi thích nấu món châu Á.</div>
+</div>
+<div class="shadow-btns">
+<span class="sp shadow-slow" data-text="Am Wochenende koche ich gern asiatisch." data-rate="0.5">🐢</span>
+<span class="shadow-counter">0 lần</span>
+</div>
+</div>
+</div>
+
+<div class="chapter" id="ch5">
+<div class="sub-tabs">
+<div class="sub-tab active" data-ch="5" data-tab="vocab">🔤 Từ vựng</div>
+<div class="sub-tab" data-ch="5" data-tab="grammar">📝 Ngữ pháp</div>
+<div class="sub-tab" data-ch="5" data-tab="dialog">💬 Hội thoại</div>
+<div class="sub-tab" data-ch="5" data-tab="shadow">🎧 Shadowing</div>
+</div>
+
+<!-- KAP5 VOCAB -->
+<div class="sub-content active" id="ch5-vocab">
+<h2>Kapitel 5: Alltag und Familie</h2>
+
+<h3>Gia đình (Familie)</h3>
+<table class="vocab-table">
+<tr><th>Deutsch</th><th>Tiếng Việt</th><th>Plural</th></tr>
+<tr><td class="de"><span class="sp" data-text="die Mutter">🔊</span>die Mutter</td><td class="vn">mẹ</td><td>die Mütter</td></tr>
+<tr><td class="de"><span class="sp" data-text="der Vater">🔊</span>der Vater</td><td class="vn">bố</td><td>die Väter</td></tr>
+<tr><td class="de"><span class="sp" data-text="die Eltern">🔊</span>die Eltern (Pl.)</td><td class="vn">bố mẹ</td><td>—</td></tr>
+<tr><td class="de"><span class="sp" data-text="die Schwester">🔊</span>die Schwester</td><td class="vn">chị/em gái</td><td>die Schwestern</td></tr>
+<tr><td class="de"><span class="sp" data-text="der Bruder">🔊</span>der Bruder</td><td class="vn">anh/em trai</td><td>die Brüder</td></tr>
+<tr><td class="de"><span class="sp" data-text="die Tochter">🔊</span>die Tochter</td><td class="vn">con gái</td><td>die Töchter</td></tr>
+<tr><td class="de"><span class="sp" data-text="der Sohn">🔊</span>der Sohn</td><td class="vn">con trai</td><td>die Söhne</td></tr>
+<tr><td class="de"><span class="sp" data-text="die Großmutter">🔊</span>die Großmutter (Oma)</td><td class="vn">bà ngoại/nội</td><td>die Großmütter</td></tr>
+<tr><td class="de"><span class="sp" data-text="der Großvater">🔊</span>der Großvater (Opa)</td><td class="vn">ông ngoại/nội</td><td>die Großväter</td></tr>
+<tr><td class="de"><span class="sp" data-text="das Kind">🔊</span>das Kind</td><td class="vn">đứa trẻ/con</td><td>die Kinder</td></tr>
+<tr><td class="de"><span class="sp" data-text="die Frau">🔊</span>die Frau</td><td class="vn">vợ/phụ nữ</td><td>die Frauen</td></tr>
+<tr><td class="de"><span class="sp" data-text="der Mann">🔊</span>der Mann</td><td class="vn">chồng/đàn ông</td><td>die Männer</td></tr>
+<tr><td class="de"><span class="sp" data-text="die Geschwister">🔊</span>die Geschwister (Pl.)</td><td class="vn">anh chị em</td><td>—</td></tr>
+</table>
+
+<h3>Thời gian (Uhrzeiten)</h3>
+<table class="vocab-table">
+<tr><th>Uhrzeit</th><th>Inoffiziell (thân mật)</th><th>Offiziell (chính thức)</th></tr>
+<tr><td>8:00</td><td class="de"><span class="sp" data-text="acht Uhr">🔊</span>acht Uhr</td><td class="de">acht Uhr</td></tr>
+<tr><td>8:15</td><td class="de"><span class="sp" data-text="Viertel nach acht">🔊</span>Viertel nach acht</td><td class="de">acht Uhr fünfzehn</td></tr>
+<tr><td>8:30</td><td class="de"><span class="sp" data-text="halb neun">🔊</span><strong>halb neun</strong></td><td class="de">acht Uhr dreißig</td></tr>
+<tr><td>8:45</td><td class="de"><span class="sp" data-text="Viertel vor neun">🔊</span>Viertel vor neun</td><td class="de">acht Uhr fünfundvierzig</td></tr>
+<tr><td>14:30</td><td class="de"><span class="sp" data-text="halb drei">🔊</span>halb drei</td><td class="de"><span class="sp" data-text="vierzehn Uhr dreißig">🔊</span>vierzehn Uhr dreißig</td></tr>
+</table>
+<div class="grammar-box"><div class="note"><strong>⚡ Lưu ý quan trọng:</strong> <em>halb neun</em> = 8:30 (nửa của 9!) KHÔNG phải 9:30! Người Việt hay nhầm điểm này.</div></div>
+
+<h3>Hoạt động hàng ngày (Tagesablauf)</h3>
+<table class="vocab-table">
+<tr><th>Deutsch</th><th>Tiếng Việt</th><th>Wann?</th></tr>
+<tr><td class="de"><span class="sp" data-text="aufstehen">🔊</span>aufstehen</td><td class="vn">thức dậy</td><td class="ex">Ich stehe um 6 Uhr auf.</td></tr>
+<tr><td class="de"><span class="sp" data-text="frühstücken">🔊</span>frühstücken</td><td class="vn">ăn sáng</td><td class="ex">Um 7 Uhr frühstücke ich.</td></tr>
+<tr><td class="de"><span class="sp" data-text="arbeiten">🔊</span>arbeiten</td><td class="vn">làm việc</td><td class="ex">Ich arbeite von 8 bis 17 Uhr.</td></tr>
+<tr><td class="de"><span class="sp" data-text="Mittagspause machen">🔊</span>Mittagspause machen</td><td class="vn">nghỉ trưa</td><td class="ex">Um 12 Uhr mache ich Mittagspause.</td></tr>
+<tr><td class="de"><span class="sp" data-text="einkaufen">🔊</span>einkaufen</td><td class="vn">đi mua sắm</td><td class="ex">Am Nachmittag kaufe ich ein.</td></tr>
+<tr><td class="de"><span class="sp" data-text="kochen">🔊</span>kochen</td><td class="vn">nấu ăn</td><td class="ex">Am Abend koche ich.</td></tr>
+<tr><td class="de"><span class="sp" data-text="fernsehen">🔊</span>fernsehen</td><td class="vn">xem TV</td><td class="ex">Um 20 Uhr sehe ich fern.</td></tr>
+<tr><td class="de"><span class="sp" data-text="schlafen">🔊</span>schlafen</td><td class="vn">ngủ</td><td class="ex">Ich schlafe um 23 Uhr.</td></tr>
+</table>
+
+<h3>Giới từ thời gian (Zeitpräpositionen)</h3>
+<table class="vocab-table">
+<tr><th>Präposition</th><th>Dùng với</th><th>Ví dụ</th></tr>
+<tr><td class="de"><strong>am</strong></td><td class="vn">ngày, buổi</td><td class="ex"><span class="sp" data-text="am Montag, am Morgen">🔊</span>am Montag, am Morgen</td></tr>
+<tr><td class="de"><strong>um</strong></td><td class="vn">giờ chính xác</td><td class="ex"><span class="sp" data-text="um 8 Uhr">🔊</span>um 8 Uhr</td></tr>
+<tr><td class="de"><strong>von ... bis</strong></td><td class="vn">từ ... đến</td><td class="ex"><span class="sp" data-text="von 8 bis 17 Uhr">🔊</span>von 8 bis 17 Uhr</td></tr>
+</table>
+</div>
+
+<!-- KAP5 GRAMMAR -->
+<div class="sub-content" id="ch5-grammar">
+<h2>📝 Ngữ pháp - Kapitel 5</h2>
+
+<div class="grammar-box">
+<h4>1. Đại từ sở hữu (Possessivartikel)</h4>
+<table class="conj-table">
+<tr><th>Pronomen</th><th>Maskulin / Neutrum</th><th>Feminin / Plural</th></tr>
+<tr><td class="pronoun">ich</td><td><strong>mein</strong> Bruder / mein Kind</td><td><strong>meine</strong> Schwester / meine Kinder</td></tr>
+<tr><td class="pronoun">du</td><td><strong>dein</strong> Bruder / dein Kind</td><td><strong>deine</strong> Schwester / deine Kinder</td></tr>
+<tr><td class="pronoun">er/es</td><td><strong>sein</strong> Bruder / sein Kind</td><td><strong>seine</strong> Schwester / seine Kinder</td></tr>
+<tr><td class="pronoun">sie (sg.)</td><td><strong>ihr</strong> Bruder / ihr Kind</td><td><strong>ihre</strong> Schwester / ihre Kinder</td></tr>
+<tr><td class="pronoun">wir</td><td><strong>unser</strong> Bruder / unser Kind</td><td><strong>unsere</strong> Schwester / unsere Kinder</td></tr>
+<tr><td class="pronoun">ihr</td><td><strong>euer</strong> Bruder / euer Kind</td><td><strong>eure</strong> Schwester / eure Kinder</td></tr>
+<tr><td class="pronoun">sie/Sie</td><td><strong>ihr/Ihr</strong> Bruder / ihr Kind</td><td><strong>ihre/Ihre</strong> Schwester / ihre Kinder</td></tr>
+</table>
+<div class="note"><strong>⚡ Quy tắc:</strong> Maskulin + Neutrum: KHÔNG đuôi. Feminin + Plural: thêm <strong>-e</strong>. (Giống ein/eine!)</div>
+</div>
+
+<div class="grammar-box">
+<h4>2. Động từ khiếm khuyết (Modalverben)</h4>
+<table class="conj-table">
+<tr><th>Pronomen</th><th>müssen (phải)</th><th>können (có thể)</th><th>wollen (muốn)</th></tr>
+<tr><td class="pronoun">ich</td><td>muss</td><td>kann</td><td>will</td></tr>
+<tr><td class="pronoun">du</td><td>musst</td><td>kannst</td><td>willst</td></tr>
+<tr><td class="pronoun">er/sie/es</td><td>muss</td><td>kann</td><td>will</td></tr>
+<tr><td class="pronoun">wir</td><td>müssen</td><td>können</td><td>wollen</td></tr>
+<tr><td class="pronoun">ihr</td><td>müsst</td><td>könnt</td><td>wollt</td></tr>
+<tr><td class="pronoun">sie/Sie</td><td>müssen</td><td>können</td><td>wollen</td></tr>
+</table>
+<div class="note"><strong>⚡ Satzklammer (Khung câu):</strong> Modal ở vị trí 2, ĐT chính ở <strong>cuối câu</strong> (nguyên dạng)!</div>
+<p style="font-size:13px;margin-top:8px;padding:8px;background:#e8f5e9;border-radius:6px">
+<span class="sp" data-text="Ich muss heute arbeiten.">🔊</span> Ich <strong>muss</strong> heute <strong>arbeiten</strong>. (Hôm nay tôi phải làm việc.)<br>
+<span class="sp" data-text="Kannst du morgen kommen?">🔊</span> <strong>Kannst</strong> du morgen <strong>kommen</strong>? (Ngày mai bạn có thể đến không?)<br>
+<span class="sp" data-text="Wir wollen am Samstag ins Kino gehen.">🔊</span> Wir <strong>wollen</strong> am Samstag ins Kino <strong>gehen</strong>. (Thứ Bảy chúng tôi muốn đi xem phim.)
+</p>
+</div>
+</div>
+
+<!-- KAP5 DIALOG -->
+<div class="sub-content" id="ch5-dialog">
+<h2>💬 Hội thoại - Kapitel 5</h2>
+
+<h3>Nói về lịch trình hàng ngày</h3>
+<div class="dialogue">
+<div class="dlg-line"><span class="dlg-speaker">A:</span><span class="dlg-de"><span class="sp" data-text="Wann stehst du morgens auf?">🔊</span>Wann stehst du morgens auf?</span></div>
+<div class="dlg-vn">→ Buổi sáng bạn dậy lúc mấy giờ?</div>
+<div class="dlg-line"><span class="dlg-speaker">B:</span><span class="dlg-de"><span class="sp" data-text="Ich stehe um halb sieben auf.">🔊</span>Ich stehe um halb sieben auf.</span></div>
+<div class="dlg-vn">→ Tôi dậy lúc 6:30.</div>
+<div class="dlg-line"><span class="dlg-speaker">A:</span><span class="dlg-de"><span class="sp" data-text="Und was machst du am Nachmittag?">🔊</span>Und was machst du am Nachmittag?</span></div>
+<div class="dlg-vn">→ Và buổi chiều bạn làm gì?</div>
+<div class="dlg-line"><span class="dlg-speaker">B:</span><span class="dlg-de"><span class="sp" data-text="Am Nachmittag muss ich arbeiten. Von 14 bis 18 Uhr.">🔊</span>Am Nachmittag muss ich arbeiten. Von 14 bis 18 Uhr.</span></div>
+<div class="dlg-vn">→ Buổi chiều tôi phải làm việc. Từ 14 đến 18 giờ.</div>
+</div>
+
+<h3>Hẹn gặp / Termin (Điện thoại)</h3>
+<div class="dialogue">
+<div class="dlg-line"><span class="dlg-speaker">A:</span><span class="dlg-de"><span class="sp" data-text="Können wir einen Termin machen?">🔊</span>Können wir einen Termin machen?</span></div>
+<div class="dlg-vn">→ Chúng ta có thể hẹn gặp không?</div>
+<div class="dlg-line"><span class="dlg-speaker">B:</span><span class="dlg-de"><span class="sp" data-text="Ja, wann haben Sie Zeit?">🔊</span>Ja, wann haben Sie Zeit?</span></div>
+<div class="dlg-vn">→ Vâng, bao giờ anh/chị có thời gian?</div>
+<div class="dlg-line"><span class="dlg-speaker">A:</span><span class="dlg-de"><span class="sp" data-text="Am Dienstag um 10 Uhr? Geht das?">🔊</span>Am Dienstag um 10 Uhr? Geht das?</span></div>
+<div class="dlg-vn">→ Thứ Ba lúc 10 giờ? Được không?</div>
+<div class="dlg-line"><span class="dlg-speaker">B:</span><span class="dlg-de"><span class="sp" data-text="Tut mir leid, am Dienstag kann ich nicht. Geht es am Mittwoch?">🔊</span>Tut mir leid, am Dienstag kann ich nicht. Geht es am Mittwoch?</span></div>
+<div class="dlg-vn">→ Xin lỗi, thứ Ba tôi không được. Thứ Tư được không?</div>
+<div class="dlg-line"><span class="dlg-speaker">A:</span><span class="dlg-de"><span class="sp" data-text="Ja, Mittwoch um 10 Uhr passt!">🔊</span>Ja, Mittwoch um 10 Uhr passt!</span></div>
+<div class="dlg-vn">→ Vâng, thứ Tư lúc 10 giờ được!</div>
+</div>
+
+<h3>Nói về gia đình</h3>
+<div class="dialogue">
+<div class="dlg-line"><span class="dlg-speaker">A:</span><span class="dlg-de"><span class="sp" data-text="Hast du Geschwister?">🔊</span>Hast du Geschwister?</span></div>
+<div class="dlg-vn">→ Bạn có anh chị em không?</div>
+<div class="dlg-line"><span class="dlg-speaker">B:</span><span class="dlg-de"><span class="sp" data-text="Ja, ich habe eine Schwester und einen Bruder.">🔊</span>Ja, ich habe eine Schwester und einen Bruder.</span></div>
+<div class="dlg-vn">→ Có, tôi có một chị gái và một anh trai.</div>
+<div class="dlg-line"><span class="dlg-speaker">A:</span><span class="dlg-de"><span class="sp" data-text="Wie alt ist deine Schwester?">🔊</span>Wie alt ist deine Schwester?</span></div>
+<div class="dlg-vn">→ Chị gái bạn bao nhiêu tuổi?</div>
+<div class="dlg-line"><span class="dlg-speaker">B:</span><span class="dlg-de"><span class="sp" data-text="Sie ist 28 Jahre alt. Sie ist Ärztin.">🔊</span>Sie ist 28 Jahre alt. Sie ist Ärztin.</span></div>
+<div class="dlg-vn">→ Chị ấy 28 tuổi. Chị ấy là bác sĩ.</div>
+<div class="dlg-line"><span class="dlg-speaker">A:</span><span class="dlg-de"><span class="sp" data-text="Und was macht dein Bruder beruflich?">🔊</span>Und was macht dein Bruder beruflich?</span></div>
+<div class="dlg-vn">→ Và anh trai bạn làm nghề gì?</div>
+<div class="dlg-line"><span class="dlg-speaker">B:</span><span class="dlg-de"><span class="sp" data-text="Mein Bruder ist Student. Er studiert Informatik.">🔊</span>Mein Bruder ist Student. Er studiert Informatik.</span></div>
+<div class="dlg-vn">→ Anh trai tôi là sinh viên. Anh ấy học tin học.</div>
+</div>
+</div>
+</div>
+
+<!-- ==================== KAPITEL 6 ==================== -->
+
+<div class="sub-content" id="ch5-shadow">
+<h2>🎧 Shadowing - Kapitel 5</h2>
+<div class="shadow-intro" style="padding:10px 16px"><h4 style="margin:0">💡 Nghe 🔊 → Lặp lại thành tiếng → Bấm 🐢 nghe chậm → Lặp lại 3-5 lần mỗi câu</h4></div>
+<div class="shadow-sentence">
+<div class="shadow-num">1</div>
+<div class="shadow-text">
+<div class="shadow-de"><span class="sp" data-text="Ich stehe um halb sieben auf.">🔊</span> Ich stehe um halb sieben auf.</div>
+<div class="shadow-vn">Tôi dậy lúc 6:30.</div>
+</div>
+<div class="shadow-btns">
+<span class="sp shadow-slow" data-text="Ich stehe um halb sieben auf." data-rate="0.5">🐢</span>
+<span class="shadow-counter">0 lần</span>
+</div>
+</div>
+<div class="shadow-sentence">
+<div class="shadow-num">2</div>
+<div class="shadow-text">
+<div class="shadow-de"><span class="sp" data-text="Meine Schwester ist fünfundzwanzig Jahre alt.">🔊</span> Meine Schwester ist fünfundzwanzig Jahre alt.</div>
+<div class="shadow-vn">Em gái tôi 25 tuổi.</div>
+</div>
+<div class="shadow-btns">
+<span class="sp shadow-slow" data-text="Meine Schwester ist fünfundzwanzig Jahre alt." data-rate="0.5">🐢</span>
+<span class="shadow-counter">0 lần</span>
+</div>
+</div>
+<div class="shadow-sentence">
+<div class="shadow-num">3</div>
+<div class="shadow-text">
+<div class="shadow-de"><span class="sp" data-text="Kannst du morgen kommen? – Tut mir leid, ich muss arbeiten.">🔊</span> Kannst du morgen kommen? – Tut mir leid, ich muss arbeiten.</div>
+<div class="shadow-vn">Ngày mai bạn đến được không? – Xin lỗi, tôi phải làm việc.</div>
+</div>
+<div class="shadow-btns">
+<span class="sp shadow-slow" data-text="Kannst du morgen kommen? – Tut mir leid, ich muss arbeiten." data-rate="0.5">🐢</span>
+<span class="shadow-counter">0 lần</span>
+</div>
+</div>
+<div class="shadow-sentence">
+<div class="shadow-num">4</div>
+<div class="shadow-text">
+<div class="shadow-de"><span class="sp" data-text="Von Montag bis Freitag arbeite ich von neun bis fünf.">🔊</span> Von Montag bis Freitag arbeite ich von neun bis fünf.</div>
+<div class="shadow-vn">Từ T2 đến T6 tôi làm từ 9 đến 5.</div>
+</div>
+<div class="shadow-btns">
+<span class="sp shadow-slow" data-text="Von Montag bis Freitag arbeite ich von neun bis fünf." data-rate="0.5">🐢</span>
+<span class="shadow-counter">0 lần</span>
+</div>
+</div>
+<div class="shadow-sentence">
+<div class="shadow-num">5</div>
+<div class="shadow-text">
+<div class="shadow-de"><span class="sp" data-text="Mein Vater ist Lehrer und meine Mutter ist Ärztin.">🔊</span> Mein Vater ist Lehrer und meine Mutter ist Ärztin.</div>
+<div class="shadow-vn">Bố tôi là giáo viên, mẹ tôi là bác sĩ.</div>
+</div>
+<div class="shadow-btns">
+<span class="sp shadow-slow" data-text="Mein Vater ist Lehrer und meine Mutter ist Ärztin." data-rate="0.5">🐢</span>
+<span class="shadow-counter">0 lần</span>
+</div>
+</div>
+<div class="shadow-sentence">
+<div class="shadow-num">6</div>
+<div class="shadow-text">
+<div class="shadow-de"><span class="sp" data-text="Um wie viel Uhr beginnt der Kurs? – Um Viertel nach neun.">🔊</span> Um wie viel Uhr beginnt der Kurs? – Um Viertel nach neun.</div>
+<div class="shadow-vn">Khóa học bắt đầu mấy giờ? – Lúc 9:15.</div>
+</div>
+<div class="shadow-btns">
+<span class="sp shadow-slow" data-text="Um wie viel Uhr beginnt der Kurs? – Um Viertel nach neun." data-rate="0.5">🐢</span>
+<span class="shadow-counter">0 lần</span>
+</div>
+</div>
+<div class="shadow-sentence">
+<div class="shadow-num">7</div>
+<div class="shadow-text">
+<div class="shadow-de"><span class="sp" data-text="Ich will am Samstag Freunde treffen.">🔊</span> Ich will am Samstag Freunde treffen.</div>
+<div class="shadow-vn">Tôi muốn gặp bạn thứ Bảy.</div>
+</div>
+<div class="shadow-btns">
+<span class="sp shadow-slow" data-text="Ich will am Samstag Freunde treffen." data-rate="0.5">🐢</span>
+<span class="shadow-counter">0 lần</span>
+</div>
+</div>
+<div class="shadow-sentence">
+<div class="shadow-num">8</div>
+<div class="shadow-text">
+<div class="shadow-de"><span class="sp" data-text="Wann haben Sie Zeit? – Am Dienstag um vierzehn Uhr passt gut.">🔊</span> Wann haben Sie Zeit? – Am Dienstag um vierzehn Uhr passt gut.</div>
+<div class="shadow-vn">Bạn rảnh khi nào? – Thứ Ba lúc 14h được.</div>
+</div>
+<div class="shadow-btns">
+<span class="sp shadow-slow" data-text="Wann haben Sie Zeit? – Am Dienstag um vierzehn Uhr passt gut." data-rate="0.5">🐢</span>
+<span class="shadow-counter">0 lần</span>
+</div>
+</div>
+<div class="shadow-sentence">
+<div class="shadow-num">9</div>
+<div class="shadow-text">
+<div class="shadow-de"><span class="sp" data-text="Unsere Kinder gehen in die Schule.">🔊</span> Unsere Kinder gehen in die Schule.</div>
+<div class="shadow-vn">Con chúng tôi đi học.</div>
+</div>
+<div class="shadow-btns">
+<span class="sp shadow-slow" data-text="Unsere Kinder gehen in die Schule." data-rate="0.5">🐢</span>
+<span class="shadow-counter">0 lần</span>
+</div>
+</div>
+<div class="shadow-sentence">
+<div class="shadow-num">10</div>
+<div class="shadow-text">
+<div class="shadow-de"><span class="sp" data-text="Abends sehe ich gern fern oder lese ein Buch.">🔊</span> Abends sehe ich gern fern oder lese ein Buch.</div>
+<div class="shadow-vn">Tối tôi thích xem TV hoặc đọc sách.</div>
+</div>
+<div class="shadow-btns">
+<span class="sp shadow-slow" data-text="Abends sehe ich gern fern oder lese ein Buch." data-rate="0.5">🐢</span>
+<span class="shadow-counter">0 lần</span>
+</div>
+</div>
+</div>
+
+<div class="chapter" id="ch6">
+<div class="sub-tabs">
+<div class="sub-tab active" data-ch="6" data-tab="vocab">🔤 Từ vựng</div>
+<div class="sub-tab" data-ch="6" data-tab="grammar">📝 Ngữ pháp</div>
+<div class="sub-tab" data-ch="6" data-tab="dialog">💬 Hội thoại</div>
+<div class="sub-tab" data-ch="6" data-tab="shadow">🎧 Shadowing</div>
+</div>
+
+<!-- KAP6 VOCAB -->
+<div class="sub-content active" id="ch6-vocab">
+<h2>Kapitel 6: Zeit mit Freunden</h2>
+
+<h3>Hoạt động giải trí (Freizeitaktivitäten)</h3>
+<table class="vocab-table">
+<tr><th>Deutsch</th><th>Tiếng Việt</th><th>Ví dụ</th></tr>
+<tr><td class="de"><span class="sp" data-text="ins Kino gehen">🔊</span>ins Kino gehen</td><td class="vn">đi xem phim</td><td class="ex">Wir gehen am Samstag ins Kino.</td></tr>
+<tr><td class="de"><span class="sp" data-text="ins Konzert gehen">🔊</span>ins Konzert gehen</td><td class="vn">đi nghe hòa nhạc</td><td class="ex">Kommst du mit ins Konzert?</td></tr>
+<tr><td class="de"><span class="sp" data-text="ins Theater gehen">🔊</span>ins Theater gehen</td><td class="vn">đi xem kịch</td><td class="ex">Am Freitag gehen wir ins Theater.</td></tr>
+<tr><td class="de"><span class="sp" data-text="spazieren gehen">🔊</span>spazieren gehen</td><td class="vn">đi dạo</td><td class="ex">Am Sonntag gehen wir spazieren.</td></tr>
+<tr><td class="de"><span class="sp" data-text="eine Party machen">🔊</span>eine Party machen</td><td class="vn">tổ chức tiệc</td><td class="ex">Ich mache am Samstag eine Party.</td></tr>
+<tr><td class="de"><span class="sp" data-text="Freunde treffen">🔊</span>Freunde treffen</td><td class="vn">gặp bạn bè</td><td class="ex">Am Wochenende treffe ich Freunde.</td></tr>
+<tr><td class="de"><span class="sp" data-text="essen gehen">🔊</span>essen gehen</td><td class="vn">đi ăn ngoài</td><td class="ex">Wollen wir essen gehen?</td></tr>
+</table>
+
+<h3>Nhà hàng (Im Restaurant)</h3>
+<table class="vocab-table">
+<tr><th>Deutsch</th><th>Tiếng Việt</th><th>Ví dụ</th></tr>
+<tr><td class="de"><span class="sp" data-text="die Speisekarte">🔊</span>die Speisekarte</td><td class="vn">thực đơn</td><td class="ex">Die Speisekarte, bitte.</td></tr>
+<tr><td class="de"><span class="sp" data-text="die Vorspeise">🔊</span>die Vorspeise</td><td class="vn">món khai vị</td><td class="ex">Als Vorspeise nehme ich Suppe.</td></tr>
+<tr><td class="de"><span class="sp" data-text="das Hauptgericht">🔊</span>das Hauptgericht</td><td class="vn">món chính</td><td class="ex">Als Hauptgericht möchte ich Fisch.</td></tr>
+<tr><td class="de"><span class="sp" data-text="der Nachtisch">🔊</span>der Nachtisch / das Dessert</td><td class="vn">tráng miệng</td><td class="ex">Möchten Sie noch einen Nachtisch?</td></tr>
+<tr><td class="de"><span class="sp" data-text="die Rechnung">🔊</span>die Rechnung</td><td class="vn">hóa đơn</td><td class="ex">Die Rechnung, bitte!</td></tr>
+<tr><td class="de"><span class="sp" data-text="das Trinkgeld">🔊</span>das Trinkgeld</td><td class="vn">tiền tip</td><td class="ex">Stimmt so. (= Giữ tiền thừa = tip)</td></tr>
+<tr><td class="de"><span class="sp" data-text="zusammen oder getrennt">🔊</span>zusammen / getrennt</td><td class="vn">chung / tách riêng</td><td class="ex">Zusammen oder getrennt?</td></tr>
+</table>
+
+<h3>Số thứ tự & Ngày tháng (Ordinalzahlen & Datum)</h3>
+<table class="vocab-table">
+<tr><th>Zahl</th><th>Ordinalzahl</th><th>Zahl</th><th>Ordinalzahl</th></tr>
+<tr><td>1.</td><td class="de"><span class="sp" data-text="erste">🔊</span>erst<strong>e</strong></td><td>7.</td><td class="de">sieb<strong>te</strong></td></tr>
+<tr><td>2.</td><td class="de"><span class="sp" data-text="zweite">🔊</span>zweit<strong>e</strong></td><td>8.</td><td class="de">acht<strong>e</strong></td></tr>
+<tr><td>3.</td><td class="de"><span class="sp" data-text="dritte">🔊</span>dritt<strong>e</strong></td><td>20.</td><td class="de">zwanzig<strong>ste</strong></td></tr>
+<tr><td>4.</td><td class="de">viert<strong>e</strong></td><td>21.</td><td class="de">einundzwanzig<strong>ste</strong></td></tr>
+<tr><td>5.</td><td class="de">fünft<strong>e</strong></td><td>30.</td><td class="de">dreißig<strong>ste</strong></td></tr>
+</table>
+<div class="grammar-box"><div class="note"><strong>⚡ Quy tắc:</strong> 1-19 + <strong>-te</strong> (ngoại lệ: 1.=erste, 3.=dritte, 7.=siebte). Từ 20 trở lên + <strong>-ste</strong>.<br>
+<strong>Datum:</strong> <span class="sp" data-text="Heute ist der dritte Mai">🔊</span>Heute ist der dritte Mai. / <span class="sp" data-text="Ich komme am dritten Mai">🔊</span>Ich komme <strong>am</strong> dritten Mai.</div></div>
+</div>
+
+<!-- KAP6 GRAMMAR -->
+<div class="sub-content" id="ch6-grammar">
+<h2>📝 Ngữ pháp - Kapitel 6</h2>
+
+<div class="grammar-box">
+<h4>1. Động từ tách (Trennbare Verben)</h4>
+<table class="conj-table">
+<tr><th>Infinitiv</th><th>Präsens (ich)</th><th>Nghĩa</th></tr>
+<tr><td class="de">an|rufen</td><td><span class="sp" data-text="Ich rufe dich an.">🔊</span>Ich <strong>rufe</strong> dich <strong>an</strong>.</td><td class="vn">gọi điện</td></tr>
+<tr><td class="de">ein|laden</td><td><span class="sp" data-text="Ich lade dich ein.">🔊</span>Ich <strong>lade</strong> dich <strong>ein</strong>.</td><td class="vn">mời</td></tr>
+<tr><td class="de">mit|kommen</td><td><span class="sp" data-text="Kommst du mit?">🔊</span><strong>Kommst</strong> du <strong>mit</strong>?</td><td class="vn">đi cùng</td></tr>
+<tr><td class="de">auf|stehen</td><td><span class="sp" data-text="Ich stehe um 7 Uhr auf.">🔊</span>Ich <strong>stehe</strong> um 7 Uhr <strong>auf</strong>.</td><td class="vn">thức dậy</td></tr>
+<tr><td class="de">ein|kaufen</td><td><span class="sp" data-text="Sie kauft im Supermarkt ein.">🔊</span>Sie <strong>kauft</strong> im Supermarkt <strong>ein</strong>.</td><td class="vn">mua sắm</td></tr>
+<tr><td class="de">fern|sehen</td><td><span class="sp" data-text="Er sieht abends fern.">🔊</span>Er <strong>sieht</strong> abends <strong>fern</strong>.</td><td class="vn">xem TV</td></tr>
+<tr><td class="de">an|fangen</td><td><span class="sp" data-text="Der Kurs fängt um 9 Uhr an.">🔊</span>Der Kurs <strong>fängt</strong> um 9 Uhr <strong>an</strong>.</td><td class="vn">bắt đầu</td></tr>
+</table>
+<div class="note"><strong>⚡ Quy tắc:</strong> Tiền tố tách ra, bay về <strong>cuối câu</strong>! Chia phần gốc bình thường.<br>
+Với Modalverb: tiền tố KHÔNG tách: Ich <em>muss</em> um 7 Uhr <strong>aufstehen</strong>.</div>
+</div>
+
+<div class="grammar-box">
+<h4>2. Đại từ nhân xưng ở Akkusativ (Personalpronomen im Akkusativ)</h4>
+<table class="conj-table">
+<tr><th>Nominativ</th><th>Akkusativ</th><th>Ví dụ</th></tr>
+<tr><td class="pronoun">ich</td><td><strong>mich</strong></td><td><span class="sp" data-text="Rufst du mich an?">🔊</span>Rufst du <strong>mich</strong> an?</td></tr>
+<tr><td class="pronoun">du</td><td><strong>dich</strong></td><td><span class="sp" data-text="Ich lade dich ein.">🔊</span>Ich lade <strong>dich</strong> ein.</td></tr>
+<tr><td class="pronoun">er</td><td><strong>ihn</strong></td><td><span class="sp" data-text="Ich besuche ihn morgen.">🔊</span>Ich besuche <strong>ihn</strong> morgen.</td></tr>
+<tr><td class="pronoun">sie (sg.)</td><td><strong>sie</strong></td><td><span class="sp" data-text="Ich kenne sie gut.">🔊</span>Ich kenne <strong>sie</strong> gut.</td></tr>
+<tr><td class="pronoun">es</td><td><strong>es</strong></td><td>Ich brauche <strong>es</strong>.</td></tr>
+<tr><td class="pronoun">wir</td><td><strong>uns</strong></td><td><span class="sp" data-text="Besucht ihr uns?">🔊</span>Besucht ihr <strong>uns</strong>?</td></tr>
+<tr><td class="pronoun">ihr</td><td><strong>euch</strong></td><td><span class="sp" data-text="Ich lade euch ein.">🔊</span>Ich lade <strong>euch</strong> ein.</td></tr>
+<tr><td class="pronoun">sie/Sie (Pl.)</td><td><strong>sie/Sie</strong></td><td><span class="sp" data-text="Ich kenne sie nicht.">🔊</span>Ich kenne <strong>sie</strong> nicht.</td></tr>
+</table>
+</div>
+
+<div class="grammar-box">
+<h4>3. für + Akkusativ</h4>
+<table class="vocab-table">
+<tr><td class="de"><span class="sp" data-text="Das Geschenk ist für meinen Bruder.">🔊</span>Das Geschenk ist <strong>für meinen</strong> Bruder.</td><td class="vn">Quà là cho anh trai tôi.</td></tr>
+<tr><td class="de"><span class="sp" data-text="Die Blumen sind für dich.">🔊</span>Die Blumen sind <strong>für dich</strong>.</td><td class="vn">Hoa là cho bạn.</td></tr>
+<tr><td class="de"><span class="sp" data-text="Ich koche für meine Familie.">🔊</span>Ich koche <strong>für meine</strong> Familie.</td><td class="vn">Tôi nấu ăn cho gia đình.</td></tr>
+</table>
+<div class="note"><strong>⚡ Lưu ý:</strong> <em>für</em> luôn đi với Akkusativ! für + <strong>den/einen/meinen</strong> (Mask.)</div>
+</div>
+
+<div class="grammar-box">
+<h4>4. Quá khứ đơn: haben & sein (Präteritum)</h4>
+<table class="conj-table">
+<tr><th>Pronomen</th><th>haben → hatte</th><th>sein → war</th></tr>
+<tr><td class="pronoun">ich</td><td>hatte</td><td>war</td></tr>
+<tr><td class="pronoun">du</td><td>hattest</td><td>warst</td></tr>
+<tr><td class="pronoun">er/sie/es</td><td>hatte</td><td>war</td></tr>
+<tr><td class="pronoun">wir</td><td>hatten</td><td>waren</td></tr>
+<tr><td class="pronoun">ihr</td><td>hattet</td><td>wart</td></tr>
+<tr><td class="pronoun">sie/Sie</td><td>hatten</td><td>waren</td></tr>
+</table>
+<p style="font-size:13px;margin-top:8px;padding:8px;background:#e8f5e9;border-radius:6px">
+<span class="sp" data-text="Das Konzert war super!">🔊</span>Das Konzert <strong>war</strong> super! (Buổi hòa nhạc tuyệt vời!)<br>
+<span class="sp" data-text="Gestern hatte ich keine Zeit.">🔊</span>Gestern <strong>hatte</strong> ich keine Zeit. (Hôm qua tôi không có thời gian.)<br>
+<span class="sp" data-text="Wir waren gestern im Restaurant.">🔊</span>Wir <strong>waren</strong> gestern im Restaurant. (Hôm qua chúng tôi ở nhà hàng.)
+</p>
+</div>
+
+<div class="grammar-box">
+<h4>5. Ngày tháng (Datumsangaben)</h4>
+<table class="vocab-table">
+<tr><th>Frage</th><th>Antwort</th></tr>
+<tr><td class="de"><span class="sp" data-text="Welches Datum ist heute?">🔊</span>Welches Datum ist heute?</td><td class="de">Heute ist <strong>der</strong> dritte Juni.</td></tr>
+<tr><td class="de"><span class="sp" data-text="Wann hast du Geburtstag?">🔊</span>Wann hast du Geburtstag?</td><td class="de"><span class="sp" data-text="Am fünften Oktober.">🔊</span><strong>Am</strong> fünften Oktober.</td></tr>
+<tr><td class="de"><span class="sp" data-text="Wann ist die Party?">🔊</span>Wann ist die Party?</td><td class="de"><span class="sp" data-text="Am einundzwanzigsten Mai.">🔊</span><strong>Am</strong> einundzwanzigsten Mai.</td></tr>
+</table>
+<div class="note"><strong>⚡ Cấu trúc:</strong> Heute ist <strong>der</strong> + Ordinalzahl (Nominativ). Ich komme <strong>am</strong> + Ordinalzahl + -n (Dativ).</div>
+</div>
+</div>
+
+<!-- KAP6 DIALOG -->
+<div class="sub-content" id="ch6-dialog">
+<h2>💬 Hội thoại - Kapitel 6</h2>
+
+<h3>Mời & Từ chối (Einladung)</h3>
+<div class="dialogue">
+<div class="dlg-line"><span class="dlg-speaker">A:</span><span class="dlg-de"><span class="sp" data-text="Ich mache am Samstag eine Party. Kommst du mit?">🔊</span>Ich mache am Samstag eine Party. Kommst du mit?</span></div>
+<div class="dlg-vn">→ Thứ Bảy tôi tổ chức tiệc. Bạn đi cùng không?</div>
+<div class="dlg-line"><span class="dlg-speaker">B:</span><span class="dlg-de"><span class="sp" data-text="Ja, gern! Wann und wo?">🔊</span>Ja, gern! Wann und wo?</span></div>
+<div class="dlg-vn">→ Ừ, vui lòng! Khi nào và ở đâu?</div>
+<div class="dlg-line"><span class="dlg-speaker">A:</span><span class="dlg-de"><span class="sp" data-text="Um 19 Uhr bei mir zu Hause. Ich lade dich ein!">🔊</span>Um 19 Uhr bei mir zu Hause. Ich lade dich ein!</span></div>
+<div class="dlg-vn">→ Lúc 19 giờ ở nhà tôi. Tôi mời bạn!</div>
+<div class="dlg-line"><span class="dlg-speaker">B:</span><span class="dlg-de"><span class="sp" data-text="Super! Soll ich etwas mitbringen?">🔊</span>Super! Soll ich etwas mitbringen?</span></div>
+<div class="dlg-vn">→ Tuyệt! Tôi có nên mang gì theo không?</div>
+<div class="dlg-line"><span class="dlg-speaker">A:</span><span class="dlg-de"><span class="sp" data-text="Vielleicht einen Salat oder einen Kuchen?">🔊</span>Vielleicht einen Salat oder einen Kuchen?</span></div>
+<div class="dlg-vn">→ Có thể một salad hoặc một bánh ngọt?</div>
+</div>
+<div class="dialogue" style="margin-top:10px;border-left:3px solid #de350b">
+<div class="dlg-line"><span class="dlg-speaker">A:</span><span class="dlg-de"><span class="sp" data-text="Kommst du am Freitag mit ins Konzert?">🔊</span>Kommst du am Freitag mit ins Konzert?</span></div>
+<div class="dlg-vn">→ Thứ Sáu bạn đi hòa nhạc cùng không?</div>
+<div class="dlg-line"><span class="dlg-speaker">B:</span><span class="dlg-de"><span class="sp" data-text="Tut mir leid, ich kann leider nicht. Ich muss arbeiten.">🔊</span>Tut mir leid, ich kann leider nicht. Ich muss arbeiten.</span></div>
+<div class="dlg-vn">→ Xin lỗi, tiếc là tôi không thể. Tôi phải làm việc.</div>
+</div>
+
+<h3>Gọi món nhà hàng (Im Restaurant bestellen)</h3>
+<div class="dialogue">
+<div class="dlg-line"><span class="dlg-speaker">O:</span><span class="dlg-de"><span class="sp" data-text="Guten Abend! Haben Sie schon gewählt?">🔊</span>Guten Abend! Haben Sie schon gewählt?</span></div>
+<div class="dlg-vn">→ Chào buổi tối! Quý khách chọn xong chưa?</div>
+<div class="dlg-line"><span class="dlg-speaker">K:</span><span class="dlg-de"><span class="sp" data-text="Ja. Als Vorspeise hätte ich gern die Suppe. Und als Hauptgericht den Fisch.">🔊</span>Ja. Als Vorspeise hätte ich gern die Suppe. Und als Hauptgericht den Fisch.</span></div>
+<div class="dlg-vn">→ Rồi. Khai vị tôi muốn súp. Và món chính là cá.</div>
+<div class="dlg-line"><span class="dlg-speaker">O:</span><span class="dlg-de"><span class="sp" data-text="Und zum Trinken?">🔊</span>Und zum Trinken?</span></div>
+<div class="dlg-vn">→ Và đồ uống?</div>
+<div class="dlg-line"><span class="dlg-speaker">K:</span><span class="dlg-de"><span class="sp" data-text="Ein Glas Weißwein, bitte.">🔊</span>Ein Glas Weißwein, bitte.</span></div>
+<div class="dlg-vn">→ Một ly rượu vang trắng.</div>
+</div>
+<div class="dialogue" style="margin-top:10px">
+<div class="dlg-line"><span class="dlg-speaker">K:</span><span class="dlg-de"><span class="sp" data-text="Die Rechnung, bitte!">🔊</span>Die Rechnung, bitte!</span></div>
+<div class="dlg-vn">→ Tính tiền!</div>
+<div class="dlg-line"><span class="dlg-speaker">O:</span><span class="dlg-de"><span class="sp" data-text="Zusammen oder getrennt?">🔊</span>Zusammen oder getrennt?</span></div>
+<div class="dlg-vn">→ Trả chung hay tách riêng?</div>
+<div class="dlg-line"><span class="dlg-speaker">K:</span><span class="dlg-de"><span class="sp" data-text="Zusammen, bitte. Das macht 32 Euro. Stimmt so.">🔊</span>Zusammen, bitte. — Das macht 32 Euro. — Stimmt so.</span></div>
+<div class="dlg-vn">→ Chung. — Tổng 32 Euro. — Giữ lại tiền thừa (= tip).</div>
+</div>
+
+<h3>Nói về sự kiện đã qua (Über Ereignisse sprechen)</h3>
+<div class="dialogue">
+<div class="dlg-line"><span class="dlg-speaker">A:</span><span class="dlg-de"><span class="sp" data-text="Was hast du gestern gemacht?">🔊</span>Was hast du gestern gemacht?</span></div>
+<div class="dlg-vn">→ Hôm qua bạn đã làm gì?</div>
+<div class="dlg-line"><span class="dlg-speaker">B:</span><span class="dlg-de"><span class="sp" data-text="Gestern war ich im Konzert. Es war super!">🔊</span>Gestern war ich im Konzert. Es war super!</span></div>
+<div class="dlg-vn">→ Hôm qua tôi ở buổi hòa nhạc. Nó tuyệt vời!</div>
+<div class="dlg-line"><span class="dlg-speaker">A:</span><span class="dlg-de"><span class="sp" data-text="Wie war die Musik?">🔊</span>Wie war die Musik?</span></div>
+<div class="dlg-vn">→ Nhạc thế nào?</div>
+<div class="dlg-line"><span class="dlg-speaker">B:</span><span class="dlg-de"><span class="sp" data-text="Fantastisch! Aber es war auch sehr laut.">🔊</span>Fantastisch! Aber es war auch sehr laut.</span></div>
+<div class="dlg-vn">→ Tuyệt vời! Nhưng cũng rất ồn.</div>
+</div>
+</div>
+
+<div class="sub-content" id="ch6-shadow">
+<h2>🎧 Shadowing - Kapitel 6</h2>
+<div class="shadow-intro" style="padding:10px 16px"><h4 style="margin:0">💡 Nghe 🔊 → Lặp lại thành tiếng → Bấm 🐢 nghe chậm → Lặp lại 3-5 lần mỗi câu</h4></div>
+<div class="shadow-sentence">
+<div class="shadow-num">1</div>
+<div class="shadow-text">
+<div class="shadow-de"><span class="sp" data-text="Ich lade dich zur Party am Samstag ein!">🔊</span> Ich lade dich zur Party am Samstag ein!</div>
+<div class="shadow-vn">Tôi mời bạn đến tiệc thứ Bảy!</div>
+</div>
+<div class="shadow-btns">
+<span class="sp shadow-slow" data-text="Ich lade dich zur Party am Samstag ein!" data-rate="0.5">🐢</span>
+<span class="shadow-counter">0 lần</span>
+</div>
+</div>
+<div class="shadow-sentence">
+<div class="shadow-num">2</div>
+<div class="shadow-text">
+<div class="shadow-de"><span class="sp" data-text="Kommst du mit ins Kino? – Ja, gern! Wann?">🔊</span> Kommst du mit ins Kino? – Ja, gern! Wann?</div>
+<div class="shadow-vn">Bạn đi xem phim cùng không? – Có, sẵn lòng! Khi nào?</div>
+</div>
+<div class="shadow-btns">
+<span class="sp shadow-slow" data-text="Kommst du mit ins Kino? – Ja, gern! Wann?" data-rate="0.5">🐢</span>
+<span class="shadow-counter">0 lần</span>
+</div>
+</div>
+<div class="shadow-sentence">
+<div class="shadow-num">3</div>
+<div class="shadow-text">
+<div class="shadow-de"><span class="sp" data-text="Tut mir leid, ich kann leider nicht kommen.">🔊</span> Tut mir leid, ich kann leider nicht kommen.</div>
+<div class="shadow-vn">Xin lỗi, tiếc là tôi không thể đến.</div>
+</div>
+<div class="shadow-btns">
+<span class="sp shadow-slow" data-text="Tut mir leid, ich kann leider nicht kommen." data-rate="0.5">🐢</span>
+<span class="shadow-counter">0 lần</span>
+</div>
+</div>
+<div class="shadow-sentence">
+<div class="shadow-num">4</div>
+<div class="shadow-text">
+<div class="shadow-de"><span class="sp" data-text="Wie war das Konzert? – Es war super!">🔊</span> Wie war das Konzert? – Es war super!</div>
+<div class="shadow-vn">Buổi hòa nhạc thế nào? – Tuyệt vời!</div>
+</div>
+<div class="shadow-btns">
+<span class="sp shadow-slow" data-text="Wie war das Konzert? – Es war super!" data-rate="0.5">🐢</span>
+<span class="shadow-counter">0 lần</span>
+</div>
+</div>
+<div class="shadow-sentence">
+<div class="shadow-num">5</div>
+<div class="shadow-text">
+<div class="shadow-de"><span class="sp" data-text="Gestern war ich im Restaurant mit Freunden.">🔊</span> Gestern war ich im Restaurant mit Freunden.</div>
+<div class="shadow-vn">Hôm qua tôi ở nhà hàng với bạn bè.</div>
+</div>
+<div class="shadow-btns">
+<span class="sp shadow-slow" data-text="Gestern war ich im Restaurant mit Freunden." data-rate="0.5">🐢</span>
+<span class="shadow-counter">0 lần</span>
+</div>
+</div>
+<div class="shadow-sentence">
+<div class="shadow-num">6</div>
+<div class="shadow-text">
+<div class="shadow-de"><span class="sp" data-text="Ich rufe dich morgen an.">🔊</span> Ich rufe dich morgen an.</div>
+<div class="shadow-vn">Ngày mai tôi gọi điện cho bạn.</div>
+</div>
+<div class="shadow-btns">
+<span class="sp shadow-slow" data-text="Ich rufe dich morgen an." data-rate="0.5">🐢</span>
+<span class="shadow-counter">0 lần</span>
+</div>
+</div>
+<div class="shadow-sentence">
+<div class="shadow-num">7</div>
+<div class="shadow-text">
+<div class="shadow-de"><span class="sp" data-text="Die Speisekarte, bitte! Ich hätte gern eine Suppe.">🔊</span> Die Speisekarte, bitte! Ich hätte gern eine Suppe.</div>
+<div class="shadow-vn">Cho xin thực đơn! Tôi muốn một tô súp.</div>
+</div>
+<div class="shadow-btns">
+<span class="sp shadow-slow" data-text="Die Speisekarte, bitte! Ich hätte gern eine Suppe." data-rate="0.5">🐢</span>
+<span class="shadow-counter">0 lần</span>
+</div>
+</div>
+<div class="shadow-sentence">
+<div class="shadow-num">8</div>
+<div class="shadow-text">
+<div class="shadow-de"><span class="sp" data-text="Wann hast du Geburtstag? – Am dritten Mai.">🔊</span> Wann hast du Geburtstag? – Am dritten Mai.</div>
+<div class="shadow-vn">Sinh nhật bạn khi nào? – Ngày 3 tháng 5.</div>
+</div>
+<div class="shadow-btns">
+<span class="sp shadow-slow" data-text="Wann hast du Geburtstag? – Am dritten Mai." data-rate="0.5">🐢</span>
+<span class="shadow-counter">0 lần</span>
+</div>
+</div>
+<div class="shadow-sentence">
+<div class="shadow-num">9</div>
+<div class="shadow-text">
+<div class="shadow-de"><span class="sp" data-text="Am Wochenende hatten wir eine tolle Party.">🔊</span> Am Wochenende hatten wir eine tolle Party.</div>
+<div class="shadow-vn">Cuối tuần chúng tôi đã có một tiệc tuyệt vời.</div>
+</div>
+<div class="shadow-btns">
+<span class="sp shadow-slow" data-text="Am Wochenende hatten wir eine tolle Party." data-rate="0.5">🐢</span>
+<span class="shadow-counter">0 lần</span>
+</div>
+</div>
+<div class="shadow-sentence">
+<div class="shadow-num">10</div>
+<div class="shadow-text">
+<div class="shadow-de"><span class="sp" data-text="Er kauft im Supermarkt ein und kocht dann zu Hause.">🔊</span> Er kauft im Supermarkt ein und kocht dann zu Hause.</div>
+<div class="shadow-vn">Anh ấy mua sắm ở siêu thị rồi nấu ăn ở nhà.</div>
+</div>
+<div class="shadow-btns">
+<span class="sp shadow-slow" data-text="Er kauft im Supermarkt ein und kocht dann zu Hause." data-rate="0.5">🐢</span>
+<span class="shadow-counter">0 lần</span>
+</div>
+</div>
+</div>
+
+</div>
+
+</div><!-- end .container -->
+
+<script>
+// === TTS Setup (de-DE) ===
+var _deV=null;
+function _loadV(){try{var v=speechSynthesis.getVoices();_deV=v.find(function(x){return x.lang==='de-DE'&&x.name.indexOf('Google')>=0;})||v.find(function(x){return x.lang==='de-DE';})||v.find(function(x){return x.lang.indexOf('de')===0;})||null;}catch(e){}}
+if(window.speechSynthesis){speechSynthesis.onvoiceschanged=_loadV;_loadV();}
+function say(t,r){try{if(!window.speechSynthesis)return;speechSynthesis.cancel();if(!_deV)_loadV();var u=new SpeechSynthesisUtterance(t);u.lang='de-DE';u.rate=r||0.8;if(_deV)u.voice=_deV;speechSynthesis.speak(u);}catch(e){}}
+
+// === Event Delegation for Speaker buttons ===
+document.addEventListener('click', function(e) {
+  if (e.target.classList.contains('sp')) {
+    var text = e.target.getAttribute('data-text');
+    if (text) say(text);
+  }
+});
+
+// === Chapter Navigation ===
+var chapters = [
+  {id:'ch1', label:'Kap.1 Guten Tag'},
+  {id:'ch2', label:'Kap.2 Freunde'},
+  {id:'ch3', label:'Kap.3 Hamburg'},
+  {id:'ch4', label:'Kap.4 Appetit'},
+  {id:'ch5', label:'Kap.5 Alltag'},
+  {id:'ch6', label:'Kap.6 Freunden'}
+];
+
+var navEl = document.getElementById('chapterNav');
+chapters.forEach(function(ch, i) {
+  var btn = document.createElement('div');
+  btn.className = 'ch-btn' + (i === 0 ? ' active' : '');
+  btn.textContent = ch.label;
+  btn.setAttribute('data-ch', ch.id);
+  navEl.appendChild(btn);
+});
+
+// Show first chapter
+document.getElementById('ch1').classList.add('active');
+
+navEl.addEventListener('click', function(e) {
+  if (!e.target.classList.contains('ch-btn')) return;
+  var chId = e.target.getAttribute('data-ch');
+  // Update buttons
+  navEl.querySelectorAll('.ch-btn').forEach(function(b){b.classList.remove('active');});
+  e.target.classList.add('active');
+  // Show chapter
+  document.querySelectorAll('.chapter').forEach(function(c){c.classList.remove('active');});
+  document.getElementById(chId).classList.add('active');
+  // Scroll to top
+  window.scrollTo({top: 0, behavior: 'smooth'});
+});
+
+// === Sub-tab Navigation ===
+document.addEventListener('click', function(e) {
+  if (!e.target.classList.contains('sub-tab')) return;
+  var ch = e.target.getAttribute('data-ch');
+  var tab = e.target.getAttribute('data-tab');
+  // Update sub-tab buttons within same chapter
+  var parent = e.target.parentElement;
+  parent.querySelectorAll('.sub-tab').forEach(function(t){t.classList.remove('active');});
+  e.target.classList.add('active');
+  // Show sub-content
+  var chEl = document.getElementById('ch' + ch);
+  chEl.querySelectorAll('.sub-content').forEach(function(c){c.classList.remove('active');});
+  document.getElementById('ch' + ch + '-' + tab).classList.add('active');
+});
+
+// === SHADOWING: slow button & counter ===
+document.addEventListener('click', function(e){
+  if(e.target.classList.contains('shadow-slow')){
+    var text = e.target.getAttribute('data-text');
+    var rate = parseFloat(e.target.getAttribute('data-rate'))||0.5;
+    if(text) say(text, rate);
+    return;
+  }
+  if(e.target.classList.contains('shadow-counter')){
+    var count = parseInt(e.target.textContent)||0;
+    count++;
+    e.target.textContent = count + ' lần';
+    if(count >= 3) e.target.style.color = '#36b37e';
+    if(count >= 5) e.target.style.background = '#e6fcf5';
+    return;
+  }
+});
+
+</script>
+</body>
+</html>
