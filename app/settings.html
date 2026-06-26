@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cấu hình - DeutschSaga</title>
+  <link rel="manifest" href="../manifest.json">
+  <meta name="theme-color" content="#1a73e8">
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    .settings-section { margin-bottom: 24px; }
+    .settings-section h3 { font-size: 15px; font-weight: 600; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+    .settings-section h3 i { color: var(--primary); }
+    .setting-item { background: var(--card-bg); border: 1px solid var(--border-light); border-radius: var(--radius-md); padding: 14px 16px; margin-bottom: 10px; }
+    .setting-item label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 4px; }
+    .setting-item .desc { font-size: 11px; color: var(--text-muted); margin-bottom: 8px; }
+    .setting-item input[type="text"], .setting-item select { width: 100%; padding: 10px 12px; border: 1px solid var(--border-light); border-radius: var(--radius-sm); font-size: 14px; background: var(--bg); color: var(--text-primary); }
+    .setting-item input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(26,115,232,0.1); }
+    .save-bar { position: sticky; bottom: 70px; background: var(--card-bg); border: 1px solid var(--border-light); border-radius: var(--radius-md); padding: 12px 16px; display: flex; align-items: center; justify-content: space-between; box-shadow: var(--shadow-md); }
+    .save-bar .status { font-size: 12px; color: var(--text-muted); }
+    .toggle-row { display: flex; align-items: center; justify-content: space-between; }
+    .toggle-switch { position: relative; width: 44px; height: 24px; }
+    .toggle-switch input { opacity: 0; width: 0; height: 0; }
+    .toggle-slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background: var(--border-light); border-radius: 24px; transition: .3s; }
+    .toggle-slider:before { content: ""; position: absolute; width: 18px; height: 18px; left: 3px; bottom: 3px; background: white; border-radius: 50%; transition: .3s; }
+    .toggle-switch input:checked + .toggle-slider { background: var(--primary); }
+    .toggle-switch input:checked + .toggle-slider:before { transform: translateX(20px); }
+  </style>
+</head>
+<body>
+  <div id="navbar"></div>
+  <div class="container" id="app-content">
+    <div class="loading"><div class="spinner"></div> Đang tải...</div>
+  </div>
+  <div class="toast" id="toast"></div>
+
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+  <script src="../js/firebase-config.js"></script>
+  <script src="../js/auth.js"></script>
+  <script src="../js/progress.js"></script>
+  <script src="../js/tts.js"></script>
+  <script src="../js/app.js"></script>
+  <script>
+  function pageInit() {
+    var data = Progress.get();
+    var settings = data.settings || {};
+
+    // Defaults
+    var defaults = {
+      ankiLink: 'https://apps.ankiweb.net/',
+      audioFilePrefix: 'deutsch_speaking',
+      audioFormat: 'webm',
+      autoDownloadAudio: true,
+      dailyGoalMinutes: 120,
+      ttsRate: 0.8
+    };
+
+    // Merge with saved
+    for (var k in defaults) {
+      if (settings[k] === undefined) settings[k] = defaults[k];
+    }
+
+    var html = '';
+    html += '<div class="section-header"><h2 class="section-title"><i class="fa-solid fa-gear"></i> Cấu hình</h2>';
+    html += '<p class="section-desc">Tùy chỉnh ứng dụng theo nhu cầu của bạn</p></div>';
+
+    // === Section 1: Audio Recording ===
+    html += '<div class="settings-section">';
+    html += '<h3><i class="fa-solid fa-microphone"></i> Ghi âm</h3>';
+
+    html += '<div class="setting-item">';
+    html += '<label>Tên file ghi âm (prefix)</label>';
+    html += '<div class="desc">File sẽ được lưu dạng: [prefix]_2026-06-26.webm</div>';
+    html += '<input type="text" id="cfg-audioPrefix" value="' + settings.audioFilePrefix + '" placeholder="deutsch_speaking">';
+    html += '</div>';
+
+    html += '<div class="setting-item">';
+    html += '<label>Định dạng audio</label>';
+    html += '<div class="desc">webm (nhẹ, tương thích tốt) hoặc wav (chất lượng cao, nặng hơn)</div>';
+    html += '<select id="cfg-audioFormat">';
+    html += '<option value="webm"' + (settings.audioFormat === 'webm' ? ' selected' : '') + '>WebM (khuyến nghị)</option>';
+    html += '<option value="wav"' + (settings.audioFormat === 'wav' ? ' selected' : '') + '>WAV (chất lượng cao)</option>';
+    html += '</select>';
+    html += '</div>';
+
+    html += '<div class="setting-item toggle-row">';
+    html += '<div><label style="margin-bottom:0">Tự động download sau ghi âm</label>';
+    html += '<div class="desc" style="margin-bottom:0">Tắt nếu bạn chỉ muốn nghe lại mà không lưu file</div></div>';
+    html += '<label class="toggle-switch"><input type="checkbox" id="cfg-autoDownload"' + (settings.autoDownloadAudio ? ' checked' : '') + '><span class="toggle-slider"></span></label>';
+    html += '</div>';
+
+    html += '</div>';
+
+    // === Section 2: Study Tools ===
+    html += '<div class="settings-section">';
+    html += '<h3><i class="fa-solid fa-link"></i> Công cụ học tập</h3>';
+
+    html += '<div class="setting-item">';
+    html += '<label>Link Anki / Quizlet</label>';
+    html += '<div class="desc">Nút "Mở Anki" trong Block 1 sẽ mở link này</div>';
+    html += '<input type="text" id="cfg-ankiLink" value="' + settings.ankiLink + '" placeholder="https://apps.ankiweb.net/">';
+    html += '</div>';
+
+    html += '</div>';
+
+    // === Section 3: Learning ===
+    html += '<div class="settings-section">';
+    html += '<h3><i class="fa-solid fa-clock"></i> Mục tiêu học tập</h3>';
+
+    html += '<div class="setting-item">';
+    html += '<label>Thời gian học mỗi ngày (phút)</label>';
+    html += '<div class="desc">Dùng để tính progress và nhắc nhở</div>';
+    html += '<input type="text" id="cfg-dailyGoal" value="' + settings.dailyGoalMinutes + '" placeholder="120">';
+    html += '</div>';
+
+    html += '<div class="setting-item">';
+    html += '<label>Tốc độ TTS (Text-to-Speech)</label>';
+    html += '<div class="desc">0.5 = rất chậm, 0.8 = chậm (mặc định), 1.0 = bình thường</div>';
+    html += '<input type="text" id="cfg-ttsRate" value="' + settings.ttsRate + '" placeholder="0.8">';
+    html += '</div>';
+
+    html += '</div>';
+
+    // === Section 4: Display ===
+    html += '<div class="settings-section">';
+    html += '<h3><i class="fa-solid fa-palette"></i> Giao diện</h3>';
+
+    html += '<div class="setting-item toggle-row">';
+    html += '<div><label style="margin-bottom:0">Dark Mode</label>';
+    html += '<div class="desc" style="margin-bottom:0">Chế độ tối — dễ nhìn buổi tối</div></div>';
+    html += '<label class="toggle-switch"><input type="checkbox" id="cfg-darkMode"' + (localStorage.getItem("deutsch_dark_mode") === "true" ? ' checked' : '') + ' onchange="toggleDarkFromSettings(this.checked)"><span class="toggle-slider"></span></label>';
+    html += '</div>';
+
+    html += '</div>';
+
+    // === Section 5: Data ===
+    html += '<div class="settings-section">';
+    html += '<h3><i class="fa-solid fa-database"></i> Dữ liệu</h3>';
+
+    html += '<div class="setting-item">';
+    html += '<label>Xuất dữ liệu (Export)</label>';
+    html += '<div class="desc">Tải toàn bộ progress + ghi chú xuống file JSON để backup hoặc copy sang máy khác</div>';
+    html += '<button class="btn btn-outline btn-sm" onclick="exportData()"><i class="fa-solid fa-download"></i> Xuất JSON</button>';
+    html += '</div>';
+
+    html += '<div class="setting-item">';
+    html += '<label>Reset tiến độ</label>';
+    html += '<div class="desc" style="color:var(--error);">⚠️ Xóa toàn bộ dữ liệu học tập. Không thể hoàn tác!</div>';
+    html += '<button class="btn btn-sm" style="background:var(--error);color:white;border:none;" onclick="resetData()"><i class="fa-solid fa-trash"></i> Reset tất cả</button>';
+    html += '</div>';
+
+    html += '</div>';
+
+    // Save bar
+    html += '<div class="save-bar">';
+    html += '<div class="status" id="save-status">Chưa lưu thay đổi</div>';
+    html += '<button class="btn btn-primary btn-sm" onclick="saveSettings()"><i class="fa-solid fa-check"></i> Lưu cấu hình</button>';
+    html += '</div>';
+
+    document.getElementById('app-content').innerHTML = html;
+  }
+
+  function saveSettings() {
+    var data = Progress.get();
+    if (!data.settings) data.settings = {};
+
+    data.settings.audioFilePrefix = document.getElementById('cfg-audioPrefix').value.trim() || 'deutsch_speaking';
+    data.settings.audioFormat = document.getElementById('cfg-audioFormat').value;
+    data.settings.autoDownloadAudio = document.getElementById('cfg-autoDownload').checked;
+    data.settings.ankiLink = document.getElementById('cfg-ankiLink').value.trim() || 'https://apps.ankiweb.net/';
+    data.settings.dailyGoalMinutes = parseInt(document.getElementById('cfg-dailyGoal').value) || 120;
+    data.settings.ttsRate = parseFloat(document.getElementById('cfg-ttsRate').value) || 0.8;
+
+    Progress.save(data);
+    document.getElementById('save-status').textContent = '✅ Đã lưu!';
+    document.getElementById('save-status').style.color = 'var(--success)';
+    App.showToast('Đã lưu cấu hình!');
+  }
+
+  function toggleDarkFromSettings(isDark) {
+    localStorage.setItem('deutsch_dark_mode', isDark);
+    document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
+  }
+
+  function exportData() {
+    var data = Progress.get();
+    var json = JSON.stringify(data, null, 2);
+    var blob = new Blob([json], { type: 'application/json' });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url;
+    a.download = 'deutschsaga_backup_' + new Date().toISOString().slice(0, 10) + '.json';
+    a.click();
+    URL.revokeObjectURL(url);
+    App.showToast('Đã xuất file backup!');
+  }
+
+  function resetData() {
+    if (!confirm('⚠️ Bạn chắc chắn muốn XÓA TOÀN BỘ dữ liệu học tập?\n\nHành động này KHÔNG THỂ hoàn tác!')) return;
+    if (!confirm('Xác nhận lần nữa: XÓA TẤT CẢ?')) return;
+    var uid = auth.currentUser ? auth.currentUser.uid : null;
+    if (uid) {
+      db.collection('users').doc(uid).delete().then(function() {
+        localStorage.removeItem('deutsch_progress_' + uid);
+        App.showToast('Đã reset. Đang tải lại...');
+        setTimeout(function() { window.location.reload(); }, 1000);
+      });
+    }
+  }
+  </script>
+</body>
+</html>

@@ -309,7 +309,8 @@
         // Firebase Storage not configured — fallback to local download
         var url = URL.createObjectURL(this.blob);
         var a = document.createElement('a');
-        a.href = url; a.download = 'recording_' + date + '.webm';
+        var prefix = (Progress.get().settings && Progress.get().settings.audioFilePrefix) || 'deutsch_speaking';
+        a.href = url; a.download = prefix + '_' + date + '.webm';
         a.click();
         return Promise.resolve('local_download');
       }
@@ -332,9 +333,10 @@
 
   // ============================================================
   // MAIN PAGE LOGIC
-  // ============================================================
+
   function pageInit() {
     var data = Progress.get();
+    var settings = data.settings || {};
     var allLessons = getAllLessons();
     var currentIndex = data.progress.currentLessonIndex || 0;
     if (currentIndex >= allLessons.length) currentIndex = allLessons.length - 1;
@@ -382,7 +384,7 @@
     html += '</div>';
     html += '<div class="block-body">';
     html += '<p style="font-size:13px;color:var(--text-secondary);margin-bottom:12px;">Mở Anki/Quizlet và ôn lại từ vựng đã học.</p>';
-    html += '<a href="https://apps.ankiweb.net/" target="_blank" class="btn btn-primary btn-sm" style="margin-bottom:12px;display:inline-block;text-decoration:none;padding:8px 16px;border-radius:6px;background:var(--primary);color:white;font-size:13px;font-weight:600;"><i class="fa-solid fa-external-link-alt"></i> Mở Anki</a>';
+    html += '<a href="' + (settings.ankiLink || 'https://apps.ankiweb.net/') + '" target="_blank" class="btn btn-primary btn-sm" style="margin-bottom:12px;display:inline-block;text-decoration:none;padding:8px 16px;border-radius:6px;background:var(--primary);color:white;font-size:13px;font-weight:600;"><i class="fa-solid fa-external-link-alt"></i> Mở Anki</a>';
     if (!b1Done) {
       html += '<div style="margin-top:12px;padding:12px;background:var(--bg);border-radius:var(--radius-sm);display:flex;align-items:center;gap:10px;cursor:pointer;" onclick="completeBlock1()">';
       html += '<input type="checkbox" id="cb1" style="width:18px;height:18px;accent-color:var(--success);">';

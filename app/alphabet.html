@@ -3,25 +3,49 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Phát âm - Deutsch B1</title>
+  <title>Bảng chữ cái - DeutschSaga</title>
   <link rel="manifest" href="../manifest.json">
   <meta name="theme-color" content="#1a73e8">
   <link rel="stylesheet" href="../css/style.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <style>
-    .alpha-grid { display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:10px;margin-bottom:24px; }
-    .letter-card { background:var(--surface);border:2px solid var(--border-light);border-radius:var(--radius-md);padding:12px;cursor:pointer;text-align:center;transition:all 0.2s; }
-    .letter-card:hover { border-color:var(--primary);box-shadow:var(--shadow-md);transform:translateY(-2px); }
-    .letter-card.special { border-color:var(--warning);background:linear-gradient(135deg,#fffde7,#fff8e1); }
-    .letter-card .letter { font-size:28px;font-weight:800;color:var(--primary);line-height:1.2; }
-    .letter-card.special .letter { color:#c62828; }
-    .letter-card .letter-name { font-size:11px;font-weight:600;color:var(--text-secondary);margin-top:2px; }
-    .letter-card .pronunciation { font-size:10px;color:var(--text-muted);margin-top:2px;font-style:italic; }
-    .rule-card { background:var(--surface);border:1.5px solid var(--border-light);border-radius:var(--radius-md);padding:16px;margin-bottom:12px; }
-    .rule-badge { background:var(--primary);color:white;padding:3px 10px;border-radius:100px;font-size:11px;font-weight:600;display:inline-block;margin-right:8px; }
-    .rule-example { display:inline-flex;align-items:center;gap:4px;background:var(--primary-light);padding:4px 10px;border-radius:100px;font-size:11px;font-weight:500;color:var(--primary-dark);cursor:pointer;margin:3px;transition:all 0.15s; }
-    .rule-example:hover { background:var(--primary);color:white; }
-    @media(max-width:480px) { .alpha-grid { grid-template-columns:repeat(auto-fill,minmax(80px,1fr)); } .letter-card .letter { font-size:22px; } }
+    .tab-bar { display:flex; gap:4px; margin-bottom:16px; overflow-x:auto; padding-bottom:4px; }
+    .tab-btn { padding:8px 14px; border:none; border-radius:100px; font-size:12px; font-weight:600; cursor:pointer; white-space:nowrap; background:var(--surface); color:var(--text-secondary); border:1.5px solid var(--border-light); transition:all .2s; }
+    .tab-btn.active { background:var(--primary); color:white; border-color:var(--primary); }
+    .group-header { font-size:14px; font-weight:700; color:var(--primary); margin:20px 0 10px; display:flex; align-items:center; gap:8px; }
+    .group-header i { font-size:12px; }
+    .lesson-card { background:var(--card-bg); border:1.5px solid var(--border-light); border-radius:var(--radius-md); padding:14px; margin-bottom:10px; cursor:pointer; transition:all .2s; }
+    .lesson-card:hover { border-color:var(--primary); box-shadow:var(--shadow-md); transform:translateY(-1px); }
+    .lesson-card.completed { border-color:var(--success); background:linear-gradient(135deg, #f0fdf4, #dcfce7); }
+    .lesson-title { font-size:20px; font-weight:800; color:var(--primary); }
+    .lesson-card.completed .lesson-title { color:var(--success); }
+    .lesson-meta { font-size:11px; color:var(--text-muted); margin-top:4px; }
+    .vocab-list { margin-top:8px; }
+    .vocab-item { display:flex; align-items:center; gap:8px; padding:8px 10px; border-radius:var(--radius-sm); background:var(--bg); margin-bottom:4px; }
+    .vocab-item .play-btn { width:30px; height:30px; border-radius:50%; background:var(--primary); color:white; border:none; display:flex; align-items:center; justify-content:center; cursor:pointer; flex-shrink:0; font-size:11px; transition:all .15s; }
+    .vocab-item .play-btn:hover { transform:scale(1.1); background:var(--primary-dark); }
+    .vocab-item .play-btn:active { transform:scale(0.95); }
+    .vocab-word { font-weight:700; font-size:14px; color:var(--text-primary); }
+    .vocab-meaning { font-size:12px; color:var(--text-secondary); }
+    .detail-view { display:none; }
+    .detail-view.active { display:block; }
+    .back-btn { background:none; border:none; color:var(--primary); font-size:13px; font-weight:600; cursor:pointer; display:flex; align-items:center; gap:6px; margin-bottom:16px; padding:8px 0; }
+    .back-btn:hover { text-decoration:underline; }
+    .exercise-link { display:flex; align-items:center; gap:10px; padding:10px 12px; border-radius:var(--radius-sm); background:var(--bg); margin-bottom:6px; text-decoration:none; color:var(--text-primary); transition:all .15s; border:1px solid var(--border-light); }
+    .exercise-link:hover { border-color:var(--primary); background:var(--primary-light); }
+    .exercise-link i { color:var(--primary); width:20px; text-align:center; }
+    .exercise-link .ex-name { font-size:13px; font-weight:500; }
+    .progress-ring { display:inline-flex; align-items:center; gap:4px; font-size:11px; color:var(--success); font-weight:600; }
+    .stat-bar { display:flex; gap:12px; margin-bottom:16px; flex-wrap:wrap; }
+    .stat-item { background:var(--card-bg); border:1px solid var(--border-light); border-radius:var(--radius-sm); padding:10px 14px; flex:1; min-width:80px; text-align:center; }
+    .stat-item .num { font-size:20px; font-weight:800; color:var(--primary); }
+    .stat-item .label { font-size:10px; color:var(--text-muted); margin-top:2px; }
+    .audio-player { width:100%; margin-top:6px; height:36px; border-radius:8px; }
+    @media(max-width:480px) {
+      .stat-bar { gap:6px; }
+      .stat-item { padding:8px 10px; }
+      .stat-item .num { font-size:16px; }
+    }
   </style>
 </head>
 <body>
@@ -30,6 +54,7 @@
     <div class="loading"><div class="spinner"></div> Đang tải...</div>
   </div>
   <div class="toast" id="toast"></div>
+
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
@@ -38,86 +63,211 @@
   <script src="../js/progress.js"></script>
   <script src="../js/tts.js"></script>
   <script src="../js/app.js"></script>
-  <script src="../js/data/alphabet.js"></script>
+  <script src="../data/abc-data.js"></script>
   <script>
-  var currentTab = 'alphabet';
+  var currentView = 'list'; // 'list' or 'detail'
+  var currentLessonIndex = -1;
+  var currentAudio = null;
 
-  function pageInit() { render(); }
+  function pageInit() {
+    renderList();
+  }
 
-  function render() {
+  function getAbcProgress() {
+    var data = Progress.get();
+    return data.abc || {};
+  }
+
+  function saveAbcProgress(abcData) {
+    var data = Progress.get();
+    data.abc = abcData;
+    Progress.save(data);
+  }
+
+  function renderList() {
+    currentView = 'list';
+    var abcProgress = getAbcProgress();
+    var completedCount = Object.keys(abcProgress).filter(function(k) { return abcProgress[k].done; }).length;
+    var totalWords = ABC_DATA.reduce(function(sum, l) { return sum + l.vocabulary.length; }, 0);
+
     var html = '';
-    // Header
-    html += '<div style="background:linear-gradient(135deg,#000 0%,#dd0000 50%,#ffcc00 100%);border-radius:var(--radius-xl);padding:28px;color:white;margin-bottom:24px;position:relative;overflow:hidden;">';
-    html += '<div style="position:relative;z-index:1;">';
-    html += '<h1 style="font-size:22px;margin-bottom:4px;"><i class="fa-solid fa-volume-high"></i> Phát âm tiếng Đức</h1>';
-    html += '<p style="opacity:0.9;font-size:13px;">Bảng chữ cái, quy tắc ghép âm & bài tập</p>';
-    html += '</div></div>';
-
-    // Tabs
-    html += '<div style="display:flex;gap:6px;margin-bottom:20px;">';
-    html += '<button class="btn btn-sm '+(currentTab==='alphabet'?'btn-primary':'btn-outline')+'" onclick="switchAlphaTab(\'alphabet\')"><i class="fa-solid fa-th"></i> Bảng chữ cái</button>';
-    html += '<button class="btn btn-sm '+(currentTab==='rules'?'btn-primary':'btn-outline')+'" onclick="switchAlphaTab(\'rules\')"><i class="fa-solid fa-link"></i> Quy tắc ghép âm</button>';
+    html += '<div class="section-header">';
+    html += '<h2 class="section-title"><i class="fa-solid fa-language"></i> Bảng chữ cái ABC</h2>';
+    html += '<p class="section-desc">Nguồn: <a href="https://learngerman.dw.com/en/abc/c-39621991" target="_blank" style="color:var(--primary);">DW Learn German</a> — 45 bài, 237 từ vựng</p>';
     html += '</div>';
 
-    if (currentTab === 'alphabet') {
-      // Normal letters
-      html += '<h3 style="font-size:16px;margin-bottom:12px;">Bảng chữ cái (26 chữ)</h3>';
-      html += '<p style="font-size:12px;color:var(--text-secondary);margin-bottom:12px;"><i class="fa-solid fa-hand-pointer"></i> Nhấn vào chữ cái để nghe phát âm</p>';
-      html += '<div class="alpha-grid">';
-      for (var i = 0; i < ALPHABET_DATA.letters.length; i++) {
-        var l = ALPHABET_DATA.letters[i];
-        html += '<div class="letter-card" onclick="TTS.speak(\''+l.name+'\',0.7);Progress.learnLetter(\''+l.letter+'\');">';
-        html += '<div class="letter">'+l.letter+'</div>';
-        html += '<div class="letter-name">'+l.name+'</div>';
-        html += '<div class="pronunciation">'+l.vn+'</div>';
-        html += '</div>';
+    // Stats
+    html += '<div class="stat-bar">';
+    html += '<div class="stat-item"><div class="num">' + completedCount + '/' + ABC_DATA.length + '</div><div class="label">Bài hoàn thành</div></div>';
+    html += '<div class="stat-item"><div class="num">' + totalWords + '</div><div class="label">Từ vựng</div></div>';
+    html += '<div class="stat-item"><div class="num">' + Math.round(completedCount / ABC_DATA.length * 100) + '%</div><div class="label">Tiến độ</div></div>';
+    html += '</div>';
+
+    // Group lessons
+    var currentGroup = '';
+    for (var i = 0; i < ABC_DATA.length; i++) {
+      var lesson = ABC_DATA[i];
+      var isCompleted = abcProgress[lesson.dw_lesson_id] && abcProgress[lesson.dw_lesson_id].done;
+
+      if (lesson.group !== currentGroup) {
+        currentGroup = lesson.group;
+        html += '<div class="group-header"><i class="fa-solid fa-layer-group"></i> ' + currentGroup + '</div>';
+      }
+
+      html += '<div class="lesson-card' + (isCompleted ? ' completed' : '') + '" onclick="openLesson(' + i + ')">';
+      html += '<div style="display:flex;align-items:center;justify-content:space-between;">';
+      html += '<div>';
+      html += '<div class="lesson-title">' + lesson.title + '</div>';
+      html += '<div class="lesson-meta">' + lesson.vocabulary.length + ' từ · ' + lesson.exercises.length + ' bài tập</div>';
+      html += '</div>';
+      if (isCompleted) {
+        html += '<span class="progress-ring"><i class="fa-solid fa-circle-check"></i> Xong</span>';
+      } else {
+        html += '<i class="fa-solid fa-chevron-right" style="color:var(--text-muted);font-size:14px;"></i>';
       }
       html += '</div>';
-
-      // Special
-      html += '<h3 style="font-size:16px;margin-bottom:12px;margin-top:24px;"><i class="fa-solid fa-star" style="color:var(--warning);"></i> Chữ cái đặc biệt</h3>';
-      html += '<div class="alpha-grid">';
-      for (var j = 0; j < ALPHABET_DATA.special.length; j++) {
-        var s = ALPHABET_DATA.special[j];
-        html += '<div class="letter-card special" onclick="TTS.speak(\''+s.example+'\',0.7);">';
-        html += '<div class="letter">'+s.letter+'</div>';
-        html += '<div class="letter-name">'+s.name+'</div>';
-        html += '<div class="pronunciation">'+s.vn+'</div>';
-        html += '</div>';
-      }
       html += '</div>';
-
-      // Special details
-      for (var k = 0; k < ALPHABET_DATA.special.length; k++) {
-        var sp = ALPHABET_DATA.special[k];
-        html += '<div class="card" style="margin-top:12px;"><div style="display:flex;align-items:center;gap:12px;">';
-        html += '<span style="font-size:32px;font-weight:800;color:#c62828;">'+sp.letter+'</span>';
-        html += '<div><div style="font-weight:600;">'+sp.name+' — '+sp.vn+'</div>';
-        html += '<div style="font-size:12px;color:var(--text-secondary);">VD: '+sp.example+' ('+sp.exampleVi+')</div>';
-        html += '<div style="font-size:12px;color:var(--warning);margin-top:4px;">💡 '+sp.tip+'</div></div>';
-        html += '</div></div>';
-      }
-    } else {
-      // Rules
-      html += '<h3 style="font-size:16px;margin-bottom:12px;">Quy tắc ghép âm quan trọng</h3>';
-      html += '<p style="font-size:12px;color:var(--text-secondary);margin-bottom:16px;"><i class="fa-solid fa-hand-pointer"></i> Nhấn vào ví dụ để nghe phát âm</p>';
-      for (var r = 0; r < ALPHABET_DATA.rules.length; r++) {
-        var rule = ALPHABET_DATA.rules[r];
-        html += '<div class="rule-card">';
-        html += '<div style="margin-bottom:8px;"><span class="rule-badge">'+rule.combo+'</span><strong>→ Đọc "'+rule.sound+'"</strong></div>';
-        html += '<p style="font-size:12px;color:var(--text-secondary);margin-bottom:8px;">'+rule.desc+'</p>';
-        html += '<div style="display:flex;flex-wrap:wrap;gap:4px;">';
-        for (var e = 0; e < rule.examples.length; e++) {
-          html += '<span class="rule-example" onclick="TTS.speak(\''+rule.examples[e]+'\',0.8)"><i class="fa-solid fa-volume-up" style="font-size:9px;"></i> '+rule.examples[e]+'</span>';
-        }
-        html += '</div></div>';
-      }
     }
 
     document.getElementById('app-content').innerHTML = html;
   }
 
-  window.switchAlphaTab = function(tab) { currentTab = tab; render(); };
+  function openLesson(index) {
+    currentView = 'detail';
+    currentLessonIndex = index;
+    renderDetail();
+  }
+
+  function renderDetail() {
+    var lesson = ABC_DATA[currentLessonIndex];
+    var abcProgress = getAbcProgress();
+    var lessonProgress = abcProgress[lesson.dw_lesson_id] || {};
+    var isCompleted = lessonProgress.done;
+
+    var html = '';
+    html += '<button class="back-btn" onclick="renderList()"><i class="fa-solid fa-arrow-left"></i> Quay lại danh sách</button>';
+
+    // Lesson header
+    html += '<div class="card" style="margin-bottom:16px;text-align:center;">';
+    html += '<div style="font-size:48px;font-weight:900;color:var(--primary);line-height:1;">' + lesson.title + '</div>';
+    html += '<div style="font-size:12px;color:var(--text-muted);margin-top:8px;">Nhóm: ' + lesson.group + '</div>';
+    if (isCompleted) {
+      html += '<div style="margin-top:8px;"><span style="background:var(--success);color:white;padding:4px 12px;border-radius:100px;font-size:11px;font-weight:600;"><i class="fa-solid fa-check"></i> Đã hoàn thành</span></div>';
+    }
+    html += '</div>';
+
+    // TTS - Speak the letter
+    html += '<div class="card" style="margin-bottom:16px;">';
+    html += '<h3 style="font-size:14px;margin-bottom:10px;"><i class="fa-solid fa-volume-up" style="color:var(--primary);"></i> Nghe phát âm</h3>';
+    html += '<button class="btn btn-primary btn-sm" onclick="speakLetter(\'' + lesson.title.replace("'", "\\'") + '\')" style="margin-right:8px;"><i class="fa-solid fa-play"></i> Nghe "' + lesson.title + '"</button>';
+    html += '<button class="btn btn-outline btn-sm" onclick="speakLetter(\'' + lesson.title.replace("'", "\\'") + '\', 0.5)"><i class="fa-solid fa-gauge-simple"></i> Chậm</button>';
+    html += '</div>';
+
+    // Vocabulary section
+    if (lesson.vocabulary.length > 0) {
+      html += '<div class="card" style="margin-bottom:16px;">';
+      html += '<h3 style="font-size:14px;margin-bottom:10px;"><i class="fa-solid fa-book" style="color:var(--warning);"></i> Từ vựng (' + lesson.vocabulary.length + ' từ)</h3>';
+      html += '<div class="vocab-list">';
+      for (var i = 0; i < lesson.vocabulary.length; i++) {
+        var v = lesson.vocabulary[i];
+        html += '<div class="vocab-item">';
+        if (v.audios && v.audios.length > 0) {
+          html += '<button class="play-btn" onclick="playAudio(\'' + v.audios[0] + '\')"><i class="fa-solid fa-play"></i></button>';
+        } else {
+          html += '<button class="play-btn" onclick="speakLetter(\'' + v.word.replace("'", "\\'") + '\')"><i class="fa-solid fa-volume-up"></i></button>';
+        }
+        html += '<div><div class="vocab-word">' + v.word + '</div><div class="vocab-meaning">' + v.meaning + '</div></div>';
+        html += '</div>';
+      }
+      html += '</div>';
+      html += '</div>';
+    }
+
+    // Exercises section - link to DW
+    if (lesson.exercises.length > 0) {
+      html += '<div class="card" style="margin-bottom:16px;">';
+      html += '<h3 style="font-size:14px;margin-bottom:10px;"><i class="fa-solid fa-dumbbell" style="color:var(--error);"></i> Bài tập (' + lesson.exercises.length + ' câu)</h3>';
+      html += '<p style="font-size:11px;color:var(--text-muted);margin-bottom:10px;">Mở trên DW để làm bài tập tương tác</p>';
+      
+      // Show unique exercise types
+      var uniqueExercises = [];
+      var seenNames = {};
+      for (var j = 0; j < lesson.exercises.length; j++) {
+        var ex = lesson.exercises[j];
+        if (!seenNames[ex.name]) {
+          seenNames[ex.name] = true;
+          uniqueExercises.push(ex);
+        }
+      }
+      
+      for (var j = 0; j < uniqueExercises.length; j++) {
+        var ex = uniqueExercises[j];
+        var exUrl = 'https://learngerman.dw.com' + ex.url;
+        html += '<a class="exercise-link" href="' + exUrl + '" target="_blank">';
+        html += '<i class="fa-solid fa-external-link-alt"></i>';
+        html += '<span class="ex-name">' + ex.name + '</span>';
+        html += '</a>';
+      }
+      html += '</div>';
+    }
+
+    // DW full lesson link
+    html += '<div class="card" style="margin-bottom:16px;text-align:center;">';
+    html += '<a href="' + lesson.dw_url + '" target="_blank" class="btn btn-primary" style="text-decoration:none;display:inline-block;">';
+    html += '<i class="fa-solid fa-external-link-alt"></i> Mở bài đầy đủ trên DW</a>';
+    html += '</div>';
+
+    // Mark complete button
+    html += '<div style="text-align:center;margin-bottom:24px;">';
+    if (isCompleted) {
+      html += '<button class="btn btn-outline btn-sm" onclick="toggleComplete(\'' + lesson.dw_lesson_id + '\', false)"><i class="fa-solid fa-rotate-left"></i> Đánh dấu chưa xong</button>';
+    } else {
+      html += '<button class="btn btn-primary" onclick="toggleComplete(\'' + lesson.dw_lesson_id + '\', true)"><i class="fa-solid fa-check"></i> Đánh dấu đã học xong</button>';
+    }
+    html += '</div>';
+
+    // Navigation
+    html += '<div style="display:flex;justify-content:space-between;margin-bottom:24px;">';
+    if (currentLessonIndex > 0) {
+      html += '<button class="btn btn-outline btn-sm" onclick="openLesson(' + (currentLessonIndex - 1) + ')"><i class="fa-solid fa-arrow-left"></i> ' + ABC_DATA[currentLessonIndex - 1].title + '</button>';
+    } else {
+      html += '<span></span>';
+    }
+    if (currentLessonIndex < ABC_DATA.length - 1) {
+      html += '<button class="btn btn-outline btn-sm" onclick="openLesson(' + (currentLessonIndex + 1) + ')">' + ABC_DATA[currentLessonIndex + 1].title + ' <i class="fa-solid fa-arrow-right"></i></button>';
+    }
+    html += '</div>';
+
+    document.getElementById('app-content').innerHTML = html;
+    window.scrollTo(0, 0);
+  }
+
+  function toggleComplete(lessonId, done) {
+    var abcProgress = getAbcProgress();
+    if (!abcProgress[lessonId]) abcProgress[lessonId] = {};
+    abcProgress[lessonId].done = done;
+    abcProgress[lessonId].completedAt = done ? new Date().toISOString() : null;
+    saveAbcProgress(abcProgress);
+    renderDetail();
+    App.showToast(done ? '✅ Đã đánh dấu hoàn thành!' : 'Đã bỏ đánh dấu');
+  }
+
+  function speakLetter(text, rate) {
+    if (!rate) rate = 0.8;
+    TTS.speak(text, rate);
+  }
+
+  function playAudio(url) {
+    if (currentAudio) {
+      currentAudio.pause();
+      currentAudio = null;
+    }
+    currentAudio = new Audio(url);
+    currentAudio.play().catch(function(e) {
+      console.error('Audio error:', e);
+      App.showToast('Không thể phát audio');
+    });
+  }
   </script>
 </body>
 </html>
