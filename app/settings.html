@@ -92,6 +92,18 @@
     html += '<label class="toggle-switch"><input type="checkbox" id="cfg-autoDownload"' + (settings.autoDownloadAudio ? ' checked' : '') + '><span class="toggle-slider"></span></label>';
     html += '</div>';
 
+    html += '<div class="setting-item">';
+    html += '<label>📂 Đường dẫn lưu file</label>';
+    html += '<div class="desc" style="line-height:1.8;">';
+    html += 'File audio được lưu vào <strong>thư mục Downloads mặc định</strong> của trình duyệt.<br>';
+    html += 'Tên file: <code style="background:var(--bg);padding:2px 6px;border-radius:4px;">' + settings.audioFilePrefix + '_2026-06-26.webm</code><br><br>';
+    html += '💡 <strong>Muốn đổi thư mục lưu?</strong><br>';
+    html += '• <strong>Chrome/Edge:</strong> Settings → Downloads → Location → Chọn thư mục<br>';
+    html += '• <strong>Bật "Ask where to save"</strong> → mỗi lần lưu sẽ hỏi bạn muốn lưu ở đâu<br>';
+    html += '• <strong>Trên điện thoại:</strong> File lưu trong thư mục "Download" (mặc định, không đổi được)';
+    html += '</div>';
+    html += '</div>';
+
     html += '</div>';
 
     // === Section 2: Study Tools ===

@@ -123,7 +123,15 @@
         html += '<span class="vl-card-date"><i class="fa-regular fa-calendar"></i> ' + dateStr + '</span>';
         html += '<span class="vl-card-duration"><i class="fa-solid fa-clock"></i> ' + formatDuration(rec.duration) + '</span>';
         html += '</div>';
-        html += '<audio controls preload="none" src="' + rec.audioUrl + '"></audio>';
+        if (rec.audioUrl && rec.audioUrl !== 'local_download' && rec.audioUrl !== 'local' && rec.audioUrl !== '') {
+          html += '<audio controls preload="none" src="' + rec.audioUrl + '"></audio>';
+        } else {
+          html += '<div style="margin-bottom:8px;">';
+          html += '<input type="file" accept="audio/*" id="file-' + i + '" style="display:none;" onchange="playLocalFile(this,' + i + ')">';
+          html += '<button class="btn btn-outline btn-sm" onclick="document.getElementById(\'file-' + i + '\').click()" style="font-size:12px;"><i class="fa-solid fa-folder-open"></i> Chọn file audio từ máy để nghe lại</button>';
+          html += '<audio controls id="audio-' + i + '" style="width:100%;margin-top:8px;display:none;"></audio>';
+          html += '</div>';
+        }
         if (rec.evaluation) {
           html += '<div class="vl-card-eval">' + formatEval(rec.evaluation) + '</div>';
         }
@@ -133,6 +141,16 @@
     }
 
     document.getElementById('app-content').innerHTML = html;
+  }
+
+  function playLocalFile(input, idx) {
+    var file = input.files[0];
+    if (!file) return;
+    var url = URL.createObjectURL(file);
+    var audio = document.getElementById('audio-' + idx);
+    audio.src = url;
+    audio.style.display = 'block';
+    audio.play();
   }
   </script>
 </body>
