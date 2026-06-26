@@ -3,11 +3,55 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Từ vựng - Deutsch B1</title>
+  <title>Ôn từ vựng - DeutschSaga</title>
   <link rel="manifest" href="../manifest.json">
   <meta name="theme-color" content="#1a73e8">
   <link rel="stylesheet" href="../css/style.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    .fc-header { text-align:center; margin-bottom:20px; }
+    .fc-stats { display:flex; gap:10px; justify-content:center; margin-bottom:20px; flex-wrap:wrap; }
+    .fc-stat { padding:8px 16px; border-radius:20px; font-size:12px; font-weight:600; background:var(--surface); border:1px solid var(--border-light); }
+    .fc-stat .num { color:var(--primary); font-weight:800; }
+
+    .fc-card-container { perspective:1000px; margin-bottom:20px; min-height:220px; }
+    .fc-card { width:100%; min-height:220px; position:relative; transform-style:preserve-3d; transition:transform 0.5s; cursor:pointer; border-radius:var(--radius-xl); }
+    .fc-card.flipped { transform:rotateY(180deg); }
+    .fc-face { position:absolute; top:0; left:0; right:0; bottom:0; backface-visibility:hidden; border-radius:var(--radius-xl); display:flex; flex-direction:column; align-items:center; justify-content:center; padding:24px; text-align:center; border:2px solid var(--border-light); }
+    .fc-front { background:var(--card-bg); }
+    .fc-back { background:linear-gradient(135deg, #e3f2fd, #f3e5f5); transform:rotateY(180deg); }
+    [data-theme="dark"] .fc-back { background:linear-gradient(135deg, #1a237e, #4a148c); }
+    .fc-word { font-size:28px; font-weight:800; color:var(--primary); margin-bottom:8px; }
+    .fc-hint { font-size:12px; color:var(--text-muted); }
+    .fc-meaning { font-size:20px; font-weight:600; color:var(--text-primary); margin-bottom:8px; }
+    .fc-context { font-size:12px; color:var(--text-muted); font-style:italic; }
+    .fc-date { font-size:10px; color:var(--text-muted); margin-top:8px; }
+
+    .fc-controls { display:flex; justify-content:center; gap:12px; margin-bottom:16px; }
+    .fc-btn { width:56px; height:56px; border-radius:50%; border:2px solid var(--border-light); display:flex; align-items:center; justify-content:center; font-size:20px; cursor:pointer; transition:all .2s; background:var(--card-bg); }
+    .fc-btn:hover { transform:scale(1.1); }
+    .fc-btn.hard { border-color:#ef5350; color:#ef5350; }
+    .fc-btn.hard:hover { background:#ef5350; color:white; }
+    .fc-btn.good { border-color:#66bb6a; color:#66bb6a; }
+    .fc-btn.good:hover { background:#66bb6a; color:white; }
+    .fc-btn.easy { border-color:#42a5f5; color:#42a5f5; }
+    .fc-btn.easy:hover { background:#42a5f5; color:white; }
+    .fc-btn.speak { border-color:var(--primary); color:var(--primary); }
+    .fc-btn.speak:hover { background:var(--primary); color:white; }
+
+    .fc-progress { height:4px; background:var(--border-light); border-radius:2px; margin-bottom:16px; overflow:hidden; }
+    .fc-progress .fill { height:100%; background:var(--success); transition:width .3s; border-radius:2px; }
+    .fc-counter { text-align:center; font-size:12px; color:var(--text-muted); margin-bottom:12px; }
+
+    .fc-empty { text-align:center; padding:60px 20px; }
+    .fc-empty i { font-size:48px; color:var(--text-muted); margin-bottom:16px; display:block; }
+    .fc-empty h3 { font-size:16px; margin-bottom:8px; }
+    .fc-empty p { font-size:13px; color:var(--text-muted); max-width:300px; margin:0 auto; }
+
+    .fc-mode-bar { display:flex; gap:8px; justify-content:center; margin-bottom:20px; }
+    .fc-mode-btn { padding:8px 16px; border-radius:20px; border:1.5px solid var(--border-light); font-size:12px; font-weight:600; cursor:pointer; background:var(--card-bg); color:var(--text-secondary); transition:all .2s; }
+    .fc-mode-btn.active { background:var(--primary); color:white; border-color:var(--primary); }
+  </style>
 </head>
 <body>
   <div id="navbar"></div>
@@ -15,6 +59,7 @@
     <div class="loading"><div class="spinner"></div> Đang tải...</div>
   </div>
   <div class="toast" id="toast"></div>
+
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
@@ -23,126 +68,220 @@
   <script src="../js/progress.js"></script>
   <script src="../js/tts.js"></script>
   <script src="../js/app.js"></script>
-  <script src="../js/data/vocabulary.js"></script>
   <script>
+  var cards = [];
+  var currentIdx = 0;
+  var isFlipped = false;
+  var mode = 'all'; // 'all', 'hard', 'recent'
+  var reviewData = {};
+
   function pageInit() {
-    var currentDay = 0;
-    var currentCard = 0;
-    var days = VOCAB_DATA.week1.days;
+    var data = Progress.get();
+    var dailyLogs = data.dailyLogs || {};
+    reviewData = data.vocabReview || {}; // { word: { level: 0-3, lastSeen: date } }
 
-    function getGenderClass(word) {
-      if (!word.gender) return '';
-      if (word.gender === 'm') return 'gender-maskulin';
-      if (word.gender === 'f') return 'gender-feminin';
-      if (word.gender === 'n') return 'gender-neutrum';
-      if (word.gender === 'pl') return 'gender-plural';
-      return '';
-    }
+    // Parse all vocabulary from daily notes
+    cards = [];
+    var dates = Object.keys(dailyLogs).sort().reverse();
 
-    function getGenderLabel(word) {
-      if (!word.gender) return '';
-      if (word.gender === 'm') return 'der (Maskulin)';
-      if (word.gender === 'f') return 'die (Feminin)';
-      if (word.gender === 'n') return 'das (Neutrum)';
-      if (word.gender === 'pl') return 'die (Plural)';
-      return '';
-    }
-
-    function render() {
-      var day = days[currentDay];
-      var word = day.words[currentCard];
-      var total = day.words.length;
-      var genderClass = getGenderClass(word);
-
-      var html = '';
-      // Day tabs
-      html += '<div style="display:flex;gap:6px;margin-bottom:20px;overflow-x:auto;">';
-      for (var i = 0; i < days.length; i++) {
-        var cls = i === currentDay ? 'btn-primary' : 'btn-outline';
-        html += '<button class="btn btn-sm ' + cls + '" onclick="selectVocabDay(' + i + ')">Ngày ' + days[i].day + '</button>';
-      }
-      html += '</div>';
-
-      // Gender Legend
-      html += '<div class="gender-legend">';
-      html += '<span style="font-weight:600;color:var(--text);margin-right:4px;">🎨 Giống:</span>';
-      html += '<div class="gender-legend-item"><span class="gender-dot mask"></span> der (Maskulin)</div>';
-      html += '<div class="gender-legend-item"><span class="gender-dot fem"></span> die (Feminin)</div>';
-      html += '<div class="gender-legend-item"><span class="gender-dot neut"></span> das (Neutrum)</div>';
-      html += '<div class="gender-legend-item"><span class="gender-dot plur"></span> die (Plural)</div>';
-      html += '</div>';
-
-      html += '<div class="section-header"><h2 class="section-title"><i class="fa-solid fa-book"></i> ' + day.title + '</h2>';
-      html += '<p class="section-desc">Thẻ ' + (currentCard + 1) + '/' + total + '</p></div>';
-
-      // Progress bar
-      html += '<div class="progress-bar" style="margin-bottom:20px;"><div class="progress-fill" style="width:' + ((currentCard + 1) / total * 100) + '%;"></div></div>';
-
-      // Flashcard with gender color
-      html += '<div class="card ' + genderClass + '" style="text-align:center;padding:32px 20px;cursor:pointer;" onclick="flipCard()">';
-      html += '<div id="card-front">';
-      html += '<div style="font-size:28px;font-weight:700;color:var(--primary);margin-bottom:8px;">' + word.de + '</div>';
-      if (word.gender) {
-        var gColor = word.gender === 'm' ? '#1976d2' : (word.gender === 'f' ? '#e91e63' : (word.gender === 'n' ? '#4caf50' : '#ff8f00'));
-        var gLabel = word.gender === 'm' ? 'der' : (word.gender === 'f' ? 'die' : (word.gender === 'n' ? 'das' : 'die (Pl.)'));
-        html += '<span style="background:' + gColor + ';color:white;padding:2px 8px;border-radius:100px;font-size:11px;font-weight:600;">' + gLabel + '</span> ';
-      }
-      // Show plural form if available
-      if (word.plural) {
-        html += '<div style="font-size:13px;color:var(--text-secondary);margin-top:6px;">Plural: <strong>' + word.plural + '</strong></div>';
-      }
-      html += '<div style="font-size:14px;color:var(--text-muted);margin-top:8px;">Nhấn để lật thẻ</div>';
-      html += '</div>';
-
-      html += '<div id="card-back" style="display:none;">';
-      html += '<div style="font-size:22px;font-weight:700;color:var(--text);margin-bottom:6px;">' + word.vi + '</div>';
-      html += '<div style="font-size:14px;color:var(--text-secondary);margin-bottom:12px;">';
-      html += '<span style="font-weight:600;">IPA:</span> ' + word.ipa + '</div>';
-      html += '<div style="background:var(--primary-light);padding:10px 16px;border-radius:var(--radius-sm);margin-bottom:12px;">';
-      html += '<span style="font-size:13px;color:var(--primary-dark);font-weight:500;">🇻🇳 Đọc: ' + word.vn_read + '</span></div>';
-      if (word.note) html += '<div style="font-size:12px;color:var(--warning);margin-bottom:8px;">' + word.note + '</div>';
-      html += '<div style="font-size:13px;color:var(--text-muted);font-style:italic;">VD: ' + word.example + '</div>';
-      // Show chunks (collocations) on back of card
-      if (word.chunks && word.chunks.length > 0) {
-        html += '<div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border-light);">';
-        html += '<div style="font-size:11px;font-weight:600;color:var(--text-secondary);margin-bottom:6px;">🔗 Chunks (cụm từ):</div>';
-        for (var c = 0; c < word.chunks.length; c++) {
-          html += '<span style="display:inline-block;background:var(--warning-light);padding:3px 8px;border-radius:100px;font-size:12px;margin:2px 4px 2px 0;">' + word.chunks[c] + '</span>';
+    for (var i = 0; i < dates.length; i++) {
+      var date = dates[i];
+      var log = dailyLogs[date];
+      if (log.blocks && log.blocks.content && log.blocks.content.notes) {
+    if (log.blocks && log.blocks.content) {
+        // NEW: read structured vocabulary array first
+        var vocab = log.blocks.content.vocabulary || [];
+        for (var v = 0; v < vocab.length; v++) {
+          cards.push({
+            word: vocab[v].word,
+            meaning: vocab[v].meaning,
+            gender: vocab[v].gender || '',
+            note: vocab[v].note || '',
+            fullLine: vocab[v].word + ' - ' + vocab[v].meaning,
+            date: date,
+            level: (reviewData[vocab[v].word] && reviewData[vocab[v].word].level) || 0
+          });
         }
-        html += '</div>';
+        // FALLBACK: parse old-style notes if vocabulary array is empty
+        var notes = (log.blocks.content.notes || '').trim();
+        if (notes && vocab.length === 0) {
+        // Split by newline — each line is a vocab entry
+        var lines = notes.split('\n');
+        for (var j = 0; j < lines.length; j++) {
+          var line = lines[j].trim();
+          if (!line || line.length < 2) continue;
+
+          // Try to parse "word - meaning" or "word = meaning" or just "word"
+          var word = line;
+          var meaning = '';
+          var separators = [' - ', ' – ', ' — ', ' = ', ': ', ' → '];
+          for (var s = 0; s < separators.length; s++) {
+            var idx = line.indexOf(separators[s]);
+            if (idx > 0) {
+              word = line.substring(0, idx).trim();
+              meaning = line.substring(idx + separators[s].length).trim();
+              break;
+            }
+          }
+
+          cards.push({
+            word: word,
+            meaning: meaning,
+            fullLine: line,
+            date: date,
+            level: (reviewData[word] && reviewData[word].level) || 0
+          });
+        }
       }
-      html += '</div>';
-
-      // TTS button
-      html += '<button class="btn btn-outline" style="margin-top:16px;" onclick="event.stopPropagation();TTS.speak(\'' + word.de.replace(/'/g, "\\'") + '\')"><i class="fa-solid fa-volume-high"></i> Nghe</button>';
-      html += '</div>';
-
-      // Navigation
-      html += '<div style="display:flex;justify-content:space-between;align-items:center;margin-top:16px;">';
-      html += '<button class="btn btn-outline" onclick="prevCard()" ' + (currentCard === 0 ? 'disabled' : '') + '><i class="fa-solid fa-arrow-left"></i> Trước</button>';
-      html += '<button class="btn btn-success btn-sm" onclick="markKnown()"><i class="fa-solid fa-check"></i> Đã thuộc</button>';
-      html += '<button class="btn btn-primary" onclick="nextCard()" ' + (currentCard >= total - 1 ? 'disabled' : '') + '>Tiếp <i class="fa-solid fa-arrow-right"></i></button>';
-      html += '</div>';
-
-      document.getElementById('app-content').innerHTML = html;
     }
 
-    window.selectVocabDay = function(idx) { currentDay = idx; currentCard = 0; render(); };
-    window.prevCard = function() { if (currentCard > 0) { currentCard--; render(); } };
-    window.nextCard = function() { var total = days[currentDay].words.length; if (currentCard < total - 1) { currentCard++; render(); } };
-    window.flipCard = function() {
-      var front = document.getElementById('card-front');
-      var back = document.getElementById('card-back');
-      if (front.style.display !== 'none') { front.style.display = 'none'; back.style.display = 'block'; }
-      else { front.style.display = 'block'; back.style.display = 'none'; }
-    };
-    window.markKnown = function() {
-      var word = days[currentDay].words[currentCard];
-      Progress.learnWord(word.de);
-      App.showToast('✅ Đã thuộc: ' + word.de);
-      nextCard();
-    };
+    render();
+  }
 
+  function getFilteredCards() {
+    if (mode === 'hard') return cards.filter(function(c) { return c.level < 2; });
+    if (mode === 'recent') return cards.slice(0, 20);
+    return cards;
+  }
+
+  function render() {
+    var filtered = getFilteredCards();
+    var html = '';
+
+    html += '<div class="fc-header">';
+    html += '<h2 style="font-size:20px;margin-bottom:4px;"><i class="fa-solid fa-rotate"></i> Ôn từ vựng</h2>';
+    html += '<p style="font-size:12px;color:var(--text-muted);">Flashcard từ ghi chú hàng ngày — lật thẻ, đánh giá, ôn lại</p>';
+    html += '</div>';
+
+    if (cards.length === 0) {
+      html += '<div class="fc-empty">';
+      html += '<i class="fa-solid fa-book-open"></i>';
+      html += '<h3>Chưa có từ vựng</h3>';
+      html += '<p>Khi học bài DW (Block 2), hãy ghi từ mới vào ô "Nhập từ vựng". Mỗi từ 1 dòng, dạng:<br><br><code>die Frau - phụ nữ</code><br><code>sprechen - nói</code><br><br>Sau đó quay lại đây để ôn bằng flashcard!</p>';
+      html += '</div>';
+      document.getElementById('app-content').innerHTML = html;
+      return;
+    }
+
+    // Mode buttons
+    html += '<div class="fc-mode-bar">';
+    html += '<button class="fc-mode-btn' + (mode === 'all' ? ' active' : '') + '" onclick="setMode(\'all\')">Tất cả (' + cards.length + ')</button>';
+    var hardCount = cards.filter(function(c) { return c.level < 2; }).length;
+    html += '<button class="fc-mode-btn' + (mode === 'hard' ? ' active' : '') + '" onclick="setMode(\'hard\')">Cần ôn (' + hardCount + ')</button>';
+    html += '<button class="fc-mode-btn' + (mode === 'recent' ? ' active' : '') + '" onclick="setMode(\'recent\')">Mới nhất</button>';
+    html += '</div>';
+
+    if (filtered.length === 0) {
+      html += '<div class="fc-empty"><i class="fa-solid fa-circle-check" style="color:var(--success);"></i>';
+      html += '<h3>Đã ôn hết!</h3><p>Không còn từ nào cần ôn lại. Giỏi lắm! 🎉</p></div>';
+      document.getElementById('app-content').innerHTML = html;
+      return;
+    }
+
+    // Ensure currentIdx is valid
+    if (currentIdx >= filtered.length) currentIdx = 0;
+    var card = filtered[currentIdx];
+
+    // Stats
+    html += '<div class="fc-stats">';
+    html += '<div class="fc-stat"><span class="num">' + filtered.length + '</span> thẻ</div>';
+    html += '<div class="fc-stat">Thẻ <span class="num">' + (currentIdx + 1) + '</span>/' + filtered.length + '</div>';
+    html += '</div>';
+
+    // Progress bar
+    var pct = Math.round(((currentIdx + 1) / filtered.length) * 100);
+    html += '<div class="fc-progress"><div class="fill" style="width:' + pct + '%;"></div></div>';
+
+    // Flashcard
+    html += '<div class="fc-card-container" onclick="flipCard()">';
+    html += '<div class="fc-card' + (isFlipped ? ' flipped' : '') + '" id="flashcard">';
+
+    // Front
+    html += '<div class="fc-face fc-front">';
+    html += '<div class="fc-word">' + card.word + '</div>';
+    if (card.meaning) {
+      html += '<div class="fc-hint">Nhấn để xem nghĩa ↓</div>';
+    } else {
+      html += '<div class="fc-hint">Nhấn để xem chi tiết ↓</div>';
+    }
+    html += '<div class="fc-date">Học ngày ' + card.date + '</div>';
+    html += '</div>';
+
+    // Back
+    html += '<div class="fc-face fc-back">';
+    if (card.meaning) {
+      html += '<div class="fc-meaning">' + card.meaning + '</div>';
+      html += '<div class="fc-context">' + card.word + '</div>';
+    } else {
+      html += '<div class="fc-meaning">' + card.fullLine + '</div>';
+    }
+    html += '<div class="fc-date">Học ngày ' + card.date + '</div>';
+    html += '</div>';
+
+    html += '</div></div>';
+
+    // Controls
+    html += '<div class="fc-controls">';
+    html += '<button class="fc-btn speak" onclick="event.stopPropagation();speakWord()" title="Nghe phát âm"><i class="fa-solid fa-volume-up"></i></button>';
+    html += '<button class="fc-btn hard" onclick="event.stopPropagation();rateCard(0)" title="Khó — sẽ ôn lại"><i class="fa-solid fa-xmark"></i></button>';
+    html += '<button class="fc-btn good" onclick="event.stopPropagation();rateCard(1)" title="Nhớ rồi"><i class="fa-solid fa-check"></i></button>';
+    html += '<button class="fc-btn easy" onclick="event.stopPropagation();rateCard(2)" title="Dễ quá — ít ôn hơn"><i class="fa-solid fa-forward"></i></button>';
+    html += '</div>';
+
+    // Legend
+    html += '<div style="text-align:center;font-size:11px;color:var(--text-muted);">';
+    html += '<span style="color:#ef5350;">✗ Khó</span> · <span style="color:#66bb6a;">✓ Nhớ</span> · <span style="color:#42a5f5;">» Dễ</span>';
+    html += '</div>';
+
+    document.getElementById('app-content').innerHTML = html;
+  }
+
+  function flipCard() {
+    isFlipped = !isFlipped;
+    var el = document.getElementById('flashcard');
+    if (el) el.classList.toggle('flipped', isFlipped);
+  }
+
+  function speakWord() {
+    var filtered = getFilteredCards();
+    if (filtered.length === 0) return;
+    var card = filtered[currentIdx];
+    TTS.speak(card.word, 0.8);
+  }
+
+  function rateCard(level) {
+    var filtered = getFilteredCards();
+    if (filtered.length === 0) return;
+    var card = filtered[currentIdx];
+
+    // Update review data
+    var data = Progress.get();
+    if (!data.vocabReview) data.vocabReview = {};
+    data.vocabReview[card.word] = {
+      level: level,
+      lastSeen: new Date().toISOString().slice(0, 10)
+    };
+    Progress.save(data);
+
+    // Update local
+    card.level = level;
+    reviewData = data.vocabReview;
+
+    // Next card
+    isFlipped = false;
+    currentIdx++;
+    var newFiltered = getFilteredCards();
+    if (currentIdx >= newFiltered.length) {
+      currentIdx = 0;
+      App.showToast('🎉 Đã ôn hết 1 vòng!');
+    }
+    render();
+  }
+
+  function setMode(m) {
+    mode = m;
+    currentIdx = 0;
+    isFlipped = false;
     render();
   }
   </script>

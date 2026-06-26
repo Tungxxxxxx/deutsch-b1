@@ -52,6 +52,32 @@
     .notes-area{width:100%;min-height:100px;border:1px solid var(--border-light);border-radius:var(--radius-sm);padding:12px;font-size:13px;font-family:var(--font);resize:vertical;margin:8px 0}
     .notes-area:focus{outline:none;border-color:var(--primary)}
 
+    /* ===== VOCAB MODAL ===== */
+    .modal-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;z-index:1000;padding:16px}
+    .modal-content{background:var(--card-bg);border-radius:16px;padding:24px;width:100%;max-width:400px;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,0.3)}
+    .modal-title{font-size:16px;font-weight:700;margin-bottom:16px;display:flex;align-items:center;gap:8px}
+    .modal-field{margin-bottom:14px}
+    .modal-field label{display:block;font-size:12px;font-weight:600;margin-bottom:4px;color:var(--text-secondary)}
+    .modal-field input{width:100%;padding:10px 12px;border:1.5px solid var(--border-light);border-radius:8px;font-size:14px;background:var(--bg);color:var(--text-primary);box-sizing:border-box}
+    .modal-field input:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px rgba(26,115,232,0.1)}
+    .gender-options{display:flex;gap:8px;flex-wrap:wrap}
+    .gender-opt{padding:6px 14px;border-radius:20px;border:1.5px solid var(--border-light);font-size:12px;cursor:pointer;transition:all .2s;background:var(--card-bg)}
+    .gender-opt.selected{color:white}
+    .gender-opt[data-g="m"].selected{background:#1976d2;border-color:#1976d2}
+    .gender-opt[data-g="f"].selected{background:#e91e63;border-color:#e91e63}
+    .gender-opt[data-g="n"].selected{background:#4caf50;border-color:#4caf50}
+    .gender-opt[data-g=""].selected{background:#757575;border-color:#757575}
+    .vocab-entry{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:8px;background:var(--bg);margin-bottom:6px;border-left:3px solid var(--border-light)}
+    .vocab-entry[data-gender="m"]{border-left-color:#1976d2}
+    .vocab-entry[data-gender="f"]{border-left-color:#e91e63}
+    .vocab-entry[data-gender="n"]{border-left-color:#4caf50}
+    .vocab-entry .v-word{font-weight:700;font-size:14px}
+    .vocab-entry .v-meaning{font-size:12px;color:var(--text-secondary)}
+    .vocab-entry .v-note{font-size:10px;color:var(--text-muted);font-style:italic}
+    .vocab-entry .v-actions{margin-left:auto;display:flex;gap:6px}
+    .vocab-entry .v-actions button{background:none;border:none;cursor:pointer;font-size:14px;color:var(--text-muted);padding:4px}
+    .vocab-entry .v-actions button:hover{color:var(--primary)}
+
     /* ===== AUDIO RECORDER ===== */
     .recorder{background:var(--bg);border-radius:var(--radius-sm);padding:16px;text-align:center}
     .rec-wave{height:40px;display:flex;align-items:center;justify-content:center;gap:3px;margin:12px 0}
@@ -280,10 +306,9 @@
     onStop: function() {
       this.blob = new Blob(this.chunks, { type: 'audio/webm' });
       var url = URL.createObjectURL(this.blob);
-      this.audioEl.src = url;
-      this.audioEl.style.display = 'block';
-      this.btnPlay.disabled = false;
-      this.btnSave.disabled = false;
+      if (this.audioEl) { this.audioEl.src = url; this.audioEl.style.display = 'block'; }
+      if (this.btnPlay) { this.btnPlay.disabled = false; }
+      if (this.btnSave) { this.btnSave.disabled = false; }
     },
 
     updateTime: function() {
@@ -392,6 +417,7 @@
       html += '</div>';
     } else {
       html += '<div style="color:var(--success);font-size:13px;font-weight:500;margin-top:8px;"><i class="fa-solid fa-check-circle"></i> Hoàn thành!</div>';
+      html += '<button class="btn btn-outline btn-sm" style="margin-top:6px;font-size:11px;" onclick="undoBlock(\'warmup\')"><i class="fa-solid fa-rotate-left"></i> Làm lại</button>';
     }
     html += '</div></div>';
 
@@ -408,17 +434,50 @@
     html += '<div class="lesson-card">';
     html += '<h3>' + lesson.title + '</h3>';
     html += '<p><strong>Chủ đề:</strong> ' + lesson.topic + '</p>';
-    if (lesson.grammar) html += '<p><strong>Ngữ pháp:</strong> ' + lesson.grammar + '</p>';
     html += '<a href="' + lesson.url + '" target="_blank" style="display:inline-block;margin-top:10px;padding:10px 20px;background:var(--primary);color:white;border-radius:6px;text-decoration:none;font-size:13px;font-weight:600;"><i class="fa-solid fa-play"></i> Học ngay trên DW</a>';
     html += '</div>';
-    // Notes textarea
-    html += '<label style="font-size:12px;font-weight:600;color:var(--text-secondary);display:block;margin-bottom:4px;">📝 Nhập từ vựng & Ngữ pháp mới:</label>';
-    var savedNotes = (blocks.content && blocks.content.notes) || '';
-    html += '<textarea class="notes-area" id="notesArea" placeholder="Ví dụ: die Frau (-en), der Mann (¨-er), sprechen → ich spreche...">' + savedNotes + '</textarea>';
+    // Grammar section (display-only, link to DW)
+    if (lesson.grammar) {
+      html += '<div style="margin-top:12px;padding:10px 14px;background:var(--bg);border-radius:8px;border-left:3px solid #7c4dff;">';
+      html += '<div style="font-size:12px;font-weight:600;color:#7c4dff;margin-bottom:4px;">📐 Ngữ pháp bài này</div>';
+      html += '<div style="font-size:13px;font-weight:500;">' + lesson.grammar + '</div>';
+      html += '<a href="' + lesson.url + '" target="_blank" style="font-size:11px;color:var(--primary);text-decoration:none;margin-top:4px;display:inline-block;">Xem trên DW (tab Grammar) →</a>';
+      html += '</div>';
+    }
+    // Vocabulary section (structured)
+    html += '<div style="margin-top:16px;">';
+    html += '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">';
+    html += '<label style="font-size:13px;font-weight:600;color:var(--text-secondary);">📝 Từ vựng mới</label>';
     if (!b2Done) {
-      html += '<button class="btn btn-success btn-sm" onclick="completeBlock2()" style="padding:10px 20px;border:none;border-radius:6px;background:var(--success);color:white;font-size:13px;font-weight:600;cursor:pointer;"><i class="fa-solid fa-check"></i> Hoàn thành Block 2</button>';
+      html += '<button class="btn btn-outline btn-sm" style="font-size:11px;padding:5px 12px;" onclick="openVocabModal()"><i class="fa-solid fa-plus"></i> Thêm từ</button>';
+    }
+    html += '</div>';
+    // Render existing vocab entries
+    var todayVocab = (blocks.content && blocks.content.vocabulary) || [];
+    if (todayVocab.length === 0 && !b2Done) {
+      html += '<div style="text-align:center;padding:20px;color:var(--text-muted);font-size:12px;border:1px dashed var(--border-light);border-radius:8px;">Chưa có từ nào. Bấm "+ Thêm từ" để ghi lại từ vựng mới học.</div>';
+    }
+    for (var vi = 0; vi < todayVocab.length; vi++) {
+      var vItem = todayVocab[vi];
+      html += '<div class="vocab-entry" data-gender="' + (vItem.gender || '') + '">';
+      html += '<div style="flex:1;min-width:0;"><div class="v-word">' + vItem.word + '</div>';
+      html += '<div class="v-meaning">' + vItem.meaning + '</div>';
+      if (vItem.note) html += '<div class="v-note">' + vItem.note + '</div>';
+      html += '</div>';
+      html += '<div class="v-actions">';
+      html += '<button onclick="event.stopPropagation();TTS.speak(\'' + vItem.word.replace(/'/g, "\\'") + '\',0.8)" title="Nghe"><i class="fa-solid fa-volume-up"></i></button>';
+      if (!b2Done) {
+        html += '<button onclick="event.stopPropagation();editVocab(' + vi + ')" title="Sửa"><i class="fa-solid fa-pen"></i></button>';
+        html += '<button onclick="event.stopPropagation();deleteVocab(' + vi + ')" title="Xóa"><i class="fa-solid fa-trash"></i></button>';
+      }
+      html += '</div></div>';
+    }
+    html += '</div>';
+    if (!b2Done) {
+      html += '<button class="btn btn-success btn-sm" onclick="completeBlock2()" style="margin-top:12px;padding:10px 20px;border:none;border-radius:6px;background:var(--success);color:white;font-size:13px;font-weight:600;cursor:pointer;"><i class="fa-solid fa-check"></i> Hoàn thành Block 2</button>';
     } else {
       html += '<div style="color:var(--success);font-size:13px;font-weight:500;margin-top:8px;"><i class="fa-solid fa-check-circle"></i> Hoàn thành!</div>';
+      html += '<button class="btn btn-outline btn-sm" style="margin-top:6px;font-size:11px;" onclick="undoBlock(\'content\')"><i class="fa-solid fa-rotate-left"></i> Làm lại</button>';
     }
     html += '</div></div>';
 
@@ -445,6 +504,7 @@
       html += '<button class="rec-btn save" id="recSave" onclick="saveRecording()" disabled><i class="fa-solid fa-cloud-arrow-up"></i> Lưu & Hoàn thành</button>';
     } else {
       html += '<div style="color:var(--success);font-size:13px;font-weight:500;"><i class="fa-solid fa-check-circle"></i> Đã ghi âm xong!</div>';
+      html += '<button class="btn btn-outline btn-sm" style="margin-top:6px;font-size:11px;" onclick="undoBlock(\'speaking\')"><i class="fa-solid fa-rotate-left"></i> Làm lại</button>';
       if (blocks.speaking && blocks.speaking.audioUrl && blocks.speaking.audioUrl !== 'local_download') {
         html += '<audio controls src="' + blocks.speaking.audioUrl + '" style="width:100%;margin-top:8px;border-radius:8px;"></audio>';
       }
@@ -528,11 +588,120 @@
   }
 
   function completeBlock2() {
-    var notes = document.getElementById('notesArea').value.trim();
-    saveDailyLog('content', { completed: true, notes: notes, completedAt: new Date().toISOString() });
+    var data = Progress.get();
+    var today = getTodayKey();
+    var todayVocab = [];
+    if (data.dailyLogs && data.dailyLogs[today] && data.dailyLogs[today].blocks && data.dailyLogs[today].blocks.content) {
+      todayVocab = data.dailyLogs[today].blocks.content.vocabulary || [];
+    }
+    saveDailyLog('content', { completed: true, vocabulary: todayVocab, notes: '', completedAt: new Date().toISOString() });
     Timer.set(40, 'Block 3: Luyện nói');
     App.showToast('✅ Block 2 hoàn thành!');
     pageInit();
+  }
+
+  // ===== VOCAB MODAL FUNCTIONS =====
+  var editingVocabIdx = -1; // -1 = adding new, >=0 = editing index
+
+  function openVocabModal(prefill) {
+    editingVocabIdx = prefill !== undefined ? prefill : -1;
+    var data = Progress.get();
+    var today = getTodayKey();
+    var todayVocab = [];
+    if (data.dailyLogs && data.dailyLogs[today] && data.dailyLogs[today].blocks && data.dailyLogs[today].blocks.content) {
+      todayVocab = data.dailyLogs[today].blocks.content.vocabulary || [];
+    }
+    var existing = editingVocabIdx >= 0 ? todayVocab[editingVocabIdx] : null;
+
+    var mhtml = '<div class="modal-overlay" id="vocabModal" onclick="if(event.target===this)closeVocabModal()">';
+    mhtml += '<div class="modal-content">';
+    mhtml += '<div class="modal-title"><i class="fa-solid fa-plus-circle" style="color:var(--primary);"></i> ' + (existing ? 'Sửa từ vựng' : 'Thêm từ mới') + '</div>';
+    mhtml += '<div class="modal-field"><label>Từ tiếng Đức *</label><input type="text" id="vm-word" placeholder="die Frau" value="' + (existing ? existing.word.replace(/"/g,'&quot;') : '') + '"></div>';
+    mhtml += '<div class="modal-field"><label>Nghĩa tiếng Việt *</label><input type="text" id="vm-meaning" placeholder="phụ nữ" value="' + (existing ? existing.meaning.replace(/"/g,'&quot;') : '') + '"></div>';
+    mhtml += '<div class="modal-field"><label>Giống (Article)</label><div class="gender-options">';
+    var genders = [{g:'m',label:'der (Nam)'},{g:'f',label:'die (Nữ)'},{g:'n',label:'das (Trung)'},{g:'',label:'Không có'}];
+    var selG = existing ? (existing.gender || '') : '';
+    for (var gi = 0; gi < genders.length; gi++) {
+      var gItem = genders[gi];
+      mhtml += '<span class="gender-opt' + (selG===gItem.g?' selected':'') + '" data-g="' + gItem.g + '" onclick="selectGender(this)">' + gItem.label + '</span>';
+    }
+    mhtml += '</div></div>';
+    mhtml += '<div class="modal-field"><label>Ghi chú (số nhiều, chia động từ...)</label><input type="text" id="vm-note" placeholder="Plural: Frauen" value="' + (existing && existing.note ? existing.note.replace(/"/g,'&quot;') : '') + '"></div>';
+    mhtml += '<div style="display:flex;gap:10px;justify-content:flex-end;margin-top:18px;">';
+    mhtml += '<button class="btn btn-outline btn-sm" onclick="closeVocabModal()">Hủy</button>';
+    mhtml += '<button class="btn btn-primary btn-sm" onclick="saveVocabModal()"><i class="fa-solid fa-check"></i> Lưu</button>';
+    mhtml += '</div></div></div>';
+
+    // Append modal to body
+    var div = document.createElement('div');
+    div.id = 'vocabModalWrap';
+    div.innerHTML = mhtml;
+    document.body.appendChild(div);
+    document.getElementById('vm-word').focus();
+    // Escape key
+    document.addEventListener('keydown', vocabModalEsc);
+  }
+
+  function vocabModalEsc(e) { if (e.key === 'Escape') closeVocabModal(); }
+
+  function closeVocabModal() {
+    var el = document.getElementById('vocabModalWrap');
+    if (el) el.remove();
+    document.removeEventListener('keydown', vocabModalEsc);
+  }
+
+  function selectGender(el) {
+    var opts = el.parentElement.querySelectorAll('.gender-opt');
+    for (var i = 0; i < opts.length; i++) opts[i].classList.remove('selected');
+    el.classList.add('selected');
+  }
+
+  function saveVocabModal() {
+    var word = document.getElementById('vm-word').value.trim();
+    var meaning = document.getElementById('vm-meaning').value.trim();
+    if (!word || !meaning) { App.showToast('⚠️ Nhập từ và nghĩa!'); return; }
+    var genderEl = document.querySelector('.gender-opt.selected');
+    var gender = genderEl ? genderEl.getAttribute('data-g') : '';
+    var note = document.getElementById('vm-note').value.trim();
+
+    var data = Progress.get();
+    var today = getTodayKey();
+    if (!data.dailyLogs) data.dailyLogs = {};
+    if (!data.dailyLogs[today]) {
+      var allLessons = getAllLessons();
+      var idx = data.progress.currentLessonIndex || 0;
+      data.dailyLogs[today] = { lessonId: allLessons[idx].id, blocks: {} };
+    }
+    if (!data.dailyLogs[today].blocks.content) data.dailyLogs[today].blocks.content = { vocabulary: [] };
+    if (!data.dailyLogs[today].blocks.content.vocabulary) data.dailyLogs[today].blocks.content.vocabulary = [];
+
+    var vocabArr = data.dailyLogs[today].blocks.content.vocabulary;
+    var entry = { word: word, meaning: meaning, gender: gender, note: note };
+
+    if (editingVocabIdx >= 0) {
+      vocabArr[editingVocabIdx] = entry;
+      App.showToast('✏️ Đã cập nhật!');
+    } else {
+      vocabArr.push(entry);
+      App.showToast('✅ Đã thêm: ' + word);
+    }
+    Progress.save(data);
+    closeVocabModal();
+    pageInit();
+  }
+
+  function editVocab(idx) { openVocabModal(idx); }
+
+  function deleteVocab(idx) {
+    if (!confirm('Xóa từ này?')) return;
+    var data = Progress.get();
+    var today = getTodayKey();
+    if (data.dailyLogs && data.dailyLogs[today] && data.dailyLogs[today].blocks.content && data.dailyLogs[today].blocks.content.vocabulary) {
+      data.dailyLogs[today].blocks.content.vocabulary.splice(idx, 1);
+      Progress.save(data);
+      App.showToast('🗑️ Đã xóa');
+      pageInit();
+    }
   }
 
   function saveRecording() {
@@ -601,6 +770,20 @@
     Timer.set(0, '🎉 Hoàn thành!');
     App.showToast('🎉 Chúc mừng! Ngày học hoàn thành!');
     pageInit();
+  }
+
+  function undoBlock(blockName) {
+    if (!confirm('Bạn muốn làm lại block này?')) return;
+    var data = Progress.get();
+    var today = getTodayKey();
+    if (data.dailyLogs && data.dailyLogs[today] && data.dailyLogs[today].blocks) {
+      delete data.dailyLogs[today].blocks[blockName];
+      // If undoing any block, also undo "completed day"
+      delete data.dailyLogs[today].completedAt;
+      Progress.save(data);
+      App.showToast('Đã hủy — bạn có thể làm lại block này');
+      pageInit();
+    }
   }
 
   function toggleBlock(num) {

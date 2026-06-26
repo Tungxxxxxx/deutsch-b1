@@ -16,7 +16,7 @@ const App = {
     { href: 'nicos-weg.html', icon: 'fa-film', label: 'Nicos Weg' },
     { href: 'vocab-bank.html', icon: 'fa-database', label: 'Kho từ vựng' },
     { href: 'voice-logs.html', icon: 'fa-microphone', label: 'Nhật ký nói' },
-    { href: 'vocabulary.html', icon: 'fa-book', label: 'Flashcard' },
+    { href: 'vocabulary.html', icon: 'fa-rotate', label: 'Ôn từ' },
     { href: 'grammar.html', icon: 'fa-spell-check', label: 'Ngữ pháp' },
     { href: 'listening.html', icon: 'fa-headphones', label: 'Nghe' },
     { href: 'reading.html', icon: 'fa-book-open', label: 'Đọc' },
