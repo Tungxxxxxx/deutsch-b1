@@ -7,3 +7,15 @@ service cloud.firestore {
     }
   }
 }
+
+// ===== FIREBASE STORAGE RULES =====
+// Vào Firebase Console > Storage > Rules, dán đoạn sau:
+
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    match /audio/{userId}/{allPaths=**} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+  }
+}

@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kho từ vựng - Deutsch B1</title>
+  <link rel="manifest" href="../manifest.json">
+  <meta name="theme-color" content="#1a73e8">
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    .vb-search { display: flex; gap: 8px; margin-bottom: 16px; }
+    .vb-search input { flex: 1; padding: 10px 14px; border: 1px solid var(--border-light); border-radius: var(--radius-md); font-size: 14px; background: var(--surface); color: var(--text); }
+    .vb-search input:focus { outline: none; border-color: var(--primary); }
+    .vb-filters { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
+    .vb-filter { padding: 6px 14px; border-radius: 20px; font-size: 12px; border: 1px solid var(--border-light); cursor: pointer; background: var(--surface); color: var(--text-secondary); transition: all 0.2s; }
+    .vb-filter.active { background: var(--primary); color: white; border-color: var(--primary); }
+    .vb-entry { background: var(--surface); border: 1px solid var(--border-light); border-radius: var(--radius-md); padding: 14px 16px; margin-bottom: 10px; }
+    .vb-entry-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+    .vb-entry-date { font-size: 11px; color: var(--text-muted); font-weight: 600; }
+    .vb-entry-lesson { font-size: 11px; color: var(--primary); }
+    .vb-entry-content { font-size: 13px; line-height: 1.7; white-space: pre-wrap; color: var(--text); }
+    .vb-empty { text-align: center; padding: 60px 20px; color: var(--text-muted); }
+    .vb-empty i { font-size: 48px; margin-bottom: 16px; display: block; }
+    .vb-stats { display: flex; gap: 12px; margin-bottom: 20px; }
+    .vb-stat { flex: 1; text-align: center; padding: 12px; background: var(--surface); border: 1px solid var(--border-light); border-radius: var(--radius-md); }
+    .vb-stat .num { font-size: 20px; font-weight: 700; color: var(--primary); }
+    .vb-stat .lbl { font-size: 11px; color: var(--text-muted); }
+  </style>
+</head>
+<body>
+  <div id="navbar"></div>
+  <div class="container" id="app-content">
+    <div class="loading"><div class="spinner"></div> Đang tải...</div>
+  </div>
+  <div class="toast" id="toast"></div>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+  <script src="../js/firebase-config.js"></script>
+  <script src="../js/auth.js"></script>
+  <script src="../js/progress.js"></script>
+  <script src="../js/tts.js"></script>
+  <script src="../js/app.js"></script>
+  <script>
+  function pageInit() {
+    var data = Progress.get();
+    var dailyLogs = data.dailyLogs || {};
+    var entries = [];
+    var searchTerm = '';
+    var filterRange = 'all';
+
+    // Collect all notes entries
+    Object.keys(dailyLogs).forEach(function(date) {
+      var log = dailyLogs[date];
+      if (log && log.blocks && log.blocks.content && log.blocks.content.notes) {
+        entries.push({
+          date: date,
+          notes: log.blocks.content.notes,
+          lessonId: log.lessonId || ''
+        });
+      }
+    });
+    // Sort newest first
+    entries.sort(function(a, b) { return b.date.localeCompare(a.date); });
+
+    function getFilteredEntries() {
+      var now = new Date();
+      var filtered = entries;
+
+      // Date filter
+      if (filterRange === 'week') {
+        var weekAgo = new Date(now); weekAgo.setDate(weekAgo.getDate() - 7);
+        var wStr = weekAgo.toISOString().slice(0, 10);
+        filtered = filtered.filter(function(e) { return e.date >= wStr; });
+      } else if (filterRange === 'month') {
+        var monthAgo = new Date(now); monthAgo.setMonth(monthAgo.getMonth() - 1);
+        var mStr = monthAgo.toISOString().slice(0, 10);
+        filtered = filtered.filter(function(e) { return e.date >= mStr; });
+      }
+
+      // Search filter
+      if (searchTerm.trim()) {
+        var term = searchTerm.toLowerCase();
+        filtered = filtered.filter(function(e) {
+          return e.notes.toLowerCase().indexOf(term) >= 0;
+        });
+      }
+
+      return filtered;
+    }
+
+    function render() {
+      var filtered = getFilteredEntries();
+      var html = '';
+
+      // Header
+      html += '<div class="section-header"><h2 class="section-title"><i class="fa-solid fa-database"></i> Kho từ vựng</h2>';
+      html += '<p class="section-desc">Tổng hợp từ vựng & ngữ pháp bạn đã ghi chép</p></div>';
+
+      // Stats
+      html += '<div class="vb-stats">';
+      html += '<div class="vb-stat"><div class="num">' + entries.length + '</div><div class="lbl">Ngày ghi chép</div></div>';
+      var totalWords = 0;
+      entries.forEach(function(e) { totalWords += e.notes.split(/[\s,;]+/).filter(function(w){return w.length > 1;}).length; });
+      html += '<div class="vb-stat"><div class="num">' + totalWords + '</div><div class="lbl">Từ đã ghi</div></div>';
+      html += '</div>';
+
+      // Search
+      html += '<div class="vb-search">';
+      html += '<input type="text" id="vb-search-input" placeholder="🔍 Tìm kiếm từ vựng..." value="' + searchTerm + '" oninput="doSearch(this.value)">';
+      html += '</div>';
+
+      // Filters
+      html += '<div class="vb-filters">';
+      html += '<span class="vb-filter' + (filterRange === 'all' ? ' active' : '') + '" onclick="setFilter(\'all\')">Tất cả</span>';
+      html += '<span class="vb-filter' + (filterRange === 'week' ? ' active' : '') + '" onclick="setFilter(\'week\')">Tuần này</span>';
+      html += '<span class="vb-filter' + (filterRange === 'month' ? ' active' : '') + '" onclick="setFilter(\'month\')">Tháng này</span>';
+      html += '</div>';
+
+      // Entries
+      if (filtered.length === 0) {
+        html += '<div class="vb-empty">';
+        html += '<i class="fa-solid fa-book-open"></i>';
+        if (entries.length === 0) {
+          html += '<p style="font-size:15px;font-weight:600;margin-bottom:8px;">Chưa có ghi chép nào</p>';
+          html += '<p style="font-size:13px;">Hãy vào trang "Hôm nay" → Block 2 để ghi từ vựng mới mỗi ngày!</p>';
+        } else {
+          html += '<p style="font-size:14px;">Không tìm thấy kết quả cho "' + searchTerm + '"</p>';
+        }
+        html += '</div>';
+      } else {
+        for (var i = 0; i < filtered.length; i++) {
+          var entry = filtered[i];
+          var dateObj = new Date(entry.date + 'T00:00:00');
+          var dateStr = dateObj.toLocaleDateString('vi-VN', { weekday: 'short', day: 'numeric', month: 'numeric', year: 'numeric' });
+          html += '<div class="vb-entry">';
+          html += '<div class="vb-entry-header">';
+          html += '<span class="vb-entry-date"><i class="fa-regular fa-calendar"></i> ' + dateStr + '</span>';
+          if (entry.lessonId) html += '<span class="vb-entry-lesson">Bài #' + entry.lessonId + '</span>';
+          html += '</div>';
+          html += '<div class="vb-entry-content">' + escapeHtml(entry.notes) + '</div>';
+          html += '</div>';
+        }
+      }
+
+      document.getElementById('app-content').innerHTML = html;
+    }
+
+    function escapeHtml(str) {
+      return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    }
+
+    window.doSearch = function(val) {
+      searchTerm = val;
+      render();
+    };
+    window.setFilter = function(range) {
+      filterRange = range;
+      render();
+    };
+
+    render();
+  }
+  </script>
+</body>
+</html>

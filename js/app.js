@@ -1,27 +1,37 @@
 // ============================================================
-// 🏠 APP MODULE - Shared navbar, user display, logout
+// 🏠 APP MODULE - Shared navbar, user display, logout, dark mode
 // ============================================================
+
+// Apply dark mode immediately (before DOM renders) to prevent flash
+(function() {
+  if (localStorage.getItem('deutsch_dark_mode') === 'true') {
+    document.documentElement.setAttribute('data-theme', 'dark');
+  }
+})();
 
 const App = {
   // Navigation items
   navItems: [
     { href: 'today.html', icon: 'fa-play', label: 'Hôm nay' },
-    { href: 'roadmap.html', icon: 'fa-route', label: 'Lộ trình' },
-    { href: 'vocabulary.html', icon: 'fa-book', label: 'Từ vựng' },
+    { href: 'nicos-weg.html', icon: 'fa-film', label: 'Nicos Weg' },
+    { href: 'vocab-bank.html', icon: 'fa-database', label: 'Kho từ vựng' },
+    { href: 'voice-logs.html', icon: 'fa-microphone', label: 'Nhật ký nói' },
+    { href: 'vocabulary.html', icon: 'fa-book', label: 'Flashcard' },
     { href: 'grammar.html', icon: 'fa-spell-check', label: 'Ngữ pháp' },
     { href: 'listening.html', icon: 'fa-headphones', label: 'Nghe' },
     { href: 'reading.html', icon: 'fa-book-open', label: 'Đọc' },
     { href: 'practice.html', icon: 'fa-dumbbell', label: 'Quiz' },
     { href: 'alphabet.html', icon: 'fa-language', label: 'Phát âm' },
+    { href: 'roadmap.html', icon: 'fa-route', label: 'Lộ trình' },
     { href: 'dashboard.html', icon: 'fa-chart-line', label: 'Tiến độ' }
   ],
 
   // Bottom tab items (mobile - show only 5 most used)
   bottomTabs: [
     { href: 'today.html', icon: 'fa-play', label: 'Hôm nay' },
-    { href: 'vocabulary.html', icon: 'fa-book', label: 'Từ vựng' },
-    { href: 'grammar.html', icon: 'fa-spell-check', label: 'Ngữ pháp' },
-    { href: 'listening.html', icon: 'fa-headphones', label: 'Nghe' },
+    { href: 'nicos-weg.html', icon: 'fa-film', label: 'DW' },
+    { href: 'vocab-bank.html', icon: 'fa-database', label: 'Từ vựng' },
+    { href: 'voice-logs.html', icon: 'fa-microphone', label: 'Ghi âm' },
     { href: 'dashboard.html', icon: 'fa-chart-line', label: 'Tiến độ' }
   ],
 
@@ -32,6 +42,7 @@ const App = {
 
     var currentPage = window.location.pathname.split('/').pop();
     var user = auth.currentUser;
+    var isDark = document.documentElement.getAttribute('data-theme') === 'dark';
 
     var html = '<nav class="navbar"><div class="navbar-inner">';
     // Logo
@@ -51,14 +62,16 @@ const App = {
     }
     html += '</ul>';
 
-    // User info
+    // Dark mode toggle + User info
+    html += '<div class="user-badge">';
+    html += '<button class="dark-toggle" onclick="App.toggleDark()" title="Chế độ tối">';
+    html += '<i class="fa-solid ' + (isDark ? 'fa-sun' : 'fa-moon') + '"></i></button>';
     if (user) {
       var name = user.displayName || user.email.split('@')[0];
-      html += '<div class="user-badge">';
       html += '<span class="user-name">' + name + '</span>';
       html += '<button class="btn-logout" onclick="Auth.logout()" title="Đăng xuất"><i class="fa-solid fa-right-from-bracket"></i></button>';
-      html += '</div>';
     }
+    html += '</div>';
 
     html += '</div></nav>';
 
@@ -79,6 +92,20 @@ const App = {
   toggleMenu: function() {
     var menu = document.getElementById('nav-menu');
     if (menu) menu.classList.toggle('show');
+  },
+
+  // Dark mode toggle
+  toggleDark: function() {
+    var isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+    if (isDark) {
+      document.documentElement.removeAttribute('data-theme');
+      localStorage.setItem('deutsch_dark_mode', 'false');
+    } else {
+      document.documentElement.setAttribute('data-theme', 'dark');
+      localStorage.setItem('deutsch_dark_mode', 'true');
+    }
+    // Re-render navbar to update icon
+    this.renderNavbar();
   },
 
   // Show toast message

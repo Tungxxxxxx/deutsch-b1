@@ -13,13 +13,15 @@ const Progress = {
   _defaults: function() {
     return {
       progress: {
+        currentLessonIndex: 0,
         currentDay: 1,
         currentWeek: 1,
         daysStudied: 0,
         totalMinutes: 0,
         streak: 0,
         longestStreak: 0,
-        lastStudyDate: null
+        lastStudyDate: null,
+        nicosWeg: {}
       },
       vocabulary: { wordsKnown: [], wordsReview: [] },
       grammar: { completed: [], scores: {} },
@@ -27,7 +29,8 @@ const Progress = {
       reading: { textsRead: [], scores: [] },
       quiz: { sessions: 0, scores: [] },
       daily: { completedSteps: {}, daysCompleted: [] },
-      alphabet: { lettersLearned: [] }
+      alphabet: { lettersLearned: [] },
+      dailyLogs: {}
     };
   },
 

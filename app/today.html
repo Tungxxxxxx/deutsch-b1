@@ -3,14 +3,98 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Học hôm nay - Deutsch B1</title>
+  <title>Học hôm nay - DeutschSaga</title>
   <link rel="manifest" href="../manifest.json">
   <meta name="theme-color" content="#1a73e8">
   <link rel="stylesheet" href="../css/style.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    /* ===== POMODORO TIMER ===== */
+    .timer-bar{position:sticky;top:56px;z-index:50;background:var(--surface);border-bottom:1px solid var(--border-light);padding:8px 16px;display:flex;align-items:center;gap:12px;box-shadow:var(--shadow-sm)}
+    .timer-display{font-size:24px;font-weight:700;font-variant-numeric:tabular-nums;min-width:80px;text-align:center}
+    .timer-label{font-size:11px;color:var(--text-muted);flex:1}
+    .timer-progress{height:3px;background:var(--border-light);border-radius:2px;flex:1;max-width:120px;overflow:hidden}
+    .timer-progress .fill{height:100%;background:var(--primary);transition:width 1s linear;border-radius:2px}
+    .timer-btn{width:32px;height:32px;border-radius:50%;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:12px;background:var(--primary-light);color:var(--primary);transition:all .2s}
+    .timer-btn:hover{background:var(--primary);color:white}
+    .timer-btn.danger{background:var(--error-light);color:var(--error)}
+    .timer-btn.danger:hover{background:var(--error);color:white}
+    .timer-bar.running .timer-display{color:var(--primary)}
+    .timer-bar.done .timer-display{color:var(--error);animation:pulse 1s infinite}
+    @keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+
+    /* ===== DAY HEADER ===== */
+    .day-header{background:linear-gradient(135deg,#1a73e8,#4fc3f7);border-radius:var(--radius-xl);padding:24px;color:white;margin-bottom:20px}
+    .day-header h1{font-size:20px;margin-bottom:4px}
+    .day-header .meta{font-size:13px;opacity:.85;display:flex;gap:16px;flex-wrap:wrap;margin-top:8px}
+
+    /* ===== BLOCKS ===== */
+    .block{border-radius:var(--radius-md);border:2px solid var(--border-light);margin-bottom:16px;overflow:hidden;transition:all .3s}
+    .block.locked{opacity:.5;pointer-events:none}
+    .block.active{border-color:var(--primary);box-shadow:var(--shadow-md)}
+    .block.done{border-color:var(--success);background:var(--success-light)}
+    .block-header{padding:14px 16px;display:flex;align-items:center;gap:12px;cursor:pointer}
+    .block-icon{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;flex-shrink:0}
+    .block.locked .block-icon{background:var(--border-light);color:var(--text-muted)}
+    .block.active .block-icon{background:var(--primary);color:white}
+    .block.done .block-icon{background:var(--success);color:white}
+    .block-info{flex:1}
+    .block-title{font-size:14px;font-weight:600}
+    .block-time{font-size:11px;color:var(--text-muted);margin-top:1px}
+    .block-status{font-size:18px}
+    .block-body{display:none;padding:0 16px 16px;border-top:1px solid var(--border-light);margin-top:0;padding-top:14px}
+    .block.active .block-body,.block.done .block-body{display:block}
+
+    /* ===== BLOCK CONTENT ===== */
+    .lesson-card{background:var(--primary-light);border-radius:var(--radius-sm);padding:14px;margin-bottom:12px}
+    .lesson-card h3{font-size:15px;color:var(--primary-dark);margin-bottom:4px}
+    .lesson-card p{font-size:12px;color:var(--text-secondary)}
+    .notes-area{width:100%;min-height:100px;border:1px solid var(--border-light);border-radius:var(--radius-sm);padding:12px;font-size:13px;font-family:var(--font);resize:vertical;margin:8px 0}
+    .notes-area:focus{outline:none;border-color:var(--primary)}
+
+    /* ===== AUDIO RECORDER ===== */
+    .recorder{background:var(--bg);border-radius:var(--radius-sm);padding:16px;text-align:center}
+    .rec-wave{height:40px;display:flex;align-items:center;justify-content:center;gap:3px;margin:12px 0}
+    .rec-wave span{width:3px;background:var(--primary);border-radius:2px;animation:wave 1s ease-in-out infinite}
+    .rec-wave span:nth-child(2){animation-delay:.1s}
+    .rec-wave span:nth-child(3){animation-delay:.2s}
+    .rec-wave span:nth-child(4){animation-delay:.3s}
+    .rec-wave span:nth-child(5){animation-delay:.4s}
+    @keyframes wave{0%,100%{height:8px}50%{height:32px}}
+    .rec-time{font-size:20px;font-weight:600;font-variant-numeric:tabular-nums;margin:8px 0}
+    .rec-btn{padding:10px 20px;border-radius:20px;border:none;font-size:13px;font-weight:600;cursor:pointer;margin:4px}
+    .rec-btn.start{background:var(--error);color:white}
+    .rec-btn.stop{background:var(--text);color:white}
+    .rec-btn.play{background:var(--primary);color:white}
+    .rec-btn.save{background:var(--success);color:white}
+    .rec-btn:disabled{opacity:.4;cursor:not-allowed}
+    .rec-audio{width:100%;margin-top:12px;border-radius:8px}
+
+    /* ===== EVALUATION ===== */
+    .eval-btns{display:flex;gap:8px;margin:12px 0}
+    .eval-btn{flex:1;padding:12px 8px;border-radius:var(--radius-sm);border:2px solid var(--border-light);text-align:center;cursor:pointer;transition:all .2s;font-size:12px;font-weight:600}
+    .eval-btn:hover{border-color:var(--primary)}
+    .eval-btn.selected{border-color:var(--success);background:var(--success-light);color:var(--success)}
+    .eval-btn .emoji{font-size:24px;display:block;margin-bottom:4px}
+
+    /* ===== COMPLETE BTN ===== */
+    .complete-day-btn{width:100%;padding:16px;border:none;border-radius:var(--radius-md);background:linear-gradient(135deg,#34a853,#4caf50);color:white;font-size:16px;font-weight:700;cursor:pointer;margin-top:20px;transition:transform .1s}
+    .complete-day-btn:hover{transform:scale(1.02)}
+    .complete-day-btn:disabled{opacity:.4;cursor:not-allowed;transform:none}
+  </style>
 </head>
 <body>
   <div id="navbar"></div>
+
+  <!-- POMODORO TIMER -->
+  <div class="timer-bar" id="timerBar">
+    <div class="timer-display" id="timerDisplay">00:00</div>
+    <div class="timer-progress"><div class="fill" id="timerFill" style="width:0%"></div></div>
+    <div class="timer-label" id="timerLabel">Chưa bắt đầu</div>
+    <button class="timer-btn" id="timerPlayPause" onclick="Timer.toggle()" title="Bắt đầu/Tạm dừng"><i class="fa-solid fa-play"></i></button>
+    <button class="timer-btn danger" id="timerReset" onclick="Timer.reset()" title="Reset"><i class="fa-solid fa-rotate-right"></i></button>
+  </div>
+
   <div class="container" id="app-content">
     <div class="loading"><div class="spinner"></div> Đang tải...</div>
   </div>
@@ -20,124 +104,507 @@
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-storage-compat.js"></script>
   <script src="../js/firebase-config.js"></script>
   <script src="../js/auth.js"></script>
   <script src="../js/progress.js"></script>
   <script src="../js/tts.js"></script>
+  <script src="../js/data/nicos-weg.js"></script>
   <script src="../js/app.js"></script>
-  <script src="../js/data/daily-plans.js"></script>
   <script>
+  // ============================================================
+  // POMODORO TIMER
+  // ============================================================
+  var Timer = {
+    totalSeconds: 0,
+    remainingSeconds: 0,
+    interval: null,
+    running: false,
+    blockLabel: '',
+
+    set: function(minutes, label) {
+      this.stop();
+      this.totalSeconds = minutes * 60;
+      this.remainingSeconds = this.totalSeconds;
+      this.blockLabel = label || '';
+      this.updateDisplay();
+      document.getElementById('timerLabel').textContent = label || '';
+      document.getElementById('timerBar').className = 'timer-bar';
+    },
+
+    toggle: function() {
+      if (this.running) this.pause();
+      else this.start();
+    },
+
+    start: function() {
+      if (this.remainingSeconds <= 0) return;
+      this.running = true;
+      document.getElementById('timerBar').classList.add('running');
+      document.getElementById('timerPlayPause').innerHTML = '<i class="fa-solid fa-pause"></i>';
+      var self = this;
+      this.interval = setInterval(function() {
+        self.remainingSeconds--;
+        self.updateDisplay();
+        if (self.remainingSeconds <= 0) {
+          self.stop();
+          self.onComplete();
+        }
+      }, 1000);
+    },
+
+    pause: function() {
+      this.running = false;
+      clearInterval(this.interval);
+      document.getElementById('timerBar').classList.remove('running');
+      document.getElementById('timerPlayPause').innerHTML = '<i class="fa-solid fa-play"></i>';
+    },
+
+    stop: function() {
+      this.running = false;
+      clearInterval(this.interval);
+      document.getElementById('timerBar').classList.remove('running');
+      document.getElementById('timerPlayPause').innerHTML = '<i class="fa-solid fa-play"></i>';
+    },
+
+    reset: function() {
+      this.stop();
+      this.remainingSeconds = this.totalSeconds;
+      this.updateDisplay();
+      document.getElementById('timerBar').className = 'timer-bar';
+    },
+
+    updateDisplay: function() {
+      var m = Math.floor(this.remainingSeconds / 60);
+      var s = this.remainingSeconds % 60;
+      document.getElementById('timerDisplay').textContent = String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0');
+      var pct = this.totalSeconds > 0 ? ((this.totalSeconds - this.remainingSeconds) / this.totalSeconds * 100) : 0;
+      document.getElementById('timerFill').style.width = pct + '%';
+    },
+
+    onComplete: function() {
+      document.getElementById('timerBar').classList.add('done');
+      document.getElementById('timerLabel').textContent = '⏰ Hết giờ!';
+      this.beep();
+    },
+
+    beep: function() {
+      try {
+        var ctx = new (window.AudioContext || window.webkitAudioContext)();
+        var osc = ctx.createOscillator();
+        var gain = ctx.createGain();
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.type = 'sine';
+        osc.frequency.value = 880;
+        gain.gain.value = 0.3;
+        osc.start();
+        setTimeout(function(){ osc.stop(); ctx.close(); }, 500);
+        // Second beep
+        setTimeout(function(){
+          var ctx2 = new (window.AudioContext || window.webkitAudioContext)();
+          var osc2 = ctx2.createOscillator();
+          var gain2 = ctx2.createGain();
+          osc2.connect(gain2); gain2.connect(ctx2.destination);
+          osc2.type = 'sine'; osc2.frequency.value = 1100; gain2.gain.value = 0.3;
+          osc2.start();
+          setTimeout(function(){ osc2.stop(); ctx2.close(); }, 500);
+        }, 600);
+      } catch(e) { console.warn('Audio beep failed:', e); }
+    }
+  };
+
+  // ============================================================
+  // AUDIO RECORDER
+  // ============================================================
+  var Recorder = {
+    mediaRecorder: null,
+    chunks: [],
+    blob: null,
+    startTime: 0,
+    timerInterval: null,
+    stream: null,
+
+    init: function(statusEl, timeEl, waveEl, audioEl, btnStart, btnStop, btnPlay, btnSave) {
+      this.statusEl = statusEl;
+      this.timeEl = timeEl;
+      this.waveEl = waveEl;
+      this.audioEl = audioEl;
+      this.btnStart = btnStart;
+      this.btnStop = btnStop;
+      this.btnPlay = btnPlay;
+      this.btnSave = btnSave;
+    },
+
+    start: function() {
+      var self = this;
+      navigator.mediaDevices.getUserMedia({ audio: true })
+        .then(function(stream) {
+          self.stream = stream;
+          self.chunks = [];
+          var options = { mimeType: 'audio/webm;codecs=opus' };
+          if (!MediaRecorder.isTypeSupported(options.mimeType)) {
+            options = { mimeType: 'audio/webm' };
+          }
+          if (!MediaRecorder.isTypeSupported(options.mimeType)) {
+            options = {};
+          }
+          self.mediaRecorder = new MediaRecorder(stream, options);
+          self.mediaRecorder.ondataavailable = function(e) { if (e.data.size > 0) self.chunks.push(e.data); };
+          self.mediaRecorder.onstop = function() { self.onStop(); };
+          self.mediaRecorder.start(1000);
+          self.startTime = Date.now();
+          self.waveEl.style.display = 'flex';
+          self.btnStart.disabled = true;
+          self.btnStop.disabled = false;
+          self.timerInterval = setInterval(function() { self.updateTime(); }, 1000);
+        })
+        .catch(function(err) {
+          alert('Không thể truy cập microphone: ' + err.message);
+        });
+    },
+
+    stop: function() {
+      if (this.mediaRecorder && this.mediaRecorder.state === 'recording') {
+        this.mediaRecorder.stop();
+      }
+      if (this.stream) {
+        this.stream.getTracks().forEach(function(t) { t.stop(); });
+      }
+      clearInterval(this.timerInterval);
+      this.waveEl.style.display = 'none';
+      this.btnStart.disabled = false;
+      this.btnStop.disabled = true;
+    },
+
+    onStop: function() {
+      this.blob = new Blob(this.chunks, { type: 'audio/webm' });
+      var url = URL.createObjectURL(this.blob);
+      this.audioEl.src = url;
+      this.audioEl.style.display = 'block';
+      this.btnPlay.disabled = false;
+      this.btnSave.disabled = false;
+    },
+
+    updateTime: function() {
+      var elapsed = Math.floor((Date.now() - this.startTime) / 1000);
+      var m = Math.floor(elapsed / 60);
+      var s = elapsed % 60;
+      this.timeEl.textContent = String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0');
+    },
+
+    getDuration: function() {
+      return this.startTime > 0 ? Math.floor((Date.now() - this.startTime) / 1000) : 0;
+    },
+
+    upload: function(uid, date) {
+      if (!this.blob) return Promise.reject('No recording');
+      try {
+        var storage = firebase.storage();
+        var ref = storage.ref('audio/' + uid + '/' + date + '.webm');
+        return ref.put(this.blob).then(function(snapshot) {
+          return snapshot.ref.getDownloadURL();
+        });
+      } catch(e) {
+        // Firebase Storage not configured — fallback to local download
+        var url = URL.createObjectURL(this.blob);
+        var a = document.createElement('a');
+        a.href = url; a.download = 'recording_' + date + '.webm';
+        a.click();
+        return Promise.resolve('local_download');
+      }
+    }
+  };
+
+  // ============================================================
+  // HELPER: Get flat lesson list from NICOS_WEG_DATA
+  // ============================================================
+  function getAllLessons() {
+    var lessons = [];
+    var level = NICOS_WEG_DATA.levels[0]; // A1
+    for (var c = 0; c < level.chapters.length; c++) {
+      for (var l = 0; l < level.chapters[c].lessons.length; l++) {
+        lessons.push(level.chapters[c].lessons[l]);
+      }
+    }
+    return lessons;
+  }
+
+  // ============================================================
+  // MAIN PAGE LOGIC
+  // ============================================================
   function pageInit() {
     var data = Progress.get();
-    var state = {
-      currentDay: data.progress.currentDay || 1,
-      completedSteps: data.daily.completedSteps || {},
-      streak: data.progress.streak || 0,
-      totalMinutes: data.progress.totalMinutes || 0,
-      daysCompleted: data.daily.daysCompleted || []
-    };
+    var allLessons = getAllLessons();
+    var currentIndex = data.progress.currentLessonIndex || 0;
+    if (currentIndex >= allLessons.length) currentIndex = allLessons.length - 1;
+    var today = new Date().toISOString().slice(0, 10);
+    var dailyLogs = data.dailyLogs || {};
+    var todayLog = dailyLogs[today] || { blocks: {} };
+    var streak = data.progress.streak || 0;
+    var lesson = allLessons[currentIndex];
 
-    function render() {
-      var plan = DAILY_PLANS.find(function(p){ return p.day === state.currentDay; });
-      if (!plan) return;
+    // Block states
+    var blocks = todayLog.blocks || {};
+    var b1Done = blocks.warmup && blocks.warmup.completed;
+    var b2Done = blocks.content && blocks.content.completed;
+    var b3Done = blocks.speaking && blocks.speaking.completed;
+    var b4Done = blocks.wrapup && blocks.wrapup.completed;
+    var allDone = todayLog.completedAt;
 
-      var html = '';
-      // Day selector
-      html += '<div style="display:flex;gap:6px;margin-bottom:20px;overflow-x:auto;padding-bottom:4px;">';
-      for (var i = 0; i < DAILY_PLANS.length; i++) {
-        var p = DAILY_PLANS[i];
-        var isDone = state.daysCompleted.indexOf(p.day) >= 0;
-        var isActive = p.day === state.currentDay;
-        var cls = isActive ? 'btn-primary' : (isDone ? 'btn-success' : 'btn-outline');
-        html += '<button class="btn btn-sm ' + cls + '" onclick="selectDay(' + p.day + ')">Ngày ' + p.day + (isDone ? ' ✓' : '') + '</button>';
-      }
-      html += '</div>';
-
-      // Header
-      html += '<div style="background:linear-gradient(135deg,#1a73e8,#4fc3f7);border-radius:var(--radius-xl);padding:28px;color:white;margin-bottom:24px;">';
-      html += '<h1 style="font-size:22px;margin-bottom:4px;">' + plan.title + '</h1>';
-      html += '<p style="opacity:0.9;font-size:14px;">' + plan.subtitle + '</p>';
-      html += '<div style="margin-top:14px;display:flex;gap:16px;font-size:13px;opacity:0.85;flex-wrap:wrap;">';
-      html += '<span><i class="fa-solid fa-clock"></i> ' + plan.totalTime + '</span>';
-      html += '<span><i class="fa-solid fa-book"></i> ' + plan.newWords + '</span>';
-      html += '<span><i class="fa-solid fa-fire"></i> Streak: ' + state.streak + '</span>';
-      html += '</div></div>';
-
-      // Steps
-      var completedCount = 0;
-      var firstIncomplete = -1;
-      for (var j = 0; j < plan.steps.length; j++) {
-        var step = plan.steps[j];
-        var isDone2 = state.completedSteps[step.id] === true;
-        if (isDone2) completedCount++;
-        else if (firstIncomplete === -1) firstIncomplete = j;
-        var isAct = (!isDone2 && j === firstIncomplete);
-        var cardBg = isDone2 ? 'var(--success-light)' : (isAct ? 'white' : 'white');
-        var cardBorder = isDone2 ? 'var(--success)' : (isAct ? 'var(--primary)' : 'var(--border-light)');
-        var iconMap = {vocab:'fa-book',grammar:'fa-spell-check',listen:'fa-headphones',read:'fa-book-open',quiz:'fa-dumbbell',review:'fa-rotate',video:'fa-video',lesson:'fa-graduation-cap',immersion:'fa-music'};
-        var icon = iconMap[step.type] || 'fa-circle';
-
-        html += '<div class="card" style="border:2px solid ' + cardBorder + ';background:' + cardBg + ';' + (isDone2 ? '' : (isAct ? 'box-shadow:var(--shadow-md);' : 'opacity:0.7;')) + '">';
-        html += '<div style="display:flex;align-items:center;gap:12px;">';
-        html += '<div style="width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;background:' + (isDone2 ? 'var(--success)' : (isAct ? 'var(--primary)' : 'var(--border-light)')) + ';color:' + (isDone2 || isAct ? 'white' : 'var(--text-muted)') + ';">' + (isDone2 ? '<i class="fa-solid fa-check"></i>' : (j+1)) + '</div>';
-        html += '<div style="flex:1;"><div style="font-weight:600;font-size:14px;"><i class="fa-solid ' + icon + '"></i> ' + step.title + '</div>';
-        html += '<div style="font-size:12px;color:var(--text-secondary);margin-top:2px;">' + step.desc + '</div>';
-        html += '<div style="font-size:11px;color:var(--text-muted);margin-top:4px;"><i class="fa-regular fa-clock"></i> ' + step.time + '</div>';
-        html += '</div></div>';
-
-        html += '<div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border-light);">';
-        if (isDone2) {
-          html += '<span style="color:var(--success);font-size:13px;font-weight:500;"><i class="fa-solid fa-check-circle"></i> Hoàn thành!</span>';
-          html += ' <button class="btn btn-outline btn-sm" onclick="undoStep(\'' + step.id + '\')">Làm lại</button>';
-        } else {
-          if (step.link) html += '<a href="' + step.link + '" class="btn btn-outline btn-sm"><i class="fa-solid fa-arrow-right"></i> Mở bài</a> ';
-          html += '<button class="btn btn-success btn-sm" onclick="completeStep(\'' + step.id + '\',' + parseInt(step.time) + ')"><i class="fa-solid fa-check"></i> Hoàn thành</button>';
-        }
-        html += '</div></div>';
-      }
-
-      // Progress bar
-      var pct = plan.steps.length > 0 ? Math.round((completedCount / plan.steps.length) * 100) : 0;
-      html += '<div class="card" style="margin-top:20px;"><div style="font-size:14px;font-weight:600;margin-bottom:10px;">Tiến độ hôm nay</div>';
-      html += '<div class="progress-bar"><div class="progress-fill" style="width:' + pct + '%;"></div></div>';
-      html += '<div style="display:flex;justify-content:space-between;margin-top:8px;font-size:12px;color:var(--text-muted);">';
-      html += '<span>' + completedCount + '/' + plan.steps.length + ' bước</span>';
-      html += '<span>' + state.totalMinutes + ' phút đã học</span></div></div>';
-
-      document.getElementById('app-content').innerHTML = html;
+    function getBlockState(idx) {
+      if (idx === 0) return b1Done ? 'done' : 'active';
+      if (idx === 1) return b2Done ? 'done' : (b1Done ? 'active' : 'locked');
+      if (idx === 2) return b3Done ? 'done' : (b2Done ? 'active' : 'locked');
+      if (idx === 3) return b4Done ? 'done' : (b3Done ? 'active' : 'locked');
+      return 'locked';
     }
 
-    window.selectDay = function(d) {
-      state.currentDay = d;
-      Progress.setCurrentDay(d);
-      render();
-    };
+    var html = '';
 
-    window.completeStep = function(stepId, minutes) {
-      state.completedSteps[stepId] = true;
-      state.totalMinutes += (minutes || 0);
-      Progress.completeStep(stepId, minutes);
+    // Day header
+    html += '<div class="day-header">';
+    html += '<h1>Ngày ' + (currentIndex + 1) + ' / 77</h1>';
+    html += '<p style="opacity:.9;font-size:14px;">' + lesson.title + ' — ' + lesson.topic + '</p>';
+    html += '<div class="meta">';
+    html += '<span><i class="fa-solid fa-fire"></i> Streak: ' + streak + '</span>';
+    html += '<span><i class="fa-solid fa-clock"></i> 120 phút</span>';
+    html += '<span><i class="fa-solid fa-calendar"></i> ' + today + '</span>';
+    html += '</div></div>';
 
-      var plan = DAILY_PLANS.find(function(p){ return p.day === state.currentDay; });
-      var allDone = plan.steps.every(function(s){ return state.completedSteps[s.id] === true; });
-      if (allDone && state.daysCompleted.indexOf(state.currentDay) === -1) {
-        state.daysCompleted.push(state.currentDay);
-        Progress.completeDay(state.currentDay);
-        state.streak = Progress.get().progress.streak;
-        App.showToast('🎉 Ngày ' + state.currentDay + ' hoàn thành! Streak: ' + state.streak);
-      } else {
-        App.showToast('✅ Bước hoàn thành!');
+    // ===== BLOCK 1: WARM-UP =====
+    var s1 = getBlockState(0);
+    html += '<div class="block ' + s1 + '" id="block1">';
+    html += '<div class="block-header" onclick="toggleBlock(1)">';
+    html += '<div class="block-icon">' + (s1==='done'?'<i class="fa-solid fa-check"></i>':'1') + '</div>';
+    html += '<div class="block-info"><div class="block-title">Warm-up & Review</div><div class="block-time">15 phút — Ôn từ vựng cũ</div></div>';
+    html += '<span class="block-status">' + (s1==='done'?'✅':(s1==='locked'?'🔒':'▶️')) + '</span>';
+    html += '</div>';
+    html += '<div class="block-body">';
+    html += '<p style="font-size:13px;color:var(--text-secondary);margin-bottom:12px;">Mở Anki/Quizlet và ôn lại từ vựng đã học.</p>';
+    html += '<a href="https://apps.ankiweb.net/" target="_blank" class="btn btn-primary btn-sm" style="margin-bottom:12px;display:inline-block;text-decoration:none;padding:8px 16px;border-radius:6px;background:var(--primary);color:white;font-size:13px;font-weight:600;"><i class="fa-solid fa-external-link-alt"></i> Mở Anki</a>';
+    if (!b1Done) {
+      html += '<div style="margin-top:12px;padding:12px;background:var(--bg);border-radius:var(--radius-sm);display:flex;align-items:center;gap:10px;cursor:pointer;" onclick="completeBlock1()">';
+      html += '<input type="checkbox" id="cb1" style="width:18px;height:18px;accent-color:var(--success);">';
+      html += '<label style="font-size:13px;font-weight:500;cursor:pointer;">Đã ôn tập từ vựng cũ</label>';
+      html += '</div>';
+    } else {
+      html += '<div style="color:var(--success);font-size:13px;font-weight:500;margin-top:8px;"><i class="fa-solid fa-check-circle"></i> Hoàn thành!</div>';
+    }
+    html += '</div></div>';
+
+    // ===== BLOCK 2: DW CONTENT =====
+    var s2 = getBlockState(1);
+    html += '<div class="block ' + s2 + '" id="block2">';
+    html += '<div class="block-header" onclick="toggleBlock(2)">';
+    html += '<div class="block-icon">' + (s2==='done'?'<i class="fa-solid fa-check"></i>':'2') + '</div>';
+    html += '<div class="block-info"><div class="block-title">Học bài DW</div><div class="block-time">50 phút — Nicos Weg</div></div>';
+    html += '<span class="block-status">' + (s2==='done'?'✅':(s2==='locked'?'🔒':'▶️')) + '</span>';
+    html += '</div>';
+    html += '<div class="block-body">';
+    // Lesson info
+    html += '<div class="lesson-card">';
+    html += '<h3>' + lesson.title + '</h3>';
+    html += '<p><strong>Chủ đề:</strong> ' + lesson.topic + '</p>';
+    if (lesson.grammar) html += '<p><strong>Ngữ pháp:</strong> ' + lesson.grammar + '</p>';
+    html += '<a href="' + lesson.url + '" target="_blank" style="display:inline-block;margin-top:10px;padding:10px 20px;background:var(--primary);color:white;border-radius:6px;text-decoration:none;font-size:13px;font-weight:600;"><i class="fa-solid fa-play"></i> Học ngay trên DW</a>';
+    html += '</div>';
+    // Notes textarea
+    html += '<label style="font-size:12px;font-weight:600;color:var(--text-secondary);display:block;margin-bottom:4px;">📝 Nhập từ vựng & Ngữ pháp mới:</label>';
+    var savedNotes = (blocks.content && blocks.content.notes) || '';
+    html += '<textarea class="notes-area" id="notesArea" placeholder="Ví dụ: die Frau (-en), der Mann (¨-er), sprechen → ich spreche...">' + savedNotes + '</textarea>';
+    if (!b2Done) {
+      html += '<button class="btn btn-success btn-sm" onclick="completeBlock2()" style="padding:10px 20px;border:none;border-radius:6px;background:var(--success);color:white;font-size:13px;font-weight:600;cursor:pointer;"><i class="fa-solid fa-check"></i> Hoàn thành Block 2</button>';
+    } else {
+      html += '<div style="color:var(--success);font-size:13px;font-weight:500;margin-top:8px;"><i class="fa-solid fa-check-circle"></i> Hoàn thành!</div>';
+    }
+    html += '</div></div>';
+
+    // ===== BLOCK 3: SPEAKING =====
+    var s3 = getBlockState(2);
+    html += '<div class="block ' + s3 + '" id="block3">';
+    html += '<div class="block-header" onclick="toggleBlock(3)">';
+    html += '<div class="block-icon">' + (s3==='done'?'<i class="fa-solid fa-check"></i>':'3') + '</div>';
+    html += '<div class="block-info"><div class="block-title">Luyện nói & Shadowing</div><div class="block-time">40 phút — Ghi âm giọng nói</div></div>';
+    html += '<span class="block-status">' + (s3==='done'?'✅':(s3==='locked'?'🔒':'🎤')) + '</span>';
+    html += '</div>';
+    html += '<div class="block-body">';
+    html += '<p style="font-size:13px;color:var(--text-secondary);margin-bottom:12px;">Mở lại video DW, nghe và nhại theo (Shadowing). Sau đó ghi âm bản thân nói lại nội dung bài học.</p>';
+    html += '<div class="recorder">';
+    html += '<div class="rec-wave" id="recWave" style="display:none;"><span></span><span></span><span></span><span></span><span></span></div>';
+    html += '<div class="rec-time" id="recTime">00:00</div>';
+    html += '<div>';
+    html += '<button class="rec-btn start" id="recStart" onclick="Recorder.start()"><i class="fa-solid fa-microphone"></i> Bắt đầu ghi âm</button>';
+    html += '<button class="rec-btn stop" id="recStop" onclick="Recorder.stop()" disabled><i class="fa-solid fa-stop"></i> Dừng</button>';
+    html += '</div>';
+    html += '<audio class="rec-audio" id="recAudio" controls style="display:none;"></audio>';
+    html += '<div style="margin-top:12px;">';
+    if (!b3Done) {
+      html += '<button class="rec-btn save" id="recSave" onclick="saveRecording()" disabled><i class="fa-solid fa-cloud-arrow-up"></i> Lưu & Hoàn thành</button>';
+    } else {
+      html += '<div style="color:var(--success);font-size:13px;font-weight:500;"><i class="fa-solid fa-check-circle"></i> Đã ghi âm xong!</div>';
+      if (blocks.speaking && blocks.speaking.audioUrl && blocks.speaking.audioUrl !== 'local_download') {
+        html += '<audio controls src="' + blocks.speaking.audioUrl + '" style="width:100%;margin-top:8px;border-radius:8px;"></audio>';
       }
-      render();
-    };
+    }
+    html += '</div></div>';
+    html += '</div></div>';
 
-    window.undoStep = function(stepId) {
-      delete state.completedSteps[stepId];
-      Progress.uncompleteStep(stepId);
-      render();
-    };
+    // ===== BLOCK 4: WRAP-UP =====
+    var s4 = getBlockState(3);
+    html += '<div class="block ' + s4 + '" id="block4">';
+    html += '<div class="block-header" onclick="toggleBlock(4)">';
+    html += '<div class="block-icon">' + (s4==='done'?'<i class="fa-solid fa-check"></i>':'4') + '</div>';
+    html += '<div class="block-info"><div class="block-title">Đánh giá & Kết thúc</div><div class="block-time">15 phút — Tự đánh giá</div></div>';
+    html += '<span class="block-status">' + (s4==='done'?'✅':(s4==='locked'?'🔒':'📝')) + '</span>';
+    html += '</div>';
+    html += '<div class="block-body">';
+    html += '<label style="font-size:13px;font-weight:600;margin-bottom:8px;display:block;">Hôm nay bạn học thế nào?</label>';
+    var savedEval = (blocks.wrapup && blocks.wrapup.evaluation) || '';
+    html += '<div class="eval-btns">';
+    html += '<div class="eval-btn' + (savedEval==='good'?' selected':'') + '" onclick="selectEval(\'good\')"><span class="emoji">😊</span>Tốt</div>';
+    html += '<div class="eval-btn' + (savedEval==='ok'?' selected':'') + '" onclick="selectEval(\'ok\')"><span class="emoji">😐</span>Trung bình</div>';
+    html += '<div class="eval-btn' + (savedEval==='bad'?' selected':'') + '" onclick="selectEval(\'bad\')"><span class="emoji">😤</span>Cần cố gắng</div>';
+    html += '</div>';
+    var savedWrapNotes = (blocks.wrapup && blocks.wrapup.notes) || '';
+    html += '<textarea class="notes-area" id="wrapNotes" placeholder="Ghi chú lỗi phát âm, điểm cần cải thiện..." style="min-height:70px;">' + savedWrapNotes + '</textarea>';
+    if (!allDone) {
+      html += '<button class="complete-day-btn" id="completeDayBtn" onclick="completeDay()"' + (b4Done||!b3Done?' disabled':'') + '><i class="fa-solid fa-flag-checkered"></i> Hoàn thành ngày học</button>';
+    } else {
+      html += '<div style="text-align:center;padding:16px;color:var(--success);font-size:16px;font-weight:600;"><i class="fa-solid fa-circle-check"></i> Đã hoàn thành ngày hôm nay! 🎉</div>';
+    }
+    html += '</div></div>';
 
-    render();
+    document.getElementById('app-content').innerHTML = html;
+
+    // Init recorder elements
+    Recorder.init(
+      null,
+      document.getElementById('recTime'),
+      document.getElementById('recWave'),
+      document.getElementById('recAudio'),
+      document.getElementById('recStart'),
+      document.getElementById('recStop'),
+      null,
+      document.getElementById('recSave')
+    );
+
+    // Set timer for first active block
+    if (!b1Done) Timer.set(15, 'Block 1: Warm-up');
+    else if (!b2Done) Timer.set(50, 'Block 2: Học DW');
+    else if (!b3Done) Timer.set(40, 'Block 3: Luyện nói');
+    else if (!b4Done) Timer.set(15, 'Block 4: Wrap-up');
+    else Timer.set(0, '✅ Hoàn thành!');
+  }
+
+  // ============================================================
+  // BLOCK ACTIONS
+  // ============================================================
+  var selectedEval = '';
+
+  function getTodayKey() { return new Date().toISOString().slice(0, 10); }
+
+  function saveDailyLog(blockName, blockData) {
+    var data = Progress.get();
+    if (!data.dailyLogs) data.dailyLogs = {};
+    var today = getTodayKey();
+    if (!data.dailyLogs[today]) {
+      var allLessons = getAllLessons();
+      var idx = data.progress.currentLessonIndex || 0;
+      data.dailyLogs[today] = { lessonId: allLessons[idx].id, blocks: {} };
+    }
+    data.dailyLogs[today].blocks[blockName] = blockData;
+    Progress.save(data);
+    return data;
+  }
+
+  function completeBlock1() {
+    saveDailyLog('warmup', { completed: true, completedAt: new Date().toISOString() });
+    Timer.set(50, 'Block 2: Học DW');
+    App.showToast('✅ Block 1 hoàn thành!');
+    pageInit(); // re-render
+  }
+
+  function completeBlock2() {
+    var notes = document.getElementById('notesArea').value.trim();
+    saveDailyLog('content', { completed: true, notes: notes, completedAt: new Date().toISOString() });
+    Timer.set(40, 'Block 3: Luyện nói');
+    App.showToast('✅ Block 2 hoàn thành!');
+    pageInit();
+  }
+
+  function saveRecording() {
+    var uid = auth.currentUser ? auth.currentUser.uid : 'anon';
+    var today = getTodayKey();
+    var duration = Recorder.getDuration();
+    var btn = document.getElementById('recSave');
+    btn.disabled = true;
+    btn.textContent = 'Đang lưu...';
+
+    Recorder.upload(uid, today).then(function(url) {
+      saveDailyLog('speaking', { completed: true, audioUrl: url, duration: duration, completedAt: new Date().toISOString() });
+      Timer.set(15, 'Block 4: Wrap-up');
+      App.showToast('✅ Đã lưu ghi âm!');
+      pageInit();
+    }).catch(function(err) {
+      // Fallback: mark as done without URL
+      saveDailyLog('speaking', { completed: true, audioUrl: '', duration: duration, completedAt: new Date().toISOString() });
+      Timer.set(15, 'Block 4: Wrap-up');
+      App.showToast('✅ Block 3 hoàn thành (audio lưu local)');
+      pageInit();
+    });
+  }
+
+  function selectEval(val) {
+    selectedEval = val;
+    document.querySelectorAll('.eval-btn').forEach(function(el) { el.classList.remove('selected'); });
+    event.currentTarget.classList.add('selected');
+    // Enable complete button if block 3 is done
+    var btn = document.getElementById('completeDayBtn');
+    if (btn) btn.disabled = false;
+  }
+
+  function completeDay() {
+    var wrapNotes = document.getElementById('wrapNotes').value.trim();
+    var evalVal = selectedEval || 'ok';
+
+    // Save block 4
+    saveDailyLog('wrapup', { completed: true, evaluation: evalVal, notes: wrapNotes, completedAt: new Date().toISOString() });
+
+    // Mark day complete
+    var data = Progress.get();
+    var today = getTodayKey();
+    data.dailyLogs[today].completedAt = new Date().toISOString();
+
+    // Update streak
+    var yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+    var yStr = yesterday.toISOString().slice(0, 10);
+    if (data.progress.lastStudyDate === yStr || !data.progress.lastStudyDate) {
+      data.progress.streak = (data.progress.streak || 0) + 1;
+    } else if (data.progress.lastStudyDate !== today) {
+      data.progress.streak = 1;
+    }
+    data.progress.lastStudyDate = today;
+    if (data.progress.streak > (data.progress.longestStreak || 0)) {
+      data.progress.longestStreak = data.progress.streak;
+    }
+
+    // Advance to next lesson
+    data.progress.currentLessonIndex = (data.progress.currentLessonIndex || 0) + 1;
+    data.progress.daysStudied = (data.progress.daysStudied || 0) + 1;
+    data.progress.totalMinutes = (data.progress.totalMinutes || 0) + 120;
+
+    Progress.save(data);
+    Timer.set(0, '🎉 Hoàn thành!');
+    App.showToast('🎉 Chúc mừng! Ngày học hoàn thành!');
+    pageInit();
+  }
+
+  function toggleBlock(num) {
+    // Optional: scroll to block
+    var el = document.getElementById('block' + num);
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
   </script>
 </body>

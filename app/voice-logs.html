@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nhật ký nói - Deutsch B1</title>
+  <link rel="manifest" href="../manifest.json">
+  <meta name="theme-color" content="#1a73e8">
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    .vl-header { text-align: center; margin-bottom: 24px; }
+    .vl-header h2 { font-size: 22px; margin-bottom: 4px; }
+    .vl-header p { font-size: 13px; color: var(--text-muted); }
+    .vl-stats { display: flex; gap: 12px; margin-bottom: 24px; }
+    .vl-stat { flex: 1; text-align: center; padding: 14px; background: var(--surface); border: 1px solid var(--border-light); border-radius: var(--radius-md); }
+    .vl-stat .num { font-size: 22px; font-weight: 700; color: var(--primary); }
+    .vl-stat .lbl { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+    .vl-timeline { position: relative; padding-left: 24px; }
+    .vl-timeline::before { content: ''; position: absolute; left: 8px; top: 0; bottom: 0; width: 2px; background: var(--border-light); border-radius: 1px; }
+    .vl-entry { position: relative; margin-bottom: 16px; }
+    .vl-entry::before { content: ''; position: absolute; left: -20px; top: 18px; width: 12px; height: 12px; border-radius: 50%; background: var(--primary); border: 2px solid var(--surface); }
+    .vl-card { background: var(--surface); border: 1px solid var(--border-light); border-radius: var(--radius-md); padding: 14px 16px; }
+    .vl-card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+    .vl-card-date { font-size: 13px; font-weight: 600; color: var(--text); }
+    .vl-card-duration { font-size: 11px; color: var(--text-muted); background: var(--bg); padding: 2px 8px; border-radius: 10px; }
+    .vl-card audio { width: 100%; height: 40px; border-radius: 8px; }
+    .vl-card-eval { margin-top: 8px; font-size: 12px; color: var(--text-secondary); }
+    .vl-empty { text-align: center; padding: 60px 20px; color: var(--text-muted); }
+    .vl-empty i { font-size: 48px; margin-bottom: 16px; display: block; color: var(--border); }
+    .vl-month-label { font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin: 20px 0 10px; padding-left: 4px; }
+  </style>
+</head>
+<body>
+  <div id="navbar"></div>
+  <div class="container" id="app-content">
+    <div class="loading"><div class="spinner"></div> Đang tải...</div>
+  </div>
+  <div class="toast" id="toast"></div>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+  <script src="../js/firebase-config.js"></script>
+  <script src="../js/auth.js"></script>
+  <script src="../js/progress.js"></script>
+  <script src="../js/tts.js"></script>
+  <script src="../js/app.js"></script>
+  <script>
+  function pageInit() {
+    var data = Progress.get();
+    var dailyLogs = data.dailyLogs || {};
+    var recordings = [];
+
+    // Collect all audio entries
+    Object.keys(dailyLogs).forEach(function(date) {
+      var log = dailyLogs[date];
+      if (log && log.blocks && log.blocks.speaking && log.blocks.speaking.audioUrl) {
+        recordings.push({
+          date: date,
+          audioUrl: log.blocks.speaking.audioUrl,
+          duration: log.blocks.speaking.duration || 0,
+          evaluation: (log.blocks.wrapup && log.blocks.wrapup.evaluation) || ''
+        });
+      }
+    });
+    // Sort newest first
+    recordings.sort(function(a, b) { return b.date.localeCompare(a.date); });
+
+    function formatDuration(seconds) {
+      if (!seconds) return '--:--';
+      var m = Math.floor(seconds / 60);
+      var s = seconds % 60;
+      return m + ':' + (s < 10 ? '0' : '') + s;
+    }
+
+    function formatEval(ev) {
+      if (ev === 'good') return '😊 Tốt';
+      if (ev === 'average') return '😐 Trung bình';
+      if (ev === 'needs_work') return '💪 Cần cố gắng';
+      return '';
+    }
+
+    var html = '';
+    // Header
+    html += '<div class="vl-header">';
+    html += '<h2><i class="fa-solid fa-microphone"></i> Nhật ký giọng nói</h2>';
+    html += '<p>Nghe lại tiến bộ phát âm của bạn theo thời gian</p></div>';
+
+    // Stats
+    var totalDuration = 0;
+    recordings.forEach(function(r) { totalDuration += (r.duration || 0); });
+    html += '<div class="vl-stats">';
+    html += '<div class="vl-stat"><div class="num">' + recordings.length + '</div><div class="lbl">Bản ghi âm</div></div>';
+    html += '<div class="vl-stat"><div class="num">' + formatDuration(totalDuration) + '</div><div class="lbl">Tổng thời lượng</div></div>';
+    html += '</div>';
+
+    if (recordings.length === 0) {
+      html += '<div class="vl-empty">';
+      html += '<i class="fa-solid fa-microphone-slash"></i>';
+      html += '<p style="font-size:15px;font-weight:600;margin-bottom:8px;">Chưa có bản ghi âm nào</p>';
+      html += '<p style="font-size:13px;">Vào trang "Hôm nay" → Block 3 để ghi âm luyện nói mỗi ngày.</p>';
+      html += '<p style="font-size:12px;margin-top:12px;color:var(--primary);">💡 Tip: Nghe lại bản ghi 3 tháng trước để thấy sự tiến bộ!</p>';
+      html += '</div>';
+    } else {
+      // Timeline
+      html += '<div class="vl-timeline">';
+      var lastMonth = '';
+      for (var i = 0; i < recordings.length; i++) {
+        var rec = recordings[i];
+        var dateObj = new Date(rec.date + 'T00:00:00');
+        var monthLabel = dateObj.toLocaleDateString('vi-VN', { month: 'long', year: 'numeric' });
+        
+        // Month separator
+        if (monthLabel !== lastMonth) {
+          html += '<div class="vl-month-label">' + monthLabel + '</div>';
+          lastMonth = monthLabel;
+        }
+
+        var dateStr = dateObj.toLocaleDateString('vi-VN', { weekday: 'short', day: 'numeric', month: 'numeric' });
+        html += '<div class="vl-entry">';
+        html += '<div class="vl-card">';
+        html += '<div class="vl-card-header">';
+        html += '<span class="vl-card-date"><i class="fa-regular fa-calendar"></i> ' + dateStr + '</span>';
+        html += '<span class="vl-card-duration"><i class="fa-solid fa-clock"></i> ' + formatDuration(rec.duration) + '</span>';
+        html += '</div>';
+        html += '<audio controls preload="none" src="' + rec.audioUrl + '"></audio>';
+        if (rec.evaluation) {
+          html += '<div class="vl-card-eval">' + formatEval(rec.evaluation) + '</div>';
+        }
+        html += '</div></div>';
+      }
+      html += '</div>';
+    }
+
+    document.getElementById('app-content').innerHTML = html;
+  }
+  </script>
+</body>
+</html>

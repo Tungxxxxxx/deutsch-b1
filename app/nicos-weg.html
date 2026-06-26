@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nicos Weg - Deutsch B1</title>
+  <link rel="manifest" href="../manifest.json">
+  <meta name="theme-color" content="#1a73e8">
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    .nw-header { text-align: center; margin-bottom: 24px; }
+    .nw-header h2 { font-size: 22px; margin-bottom: 4px; }
+    .nw-header p { font-size: 13px; color: var(--text-muted); }
+    
+    .nw-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 24px; }
+    .nw-stat { background: var(--card-bg); border-radius: 10px; padding: 12px 8px; text-align: center; border: 1px solid var(--border-light); }
+    .nw-stat .number { font-size: 22px; font-weight: 700; }
+    .nw-stat .label { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+    
+    .nw-level-tabs { display: flex; gap: 8px; margin-bottom: 20px; position: sticky; top: 56px; z-index: 10; background: var(--bg); padding: 8px 0; }
+    .nw-tab { flex: 1; padding: 10px; border-radius: 8px; border: 2px solid var(--border-light); text-align: center; font-weight: 600; font-size: 14px; cursor: pointer; transition: all 0.2s; background: var(--card-bg); }
+    .nw-tab.active { border-color: var(--primary); color: var(--primary); background: rgba(26,115,232,0.08); }
+    .nw-tab:hover { border-color: var(--primary); }
+    
+    .nw-chapter { margin-bottom: 12px; border-radius: 10px; border: 1px solid var(--border-light); overflow: hidden; background: var(--card-bg); }
+    .nw-chapter-header { padding: 14px 16px; display: flex; align-items: center; gap: 12px; cursor: pointer; transition: background 0.2s; }
+    .nw-chapter-header:hover { background: var(--hover-bg); }
+    .nw-chapter-no { width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; color: white; flex-shrink: 0; }
+    .nw-chapter-info { flex: 1; min-width: 0; }
+    .nw-chapter-title { font-size: 14px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .nw-chapter-meta { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+    .nw-chapter-arrow { transition: transform 0.3s; color: var(--text-muted); }
+    .nw-chapter.open .nw-chapter-arrow { transform: rotate(180deg); }
+    .nw-chapter-progress { width: 36px; text-align: right; font-size: 11px; color: var(--text-muted); font-weight: 600; }
+    
+    .nw-lessons { display: none; border-top: 1px solid var(--border-light); }
+    .nw-chapter.open .nw-lessons { display: block; }
+    
+    .nw-lesson { padding: 10px 16px 10px 60px; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid var(--border-light); transition: background 0.2s; cursor: pointer; }
+    .nw-lesson:last-child { border-bottom: none; }
+    .nw-lesson:hover { background: var(--hover-bg); }
+    .nw-lesson-check { width: 20px; height: 20px; border-radius: 50%; border: 2px solid var(--border-light); display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.2s; font-size: 10px; color: transparent; }
+    .nw-lesson.done .nw-lesson-check { border-color: var(--success); background: var(--success); color: white; }
+    .nw-lesson-info { flex: 1; min-width: 0; }
+    .nw-lesson-title { font-size: 13px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .nw-lesson-topic { font-size: 11px; color: var(--text-muted); margin-top: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .nw-lesson-grammar { font-size: 10px; color: var(--primary); margin-top: 2px; font-style: italic; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .nw-lesson-link { color: var(--primary); font-size: 14px; opacity: 0.6; transition: opacity 0.2s; flex-shrink: 0; }
+    .nw-lesson-link:hover { opacity: 1; }
+    
+    .nw-level-progress { margin-bottom: 16px; }
+    .nw-level-progress .bar { height: 6px; border-radius: 3px; background: var(--border-light); overflow: hidden; }
+    .nw-level-progress .fill { height: 100%; border-radius: 3px; transition: width 0.3s; }
+    .nw-level-progress .info { display: flex; justify-content: space-between; font-size: 11px; color: var(--text-muted); margin-top: 4px; }
+
+    .nw-filter { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
+    .nw-filter-btn { padding: 5px 12px; border-radius: 16px; font-size: 11px; border: 1px solid var(--border-light); cursor: pointer; transition: all 0.2s; background: var(--card-bg); }
+    .nw-filter-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
+  </style>
+</head>
+<body>
+  <div id="navbar"></div>
+  <div class="container" id="app-content">
+    <div class="loading"><div class="spinner"></div> Đang tải...</div>
+  </div>
+  <div class="toast" id="toast"></div>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+  <script src="../js/firebase-config.js"></script>
+  <script src="../js/auth.js"></script>
+  <script src="../js/progress.js"></script>
+  <script src="../js/tts.js"></script>
+  <script src="../js/data/nicos-weg.js"></script>
+  <script src="../js/app.js"></script>
+  <script>
+  function pageInit() {
+    var data = Progress.get();
+    var completed = data.progress.nicosWeg || {};
+
+    function countDone() {
+      var level = NICOS_WEG_DATA.levels[0];
+      var count = 0;
+      for (var c = 0; c < level.chapters.length; c++) {
+        for (var l = 0; l < level.chapters[c].lessons.length; l++) {
+          var key = 'A1_' + level.chapters[c].lessons[l].id;
+          if (completed[key]) count++;
+        }
+      }
+      return count;
+    }
+
+    function render() {
+      var level = NICOS_WEG_DATA.levels[0];
+      var doneCount = countDone();
+
+      var html = '';
+      // Header
+      html += '<div class="nw-header">';
+      html += '<h2><i class="fa-solid fa-film"></i> Nicos Weg A1</h2>';
+      html += '<p>Khóa học DW Learn German — 77 bài (video + bài tập)</p></div>';
+
+      // ABC Banner
+      var abc = NICOS_WEG_DATA.abc;
+      html += '<a href="' + abc.url + '" target="_blank" class="card" style="display:flex;align-items:center;gap:12px;padding:14px 16px;margin-bottom:16px;border-left:4px solid ' + abc.color + ';text-decoration:none;color:inherit;">';
+      html += '<div style="width:40px;height:40px;border-radius:10px;background:' + abc.color + ';display:flex;align-items:center;justify-content:center;color:white;font-size:18px;font-weight:700;">Aa</div>';
+      html += '<div style="flex:1;"><div style="font-weight:600;font-size:14px;">🔤 Học bảng chữ cái (ABC)</div>';
+      html += '<div style="font-size:12px;color:var(--text-muted);margin-top:2px;">' + abc.description + '</div></div>';
+      html += '<i class="fa-solid fa-external-link-alt" style="color:var(--text-muted);"></i></a>';
+
+      // Progress bar
+      var lvPct = Math.round((doneCount / 77) * 100);
+      html += '<div class="nw-level-progress">';
+      html += '<div class="bar"><div class="fill" style="width:' + lvPct + '%;background:' + level.color + '"></div></div>';
+      html += '<div class="info"><span>' + doneCount + ' / 77 bài hoàn thành</span><span>' + lvPct + '%</span></div>';
+      html += '</div>';
+
+      // Chapters
+      for (var c = 0; c < level.chapters.length; c++) {
+        var ch = level.chapters[c];
+        var chDone = 0;
+        for (var l = 0; l < ch.lessons.length; l++) {
+          var key = 'A1_' + ch.lessons[l].id;
+          if (completed[key]) chDone++;
+        }
+        var chPct = Math.round((chDone / ch.lessons.length) * 100);
+        var chLabel = ch.no === 0 ? 'Intro' : ch.no;
+
+        html += '<div class="nw-chapter" id="ch-' + c + '">';
+        html += '<div class="nw-chapter-header" onclick="toggleChapter(' + c + ')">';
+        html += '<div class="nw-chapter-no" style="background:' + level.color + '">' + chLabel + '</div>';
+        html += '<div class="nw-chapter-info"><div class="nw-chapter-title">' + ch.title + '</div>';
+        html += '<div class="nw-chapter-meta">' + ch.lessons.length + ' bài' + (chDone > 0 ? ' · ' + chDone + ' ✓' : '') + '</div></div>';
+        html += '<div class="nw-chapter-progress">' + chPct + '%</div>';
+        html += '<i class="fa-solid fa-chevron-down nw-chapter-arrow"></i>';
+        html += '</div>';
+
+        html += '<div class="nw-lessons">';
+        for (var l = 0; l < ch.lessons.length; l++) {
+          var lesson = ch.lessons[l];
+          var lKey = 'A1_' + lesson.id;
+          var isDone = completed[lKey] ? ' done' : '';
+          html += '<div class="nw-lesson' + isDone + '" data-key="' + lKey + '">';
+          html += '<div class="nw-lesson-check" onclick="event.stopPropagation();toggleLesson(\'' + lKey + '\')"><i class="fa-solid fa-check"></i></div>';
+          html += '<div class="nw-lesson-info" onclick="openLesson(\'' + lesson.url + '\')">';
+          html += '<div class="nw-lesson-title">' + lesson.title + '</div>';
+          html += '<div class="nw-lesson-topic">' + lesson.topic + '</div>';
+          if (lesson.grammar) {
+            html += '<div class="nw-lesson-grammar">📐 ' + lesson.grammar + '</div>';
+          }
+          html += '</div>';
+          html += '<a href="' + lesson.url + '" target="_blank" class="nw-lesson-link" onclick="event.stopPropagation()"><i class="fa-solid fa-external-link-alt"></i></a>';
+          html += '</div>';
+        }
+        html += '</div></div>';
+      }
+
+      document.getElementById('app-content').innerHTML = html;
+    }
+
+    window.switchLevel = function() {
+      // Only A1 for now
+      render();
+    };
+
+    window.toggleChapter = function(idx) {
+      var el = document.getElementById('ch-' + idx);
+      if (el) el.classList.toggle('open');
+    };
+
+    window.toggleLesson = function(key) {
+      var data = Progress.get();
+      if (!data.progress.nicosWeg) data.progress.nicosWeg = {};
+      if (data.progress.nicosWeg[key]) {
+        delete data.progress.nicosWeg[key];
+      } else {
+        data.progress.nicosWeg[key] = Date.now();
+      }
+      Progress.save(data);
+      completed = data.progress.nicosWeg;
+      render();
+    };
+
+    window.openLesson = function(url) {
+      window.open(url, '_blank');
+    };
+
+    render();
+  }
+  </script>
+</body>
+</html>

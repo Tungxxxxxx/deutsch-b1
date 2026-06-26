@@ -30,10 +30,29 @@
     var currentCard = 0;
     var days = VOCAB_DATA.week1.days;
 
+    function getGenderClass(word) {
+      if (!word.gender) return '';
+      if (word.gender === 'm') return 'gender-maskulin';
+      if (word.gender === 'f') return 'gender-feminin';
+      if (word.gender === 'n') return 'gender-neutrum';
+      if (word.gender === 'pl') return 'gender-plural';
+      return '';
+    }
+
+    function getGenderLabel(word) {
+      if (!word.gender) return '';
+      if (word.gender === 'm') return 'der (Maskulin)';
+      if (word.gender === 'f') return 'die (Feminin)';
+      if (word.gender === 'n') return 'das (Neutrum)';
+      if (word.gender === 'pl') return 'die (Plural)';
+      return '';
+    }
+
     function render() {
       var day = days[currentDay];
       var word = day.words[currentCard];
       var total = day.words.length;
+      var genderClass = getGenderClass(word);
 
       var html = '';
       // Day tabs
@@ -44,19 +63,33 @@
       }
       html += '</div>';
 
+      // Gender Legend
+      html += '<div class="gender-legend">';
+      html += '<span style="font-weight:600;color:var(--text);margin-right:4px;">🎨 Giống:</span>';
+      html += '<div class="gender-legend-item"><span class="gender-dot mask"></span> der (Maskulin)</div>';
+      html += '<div class="gender-legend-item"><span class="gender-dot fem"></span> die (Feminin)</div>';
+      html += '<div class="gender-legend-item"><span class="gender-dot neut"></span> das (Neutrum)</div>';
+      html += '<div class="gender-legend-item"><span class="gender-dot plur"></span> die (Plural)</div>';
+      html += '</div>';
+
       html += '<div class="section-header"><h2 class="section-title"><i class="fa-solid fa-book"></i> ' + day.title + '</h2>';
       html += '<p class="section-desc">Thẻ ' + (currentCard + 1) + '/' + total + '</p></div>';
 
       // Progress bar
       html += '<div class="progress-bar" style="margin-bottom:20px;"><div class="progress-fill" style="width:' + ((currentCard + 1) / total * 100) + '%;"></div></div>';
 
-      // Flashcard
-      html += '<div class="card" style="text-align:center;padding:32px 20px;cursor:pointer;" onclick="flipCard()">';
+      // Flashcard with gender color
+      html += '<div class="card ' + genderClass + '" style="text-align:center;padding:32px 20px;cursor:pointer;" onclick="flipCard()">';
       html += '<div id="card-front">';
       html += '<div style="font-size:28px;font-weight:700;color:var(--primary);margin-bottom:8px;">' + word.de + '</div>';
       if (word.gender) {
-        var gColor = word.gender === 'm' ? '#1565c0' : (word.gender === 'f' ? '#c62828' : '#2e7d32');
-        html += '<span style="background:' + gColor + ';color:white;padding:2px 8px;border-radius:100px;font-size:11px;font-weight:600;">' + (word.gender === 'm' ? 'der' : (word.gender === 'f' ? 'die' : 'das')) + '</span> ';
+        var gColor = word.gender === 'm' ? '#1976d2' : (word.gender === 'f' ? '#e91e63' : (word.gender === 'n' ? '#4caf50' : '#ff8f00'));
+        var gLabel = word.gender === 'm' ? 'der' : (word.gender === 'f' ? 'die' : (word.gender === 'n' ? 'das' : 'die (Pl.)'));
+        html += '<span style="background:' + gColor + ';color:white;padding:2px 8px;border-radius:100px;font-size:11px;font-weight:600;">' + gLabel + '</span> ';
+      }
+      // Show plural form if available
+      if (word.plural) {
+        html += '<div style="font-size:13px;color:var(--text-secondary);margin-top:6px;">Plural: <strong>' + word.plural + '</strong></div>';
       }
       html += '<div style="font-size:14px;color:var(--text-muted);margin-top:8px;">Nhấn để lật thẻ</div>';
       html += '</div>';
@@ -69,6 +102,15 @@
       html += '<span style="font-size:13px;color:var(--primary-dark);font-weight:500;">🇻🇳 Đọc: ' + word.vn_read + '</span></div>';
       if (word.note) html += '<div style="font-size:12px;color:var(--warning);margin-bottom:8px;">' + word.note + '</div>';
       html += '<div style="font-size:13px;color:var(--text-muted);font-style:italic;">VD: ' + word.example + '</div>';
+      // Show chunks (collocations) on back of card
+      if (word.chunks && word.chunks.length > 0) {
+        html += '<div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border-light);">';
+        html += '<div style="font-size:11px;font-weight:600;color:var(--text-secondary);margin-bottom:6px;">🔗 Chunks (cụm từ):</div>';
+        for (var c = 0; c < word.chunks.length; c++) {
+          html += '<span style="display:inline-block;background:var(--warning-light);padding:3px 8px;border-radius:100px;font-size:12px;margin:2px 4px 2px 0;">' + word.chunks[c] + '</span>';
+        }
+        html += '</div>';
+      }
       html += '</div>';
 
       // TTS button
