@@ -442,9 +442,7 @@
     html += '<div style="margin-top:16px;">';
     html += '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">';
     html += '<label style="font-size:13px;font-weight:600;color:var(--text-secondary);">📝 Từ vựng mới</label>';
-    if (!b2Done) {
-      html += '<button class="btn btn-outline btn-sm" style="font-size:11px;padding:5px 12px;" onclick="openVocabModal()"><i class="fa-solid fa-plus"></i> Thêm từ</button>';
-    }
+    html += '<button class="btn btn-outline btn-sm" style="font-size:11px;padding:5px 12px;" onclick="openVocabModal()"><i class="fa-solid fa-plus"></i> Thêm từ</button>';
     html += '</div>';
     // Render existing vocab entries
     var todayVocab = (blocks.content && blocks.content.vocabulary) || [];
@@ -460,10 +458,8 @@
       html += '</div>';
       html += '<div class="v-actions">';
       html += '<button onclick="event.stopPropagation();TTS.speak(\'' + vItem.word.replace(/'/g, "\\'") + '\',0.8)" title="Nghe"><i class="fa-solid fa-volume-up"></i></button>';
-      if (!b2Done) {
-        html += '<button onclick="event.stopPropagation();editVocab(' + vi + ')" title="Sửa"><i class="fa-solid fa-pen"></i></button>';
-        html += '<button onclick="event.stopPropagation();deleteVocab(' + vi + ')" title="Xóa"><i class="fa-solid fa-trash"></i></button>';
-      }
+      html += '<button onclick="event.stopPropagation();editVocab(' + vi + ')" title="Sửa"><i class="fa-solid fa-pen"></i></button>';
+      html += '<button onclick="event.stopPropagation();deleteVocab(' + vi + ')" title="Xóa"><i class="fa-solid fa-trash"></i></button>';
       html += '</div></div>';
     }
     html += '</div>';
@@ -771,7 +767,12 @@
     var data = Progress.get();
     var today = getTodayKey();
     if (data.dailyLogs && data.dailyLogs[today] && data.dailyLogs[today].blocks) {
-      delete data.dailyLogs[today].blocks[blockName];
+      var block = data.dailyLogs[today].blocks[blockName];
+      if (block) {
+        // Only reset completion status, KEEP data (vocabulary, notes, audioUrl)
+        block.completed = false;
+        delete block.completedAt;
+      }
       // If undoing any block, also undo "completed day"
       delete data.dailyLogs[today].completedAt;
       Progress.save(data);
